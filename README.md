@@ -1,8 +1,24 @@
 # StreetMesh Server
 
-Reference implementation of a **StreetMesh Server** — the Laravel host that StreetMesh Browsers connect to in order to render Places, voice NPCs, run Scenes, and bridge into the StreetMesh Protocol.
+**Where to start if you want to run a StreetMesh server** — a domicile, a venue,
+or one server that is both.
 
-This repository is intentionally thin. The server itself is close to a stock Laravel install; **all StreetMesh capability is delivered as Laravel packages mounted as git submodules** under [`packages/`](packages/). That keeps each capability portable into other Laravel hosts and gives every package its own history, issues, and release cadence.
+This is the starting point, not a worked example. It is close to a stock Laravel
+install and stays that way: **all StreetMesh capability arrives as Laravel
+packages mounted under [`packages/`](packages/)**, so that each capability stays
+portable into any other Laravel host and keeps its own history, issues and
+release cadence. What is left here is the glue that cannot live in a package,
+and it should stay small enough to read in one sitting.
+
+For servers you can look at rather than build from, see
+[`Home`](https://github.com/StreetMesh/Home) — what a dedicated domicile can
+look like — and [`Games`](https://github.com/StreetMesh/Games), the same for a
+venue. Both are this repository with capabilities installed and configured, and
+both actually run.
+
+A domicile and a venue are separate applications in separate checkouts, as
+anybody operating them would have it. A server that is both is a matter of
+configuration, not of sharing a directory.
 
 For the bigger picture — the values, the vocabulary, and how this fits into Avatars / Protocol / MeshObject / StreetTiles / Hub / Browser — see **The Dream** at <https://github.com/StreetMesh>.
 
