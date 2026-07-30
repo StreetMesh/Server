@@ -1,3 +1,0 @@
-[submodule "packages/story-engine"]
-	path = packages/story-engine
-	url = git@github.com:StreetMesh/StoryEngine.git

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5001ba74b0aca968763c71425a3f8a26",
+    "content-hash": "86b8be8adf944ae516a848395c8991a1",
     "packages": [
         {
             "name": "brick/math",
@@ -3299,66 +3299,6 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.2"
             },
             "time": "2025-12-14T04:43:48+00:00"
-        },
-        {
-            "name": "streetmesh/story-engine",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "packages/story-engine",
-                "reference": "f8b3398c04a8f1baa668a22c146ed0111dcc963c"
-            },
-            "require": {
-                "illuminate/contracts": "^13.0",
-                "illuminate/support": "^13.0",
-                "php": "^8.3"
-            },
-            "require-dev": {
-                "orchestra/testbench": "^11.0",
-                "phpunit/phpunit": "^12.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "StreetMesh\\StoryEngine\\StoryEngineServiceProvider"
-                    ],
-                    "aliases": {
-                        "Story": "StreetMesh\\StoryEngine\\Facades\\Story"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "StreetMesh\\StoryEngine\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "StreetMesh\\StoryEngine\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "StreetMesh",
-                    "email": "hello@streetmesh.com"
-                }
-            ],
-            "description": "StoryEngine: a three-agent ensemble (Director, Choreographer, Chronicler) that animates StreetMesh Places with game, training, and concierge modes.",
-            "keywords": [
-                "ai",
-                "laravel",
-                "metaverse",
-                "narrative",
-                "story",
-                "streetmesh"
-            ],
-            "transport-options": {
-                "relative": true
-            }
         },
         {
             "name": "symfony/clock",
@@ -8429,9 +8369,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "streetmesh/story-engine": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

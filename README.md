@@ -16,9 +16,11 @@ For the bigger picture — the values, the vocabulary, and how this fits into Av
 
 | Path | Repo | Status |
 | --- | --- | --- |
-| [`packages/story-engine`](packages/story-engine) | [`StreetMesh/StoryEngine`](https://github.com/StreetMesh/StoryEngine) | Skeleton scaffolded — Milestone 1 (Skateboard) in progress |
+| — | — | None mounted yet |
 
 Each package is a git submodule **and** a Composer package consumed via a `path` repository declared in the host [`composer.json`](composer.json), so edits inside `packages/<name>/` are picked up immediately without re-installing.
+
+[`StreetMesh/StoryEngine`](https://github.com/StreetMesh/StoryEngine) was mounted here and has been unmounted for now. It comes back when there is a resident AI to talk about; until then this server is about the protocol underneath one. Its own repository is unaffected, and `git log -- packages/story-engine` has the wiring if it is wanted again.
 
 ## Getting started
 
@@ -43,12 +45,12 @@ git submodule update --init --recursive
 Submodules track their own `main`. To work on a package:
 
 ```bash
-cd packages/story-engine
+cd packages/<name>
 git checkout main
 # ...edit, commit, push to StreetMesh/<Package>...
 cd ../..
-git add packages/story-engine
-git commit -m "Bump story-engine to <sha>"
+git add packages/<name>
+git commit -m "Bump <name> to <sha>"
 ```
 
 ## Adding a new package submodule
