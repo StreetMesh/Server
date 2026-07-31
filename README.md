@@ -78,6 +78,31 @@ Capability arrives as Composer packages rather than as code here.
 | Package | Repo | Provides |
 | --- | --- | --- |
 | `streetmesh/protocol-laravel` | [`Protocol-Laravel`](https://github.com/StreetMesh/Protocol-Laravel) | Identity, records, attestations, commits |
+| `streetmesh/laravel-domicile` | [`Laravel-Domicile`](https://github.com/StreetMesh/Laravel-Domicile) | The resident-facing half |
+| `streetmesh/laravel-venue` | [`Laravel-Venue`](https://github.com/StreetMesh/Laravel-Venue) | The visitor-facing half |
+
+### Running both halves at once
+
+A server may be a domicile, a venue, or both — they are capabilities rather than
+kinds of server. Installing both works, and the one rule that makes it work is
+that **no package claims the front page**.
+
+Two routes sharing a method and path do not collide loudly in Laravel: the later
+one silently replaces the earlier, and nothing says so. A package taking `/`
+would therefore win or lose on boot order, and nobody would have decided it. So
+capabilities mount under their own names and the root belongs here, in
+[`routes/web.php`](routes/web.php), where the application decides:
+
+```dotenv
+STREETMESH_HOME=domicile         # where the front door leads
+STREETMESH_MOUNT_DOMICILE=domicile
+STREETMESH_MOUNT_VENUE=venue
+```
+
+Each half then renders navigation collected from whatever is installed, so a
+venue appearing beside a domicile shows up in its menu without either package
+knowing the other exists. The DID document is built from the same list, so what
+a server tells strangers and what it shows people cannot drift apart.
 
 Each package is a git submodule **and** a Composer package consumed via a `path` repository declared in the host [`composer.json`](composer.json), so edits inside `packages/<name>/` are picked up immediately without re-installing.
 

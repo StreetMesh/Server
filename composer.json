@@ -9,6 +9,8 @@
         "php": "^8.3",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
+        "streetmesh/laravel-domicile": "@dev",
+        "streetmesh/laravel-venue": "@dev",
         "streetmesh/protocol-laravel": "@dev"
     },
     "require-dev": {
@@ -85,6 +87,14 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "repositories": [{
+        "name": "laravel-venue",
+        "type": "vcs",
+        "url": "https://github.com/StreetMesh/Laravel-Venue.git"
+    },{
+        "name": "laravel-domicile",
+        "type": "vcs",
+        "url": "https://github.com/StreetMesh/Laravel-Domicile.git"
+    },{
         "name": "protocol",
         "type": "vcs",
         "url": "https://github.com/StreetMesh/Protocol-PHP.git"

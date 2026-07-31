@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1bc32cb9486cbe9f4ca5ced1c92a7b1d",
+    "content-hash": "af4f9a6230281d994cba3dbf333fb98d",
     "packages": [
         {
             "name": "brick/math",
@@ -3301,6 +3301,140 @@
             "time": "2025-12-14T04:43:48+00:00"
         },
         {
+            "name": "streetmesh/laravel-domicile",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/StreetMesh/Laravel-Domicile.git",
+                "reference": "f583f17a65f290699f8572498bd84cc56b2ca764"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/StreetMesh/Laravel-Domicile/zipball/f583f17a65f290699f8572498bd84cc56b2ca764",
+                "reference": "f583f17a65f290699f8572498bd84cc56b2ca764",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^12.0|^13.0",
+                "php": "^8.3",
+                "streetmesh/protocol-laravel": "@dev"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "laravel/pint": "^1.18",
+                "orchestra/testbench": "^10.0|^11.0",
+                "phpunit/phpunit": "^11.4"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "StreetMesh\\Domicile\\DomicileServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "StreetMesh\\Domicile\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "StreetMesh\\Domicile\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "lint:check": [
+                    "pint --test"
+                ],
+                "types:check": [
+                    "phpstan analyse"
+                ],
+                "test": [
+                    "@lint:check",
+                    "@types:check",
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "The resident-facing half of a StreetMesh server.",
+            "support": {
+                "source": "https://github.com/StreetMesh/Laravel-Domicile/tree/main",
+                "issues": "https://github.com/StreetMesh/Laravel-Domicile/issues"
+            },
+            "time": "2026-07-31T15:21:04+00:00"
+        },
+        {
+            "name": "streetmesh/laravel-venue",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/StreetMesh/Laravel-Venue.git",
+                "reference": "e4f561754d05c89ecb66178a573c0ddd70aadc23"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/StreetMesh/Laravel-Venue/zipball/e4f561754d05c89ecb66178a573c0ddd70aadc23",
+                "reference": "e4f561754d05c89ecb66178a573c0ddd70aadc23",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^12.0|^13.0",
+                "php": "^8.3",
+                "streetmesh/protocol-laravel": "@dev"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "laravel/pint": "^1.18",
+                "orchestra/testbench": "^10.0|^11.0",
+                "phpunit/phpunit": "^11.4"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "StreetMesh\\Venue\\VenueServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "StreetMesh\\Venue\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "StreetMesh\\Venue\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "lint:check": [
+                    "pint --test"
+                ],
+                "types:check": [
+                    "phpstan analyse"
+                ],
+                "test": [
+                    "@lint:check",
+                    "@types:check",
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "The visitor-facing half of a StreetMesh server.",
+            "support": {
+                "source": "https://github.com/StreetMesh/Laravel-Venue/tree/main",
+                "issues": "https://github.com/StreetMesh/Laravel-Venue/issues"
+            },
+            "time": "2026-07-31T15:21:05+00:00"
+        },
+        {
             "name": "streetmesh/protocol",
             "version": "dev-main",
             "source": {
@@ -3376,12 +3510,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/StreetMesh/Protocol-Laravel.git",
-                "reference": "74e6a27dc47f1e1af63391a8aaa85aa6bf7280c4"
+                "reference": "ae061442a21a9be7121bf6416cce0cc75216753f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/StreetMesh/Protocol-Laravel/zipball/74e6a27dc47f1e1af63391a8aaa85aa6bf7280c4",
-                "reference": "74e6a27dc47f1e1af63391a8aaa85aa6bf7280c4",
+                "url": "https://api.github.com/repos/StreetMesh/Protocol-Laravel/zipball/ae061442a21a9be7121bf6416cce0cc75216753f",
+                "reference": "ae061442a21a9be7121bf6416cce0cc75216753f",
                 "shasum": ""
             },
             "require": {
@@ -3450,7 +3584,7 @@
                 "source": "https://github.com/StreetMesh/Protocol-Laravel/tree/main",
                 "issues": "https://github.com/StreetMesh/Protocol-Laravel/issues"
             },
-            "time": "2026-07-31T15:14:02+00:00"
+            "time": "2026-07-31T15:25:38+00:00"
         },
         {
             "name": "symfony/clock",
@@ -8522,6 +8656,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "streetmesh/laravel-domicile": 20,
+        "streetmesh/laravel-venue": 20,
         "streetmesh/protocol-laravel": 20
     },
     "prefer-stable": true,
