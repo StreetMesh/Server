@@ -28,11 +28,56 @@ For the bigger picture — the values, the vocabulary, and how this fits into Av
 - Laravel `^13.0` (Framework 13.7.x)
 - SQLite by default (swap via `.env`)
 
+## Getting a server running
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate          # required — identity keys are encrypted at rest
+php artisan migrate
+```
+
+Then tell it the name strangers will reach it by. Under `did:web` this decides
+the server's own identifier, so it has to be the real one rather than a local
+alias:
+
+```dotenv
+STREETMESH_HOST=your.domain
+STREETMESH_VENUE=false           # true if this server hosts experiences
+```
+
+And check that it worked from outside:
+
+```bash
+php artisan streetmesh:check
+```
+
+```
+  identity did:web:server.test
+  handle   server.test
+  key      zDnaeeCAJ234321mT1dRMkgq3FpMTmbNVLEMmAZMtCYgpEhXU (p256)
+
+  ✓ the name resolves to this identity        did:web:server.test
+  ✓ the document is reachable and claims the name  both directions agree
+  ✓ a stranger finds the key we signed with   zDnaeeCAJ234321mT1dR…
+  ✓ and can verify what we signed             checked against what it published
+
+  A stranger can verify what this server signs.
+```
+
+That check signs something and then goes over the network as an ordinary client
+to verify it, so what it exercises is the deployment — DNS, TLS, routing, and
+whether the configured host is the one strangers can actually reach. Everything
+else can be green while this fails, and the first sign would otherwise be another
+server rejecting a record.
+
 ## Packages
 
-| Path | Repo | Status |
+Capability arrives as Composer packages rather than as code here.
+
+| Package | Repo | Provides |
 | --- | --- | --- |
-| — | — | None mounted yet |
+| `streetmesh/protocol-laravel` | [`Protocol-Laravel`](https://github.com/StreetMesh/Protocol-Laravel) | Identity, records, attestations, commits |
 
 Each package is a git submodule **and** a Composer package consumed via a `path` repository declared in the host [`composer.json`](composer.json), so edits inside `packages/<name>/` are picked up immediately without re-installing.
 
