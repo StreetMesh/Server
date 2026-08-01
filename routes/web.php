@@ -14,20 +14,22 @@ use StreetMesh\Protocol\Laravel\Identity\Identities;
  * capabilities are installed, so neither can belong to a package.
  */
 
+// The front page: what anybody sees, signed in or not.
 Route::get('/', function (Capabilities $capabilities, Identities $identities) {
-    return view('streetmesh.front', [
+    return view('welcome', [
         'identity' => $identities->forServer(),
         'front' => $capabilities->frontPage(config('streetmesh.front_page')),
     ]);
-})->name('front');
-
-Route::get('/home', function (Capabilities $capabilities, Identities $identities) {
-    return view('streetmesh.home', [
-        'identity' => $identities->forServer(),
-        'navigation' => $capabilities->navigation(),
-
-        // Whatever the operator arranged, or everything on offer if they have
-        // not said. A server is something somebody runs rather than receives.
-        'widgets' => $capabilities->widgets(config('streetmesh.home_page')),
-    ]);
 })->name('home');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // The home page: what somebody signed in sees. Keeps the starter kit's
+    // route name so its own links and redirects continue to work.
+    Route::get('dashboard', function (Capabilities $capabilities) {
+        return view('dashboard', [
+            'widgets' => $capabilities->widgets(config('streetmesh.home_page')),
+        ]);
+    })->name('dashboard');
+});
+
+require __DIR__.'/settings.php';
