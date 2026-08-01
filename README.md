@@ -81,32 +81,38 @@ Capability arrives as Composer packages rather than as code here.
 | `streetmesh/laravel-domicile` | [`Laravel-Domicile`](https://github.com/StreetMesh/Laravel-Domicile) | The resident-facing half |
 | `streetmesh/laravel-venue` | [`Laravel-Venue`](https://github.com/StreetMesh/Laravel-Venue) | The visitor-facing half |
 
-### Running both halves at once
+### Two surfaces, and everything else
 
-A server may be a domicile, a venue, or both — they are capabilities rather than
-kinds of server. Installing both works, and the one rule that makes it work is
-that **no package claims the front page**.
+A server may be a domicile, a venue, or both — capabilities rather than kinds of
+server. Almost nothing overlaps when both are installed: a directory of
+residents, a menu of experiences, a browser for somebody's own records are
+screens with names nothing else wants.
 
-Two routes sharing a method and path do not collide loudly in Laravel: the later
-one silently replaces the earlier, and nothing says so. A package taking `/`
-would therefore win or lose on boot order, and nobody would have decided it. So
-capabilities mount under their own names and the root belongs here, in
-[`routes/web.php`](routes/web.php), where the application decides:
+Two surfaces are different, because a server has one of each however many
+capabilities it offers.
+
+**The front page** is what anybody sees at the root, signed in or not. One root,
+so a server offering more than one capability says which greets people:
 
 ```dotenv
-STREETMESH_HOME=domicile         # where the front door leads
-STREETMESH_MOUNT_DOMICILE=domicile
-STREETMESH_MOUNT_VENUE=venue
+STREETMESH_FRONT_PAGE=domicile
 ```
 
-Each half then renders navigation collected from whatever is installed, so a
-venue appearing beside a domicile shows up in its menu without either package
-knowing the other exists. The DID document is built from the same list, so what
-a server tells strangers and what it shows people cannot drift apart.
+**The home page** is what somebody signed in sees. It is a collection of panels
+offered by whatever is installed, arranged by whoever runs the server:
 
-Each package is a git submodule **and** a Composer package consumed via a `path` repository declared in the host [`composer.json`](composer.json), so edits inside `packages/<name>/` are picked up immediately without re-installing.
+```php
+'home_page' => ['domicile.records', 'venue.experiences'],   // or null for everything
+```
 
-[`StreetMesh/StoryEngine`](https://github.com/StreetMesh/StoryEngine) was mounted here and has been unmounted for now. It comes back when there is a resident AI to talk about; until then this server is about the protocol underneath one. Its own repository is unaffected, and `git log -- packages/story-engine` has the wiring if it is wanted again.
+A name nothing provides is skipped rather than fatal, so removing a package does
+not break a page.
+
+Both live in [`routes/web.php`](routes/web.php) and
+[`resources/views/streetmesh`](resources/views/streetmesh), because they belong
+to the application rather than to any package. Two routes sharing a path do not
+collide loudly in Laravel — the later silently replaces the earlier — so a
+package claiming the root would win or lose on boot order with nobody deciding.
 
 ## Getting started
 
