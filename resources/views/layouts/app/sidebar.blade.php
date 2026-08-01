@@ -46,7 +46,22 @@
                 </flux:sidebar.item>
             </flux:sidebar.nav>
 
-            <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
+            {{--
+                Guarded, because this chrome is not only for people with an
+                account here. A venue's screens are public by design — a visitor
+                arrives holding a name issued somewhere else, and may be holding
+                nothing at all — so a layout that reaches for `auth()->user()`
+                unguarded is a layout that only a domicile can use.
+            --}}
+            @auth
+                <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
+            @else
+                <flux:sidebar.nav class="hidden lg:block">
+                    <flux:sidebar.item icon="arrow-right-end-on-rectangle" :href="route('login')" wire:navigate>
+                        {{ __('Log in') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.nav>
+            @endauth
         </flux:sidebar>
 
         <!-- Mobile User Menu -->
@@ -55,6 +70,13 @@
 
             <flux:spacer />
 
+            @guest
+                <flux:button :href="route('login')" size="sm" variant="ghost" wire:navigate>
+                    {{ __('Log in') }}
+                </flux:button>
+            @endguest
+
+            @auth
             <flux:dropdown position="top" align="end">
                 <flux:profile
                     :initials="auth()->user()->initials()"
@@ -102,6 +124,7 @@
                     </form>
                 </flux:menu>
             </flux:dropdown>
+            @endauth
         </flux:header>
 
         {{ $slot }}

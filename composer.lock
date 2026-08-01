@@ -4373,12 +4373,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/StreetMesh/Laravel-Domicile.git",
-                "reference": "fe84b0914dab9fdbe3e08e6ffe770026063d824c"
+                "reference": "e609fab86a150214e7fbce82501f716500c91a09"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/StreetMesh/Laravel-Domicile/zipball/fe84b0914dab9fdbe3e08e6ffe770026063d824c",
-                "reference": "fe84b0914dab9fdbe3e08e6ffe770026063d824c",
+                "url": "https://api.github.com/repos/StreetMesh/Laravel-Domicile/zipball/e609fab86a150214e7fbce82501f716500c91a09",
+                "reference": "e609fab86a150214e7fbce82501f716500c91a09",
                 "shasum": ""
             },
             "require": {
@@ -4434,7 +4434,7 @@
                 "source": "https://github.com/StreetMesh/Laravel-Domicile/tree/main",
                 "issues": "https://github.com/StreetMesh/Laravel-Domicile/issues"
             },
-            "time": "2026-08-01T16:30:31+00:00"
+            "time": "2026-08-01T22:10:07+00:00"
         },
         {
             "name": "streetmesh/laravel-venue",
@@ -4442,12 +4442,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/StreetMesh/Laravel-Venue.git",
-                "reference": "76836fef19f72dcbdcbea8691d593da2db389f77"
+                "reference": "60febf426c944fb830495e7b59db1c026b3887a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/StreetMesh/Laravel-Venue/zipball/76836fef19f72dcbdcbea8691d593da2db389f77",
-                "reference": "76836fef19f72dcbdcbea8691d593da2db389f77",
+                "url": "https://api.github.com/repos/StreetMesh/Laravel-Venue/zipball/60febf426c944fb830495e7b59db1c026b3887a5",
+                "reference": "60febf426c944fb830495e7b59db1c026b3887a5",
                 "shasum": ""
             },
             "require": {
@@ -4503,7 +4503,7 @@
                 "source": "https://github.com/StreetMesh/Laravel-Venue/tree/main",
                 "issues": "https://github.com/StreetMesh/Laravel-Venue/issues"
             },
-            "time": "2026-08-01T16:30:32+00:00"
+            "time": "2026-08-01T22:09:55+00:00"
         },
         {
             "name": "streetmesh/protocol",
