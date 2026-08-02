@@ -30,11 +30,31 @@ For the bigger picture — the values, the vocabulary, and how this fits into Av
 
 ## Getting a server running
 
+The packages are git submodules, so they have to be there before Composer can
+resolve anything:
+
 ```bash
+git clone --recurse-submodules git@github.com:StreetMesh/Server.git
+cd Server
+composer setup
+```
+
+`composer setup` inits the submodules first and then does the rest. If you
+already cloned without `--recurse-submodules`, this is the missing step:
+
+```bash
+git submodule update --init --recursive
+```
+
+Or the long way, which is what `setup` runs:
+
+```bash
+git submodule update --init --recursive
 composer install
 cp .env.example .env
 php artisan key:generate          # required — identity keys are encrypted at rest
 php artisan migrate
+npm install && npm run build
 ```
 
 Then tell it the name strangers will reach it by. Under `did:web` this decides
@@ -114,27 +134,34 @@ to the application rather than to any package. Two routes sharing a path do not
 collide loudly in Laravel — the later silently replaces the earlier — so a
 package claiming the root would win or lose on boot order with nobody deciding.
 
-## Getting started
+## How the packages are wired in
 
-```bash
-git clone --recurse-submodules git@github.com:StreetMesh/Server.git
-cd Server
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan serve
+Two mechanisms stacked, and it is worth knowing they are two.
+
+**The source is a git submodule, not a Composer download.** Each package under
+`packages/` is a submodule of its own repository — see [`.gitmodules`](.gitmodules).
+
+**Composer mounts them as a path repository**, one glob covering all of them:
+
+```json
+"repositories": [{ "type": "path", "url": "packages/*" }]
 ```
 
-If you cloned without `--recurse-submodules`:
+So `vendor/streetmesh/*` are symlinks into `packages/*`, and the version
+constraints in `require` are `"*"` — no constraint is doing any work, because
+the submodule pointer is what decides the version.
 
-```bash
-git submodule update --init --recursive
-```
+What follows from that:
 
-## Working on a package
-
-Submodules track their own `main`. To work on a package:
+- A fresh clone or worktree needs `git submodule update --init --recursive`
+  before `composer install` will resolve. `git worktree remove` needs `--force`.
+- **A deploy has to init the submodules before installing**, or the packages are
+  simply missing. On Laravel Cloud, the build command must start with
+  `git submodule update --init --recursive`.
+- Editing a package is live immediately — no `composer update`, because the
+  symlink is the working copy. That is the point of the arrangement.
+- Shipping a package change is two commits: one in the package repository, then
+  one here moving the submodule pointer.
 
 ```bash
 cd packages/<name>
@@ -145,15 +172,36 @@ git add packages/<name>
 git commit -m "Bump <name> to <sha>"
 ```
 
-## Adding a new package submodule
+Forget the second commit and you get the half-shipped symptom: it works on your
+machine and the deploy is still on the old pointer.
 
-```bash
-git submodule add git@github.com:StreetMesh/<Package>.git packages/<package-slug>
-composer config repositories.<package-slug> path packages/<package-slug>
-composer require streetmesh/<package-slug>:@dev
+### Styles are the exception to "live immediately"
+
+Tailwind scans for class names at build time and will not look inside a package
+on its own, so [`resources/css/app.css`](resources/css/app.css) names them:
+
+```css
+@source '../../packages/*/resources/views/**/*.blade.php';
 ```
 
-The package's `composer.json` should declare its service provider under `extra.laravel.providers` so Laravel's package discovery wires it up automatically.
+Named at `packages/` rather than at `vendor/`, because `vendor/streetmesh/*` are
+symlinks and a scanner that declines to follow one would silently find nothing.
+
+A package change that introduces a class the build has never seen needs
+`npm run build` before it looks right. The PHP side of the change is live and the
+styling is not — an unstyled element rather than an error.
+
+### Adding a new package
+
+```bash
+git submodule add https://github.com/StreetMesh/<Package>.git packages/<slug>
+composer require streetmesh/<slug>:*
+```
+
+No `composer config repositories...` step — the `packages/*` glob already covers
+it. The package's `composer.json` should declare its service provider under
+`extra.laravel.providers` so Laravel's package discovery wires it up
+automatically.
 
 ## License
 

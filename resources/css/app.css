@@ -6,8 +6,12 @@
  * Tailwind scans for classes and will not look inside vendor/ on its own, so a
  * package's markup has to be named here or every class it uses is stripped from
  * the build — a failure that shows up as an unstyled page rather than an error.
+ *
+ * Named at packages/ rather than at vendor/, because vendor/streetmesh/* are now
+ * Composer symlinks into the submodules and a scanner that declines to follow
+ * one would silently find nothing. This is the real path either way.
  */
-@source '../../vendor/streetmesh/*/resources/views/**/*.blade.php';
+@source '../../packages/*/resources/views/**/*.blade.php';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';

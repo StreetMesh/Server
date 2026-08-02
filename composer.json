@@ -17,9 +17,9 @@
         "livewire/blaze": "^1.0",
         "livewire/flux": "^2.13.1",
         "livewire/livewire": "^4.1",
-        "streetmesh/laravel-domicile": "@dev",
-        "streetmesh/laravel-venue": "@dev",
-        "streetmesh/protocol-laravel": "@dev"
+        "streetmesh/laravel-domicile": "*",
+        "streetmesh/laravel-venue": "*",
+        "streetmesh/protocol-laravel": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
@@ -46,6 +46,7 @@
     },
     "scripts": {
         "setup": [
+            "git submodule update --init --recursive",
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate",
@@ -116,24 +117,8 @@
     "prefer-stable": true,
     "repositories": [
         {
-            "name": "laravel-venue",
-            "type": "vcs",
-            "url": "https://github.com/StreetMesh/Laravel-Venue.git"
-        },
-        {
-            "name": "laravel-domicile",
-            "type": "vcs",
-            "url": "https://github.com/StreetMesh/Laravel-Domicile.git"
-        },
-        {
-            "name": "protocol",
-            "type": "vcs",
-            "url": "https://github.com/StreetMesh/Protocol-PHP.git"
-        },
-        {
-            "name": "protocol-laravel",
-            "type": "vcs",
-            "url": "https://github.com/StreetMesh/Protocol-Laravel.git"
+            "type": "path",
+            "url": "packages/*"
         }
     ]
 }

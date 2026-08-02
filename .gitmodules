@@ -1,0 +1,12 @@
+[submodule "packages/protocol"]
+	path = packages/protocol
+	url = https://github.com/StreetMesh/Protocol-PHP.git
+[submodule "packages/protocol-laravel"]
+	path = packages/protocol-laravel
+	url = https://github.com/StreetMesh/Protocol-Laravel.git
+[submodule "packages/laravel-domicile"]
+	path = packages/laravel-domicile
+	url = https://github.com/StreetMesh/Laravel-Domicile.git
+[submodule "packages/laravel-venue"]
+	path = packages/laravel-venue
+	url = https://github.com/StreetMesh/Laravel-Venue.git
