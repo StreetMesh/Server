@@ -30,8 +30,8 @@ For the bigger picture — the values, the vocabulary, and how this fits into Av
 
 ## Getting a server running
 
-The packages are git submodules, so they have to be there before Composer can
-resolve anything:
+The packages are git submodules, and Composer will not tell you if they are
+missing — so clone recursively:
 
 ```bash
 git clone --recurse-submodules git@github.com:StreetMesh/Server.git
@@ -153,11 +153,16 @@ the submodule pointer is what decides the version.
 
 What follows from that:
 
-- A fresh clone or worktree needs `git submodule update --init --recursive`
-  before `composer install` will resolve. `git worktree remove` needs `--force`.
-- **A deploy has to init the submodules before installing**, or the packages are
-  simply missing. On Laravel Cloud, the build command must start with
-  `git submodule update --init --recursive`.
+- A fresh clone or worktree needs `git submodule update --init --recursive`.
+  `git worktree remove` needs `--force`.
+- **A deploy has to init the submodules before installing.** On Laravel Cloud,
+  the build command must start with `git submodule update --init --recursive`.
+
+  Skip it and **nothing complains**. Composer prints `Symlinking from
+  packages/protocol` and exits `0` — but the directories are empty, so
+  `vendor/streetmesh/` is never created and the failure surfaces later as a
+  missing class at runtime. There is no install-time error to notice, which is
+  the whole reason this is written down.
 - Editing a package is live immediately — no `composer update`, because the
   symlink is the working copy. That is the point of the arrangement.
 - Shipping a package change is two commits: one in the package repository, then
