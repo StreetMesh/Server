@@ -10,3 +10,6 @@
 [submodule "packages/laravel-venue"]
 	path = packages/laravel-venue
 	url = https://github.com/StreetMesh/Laravel-Venue.git
+[submodule "hub"]
+	path = hub
+	url = https://github.com/StreetMesh/Hub.git

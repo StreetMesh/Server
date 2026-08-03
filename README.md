@@ -101,6 +101,17 @@ Capability arrives as Composer packages rather than as code here.
 | `streetmesh/laravel-domicile` | [`Laravel-Domicile`](https://github.com/StreetMesh/Laravel-Domicile) | The resident-facing half |
 | `streetmesh/laravel-venue` | [`Laravel-Venue`](https://github.com/StreetMesh/Laravel-Venue) | The visitor-facing half |
 
+And one that is not a Composer package, because it is not PHP:
+
+| Where | Repo | Provides |
+| --- | --- | --- |
+| `hub/` | [`Hub`](https://github.com/StreetMesh/Hub) | The authoritative multiplayer host. Rooms, and who is allowed in them. |
+
+`hub/` is a submodule like the others, and needs `npm install` inside it before
+it will run or check anything. It is the only part of a server that is not PHP,
+and it holds no credential — see its README for why that is the whole of its
+security model.
+
 ### Two surfaces, and everything else
 
 A server may be a domicile, a venue, or both — capabilities rather than kinds of
