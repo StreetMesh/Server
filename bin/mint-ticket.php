@@ -23,15 +23,22 @@ use StreetMesh\Protocol\P256;
 $app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 
-$room = 'com.streetmesh.games.chess/'.bin2hex(random_bytes(4));
+/*
+ * A room of its own by default, or one already open when named — so two
+ * tickets can be minted for one table, which is what a second player needs.
+ */
+$room = $argv[1] ?? 'com.streetmesh.games.chess/'.bin2hex(random_bytes(4));
+$seat = $argv[2] ?? 'white';
 
 /*
  * Not saved. This stands in for somebody already seated, which the realtime
  * half has no way of knowing anything about — it is told, in a signature.
  */
+$who = isset($argv[1]) ? 'bob' : 'alice';
+
 $visitor = new Delegation([
-    'did' => 'did:web:alice.home.test',
-    'handle' => 'alice.home.test',
+    'did' => 'did:web:'.$who.'.home.test',
+    'handle' => $who.'.home.test',
     'issuer' => 'https://home.test',
     'dpop_key' => Delegation::store(P256::generate()),
     'scope' => 'atproto',
@@ -48,16 +55,16 @@ $tickets = $app->make(Tickets::class);
  * genuinely run out.
  */
 Carbon::setTestNow(now()->subHour());
-$expired = $tickets->mint($visitor, $room, seat: 'white');
+$expired = $tickets->mint($visitor, $room, seat: $seat);
 Carbon::setTestNow();
 
 echo json_encode([
-    'ticket' => $tickets->mint($visitor, $room, seat: 'white'),
+    'ticket' => $tickets->mint($visitor, $room, seat: $seat),
     'expired' => $expired,
     'room' => $room,
     'expect' => [
         'sub' => $visitor->did,
         'name' => $visitor->handle,
-        'seat' => 'white',
+        'seat' => $seat,
     ],
 ], JSON_UNESCAPED_SLASHES), "\n";
