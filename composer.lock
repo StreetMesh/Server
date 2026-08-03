@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3cc9a9bdf7da48f274a033971e8e3b9d",
+    "content-hash": "1b05b7597c0768268d443897f9e9c1a9",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -4366,6 +4366,67 @@
                 }
             ],
             "time": "2026-07-16T10:28:45+00:00"
+        },
+        {
+            "name": "streetmesh/laravel-chess",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/laravel-chess",
+                "reference": "0f524b968d1f81f00959fd067aa83f126ecedd16"
+            },
+            "require": {
+                "illuminate/support": "^12.0|^13.0",
+                "livewire/flux": "^2.13",
+                "livewire/livewire": "^4.1",
+                "php": "^8.3",
+                "streetmesh/laravel-venue": "@dev",
+                "streetmesh/protocol-laravel": "@dev"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "laravel/pint": "^1.18",
+                "orchestra/testbench": "^10.0|^11.0",
+                "phpunit/phpunit": "^11.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "StreetMesh\\Chess\\ChessServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "StreetMesh\\Chess\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "StreetMesh\\Chess\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "lint:check": [
+                    "pint --test"
+                ],
+                "types:check": [
+                    "phpstan analyse"
+                ],
+                "test": [
+                    "@lint:check",
+                    "@types:check",
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Chess as a StreetMesh venue experience.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "streetmesh/laravel-domicile",

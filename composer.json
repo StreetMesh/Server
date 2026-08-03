@@ -17,6 +17,7 @@
         "livewire/blaze": "^1.0",
         "livewire/flux": "^2.13.1",
         "livewire/livewire": "^4.1",
+        "streetmesh/laravel-chess": "*",
         "streetmesh/laravel-domicile": "*",
         "streetmesh/laravel-venue": "*",
         "streetmesh/protocol-laravel": "*"

@@ -13,3 +13,6 @@
 [submodule "hub"]
 	path = hub
 	url = https://github.com/StreetMesh/Hub.git
+[submodule "packages/laravel-chess"]
+	path = packages/laravel-chess
+	url = https://github.com/StreetMesh/Laravel-Chess.git
