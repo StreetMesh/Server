@@ -1,8 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 42" {{ $attributes }}>
-    <path 
-        fill="currentColor" 
-        fill-rule="evenodd" 
-        clip-rule="evenodd"
-        d="M17.2 5.633 8.6.855 0 5.633v26.51l16.2 9 16.2-9v-8.442l7.6-4.223V9.856l-8.6-4.777-8.6 4.777V18.3l-5.6 3.111V5.633ZM38 18.301l-5.6 3.11v-6.157l5.6-3.11V18.3Zm-1.06-7.856-5.54 3.078-5.54-3.079 5.54-3.078 5.54 3.079ZM24.8 18.3v-6.157l5.6 3.111v6.158L24.8 18.3Zm-1 1.732 5.54 3.078-13.14 7.302-5.54-3.078 13.14-7.3v-.002Zm-16.2 7.89 7.6 4.222V38.3L2 30.966V7.92l5.6 3.111v16.892ZM8.6 9.3 3.06 6.222 8.6 3.143l5.54 3.08L8.6 9.3Zm21.8 15.51-13.2 7.334V38.3l13.2-7.334v-6.156ZM9.6 11.034l5.6-3.11v14.6l-5.6 3.11v-14.6Z"
-    />
+{{--
+    The StreetMesh mark, in one colour.
+
+    The mono geometry rather than the colour mark, because every caller styles
+    this with `fill-current` and a text colour — a sidebar tile, an auth header.
+    The colour mark cannot survive that: its green would be flattened to
+    whatever the surrounding text colour is, and the white islands with it.
+
+    The clip path needs an id and this component renders more than once on a
+    page — twice in the split auth layout alone — so the id is generated rather
+    than fixed. Two elements sharing an id is invalid, and the second reference
+    would silently resolve to the first.
+--}}
+@php($clip = 'streetmesh-mark-'.Str::random(8))
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 4 92 92" fill="currentColor" role="img" {{ $attributes }}>
+    <title>StreetMesh</title>
+
+    <defs>
+        <clipPath id="{{ $clip }}">
+            <circle cx="50" cy="50" r="46" />
+        </clipPath>
+    </defs>
+
+    {{-- The grid is on a 22° tilt that the circular crop conceals. --}}
+    <g clip-path="url(#{{ $clip }})">
+        <g transform="rotate(22 50 50)">
+            <path d="M-7 -14 H31 V14.254 A8 8 0 0 0 25.254 20 H-7 Z" />
+            <path d="M35 -14 H65 V20 H40.746 A8 8 0 0 0 35 14.254 Z" />
+            <rect x="69" y="-14" width="50" height="66" rx="1.5" />
+            <path d="M-7 24 H25.254 A8 8 0 0 0 31 29.746 V52 H-7 Z" />
+            <path d="M40.746 24 H65 V70.254 A8 8 0 0 0 59.254 76 H35 V29.746 A8 8 0 0 0 40.746 24 Z" />
+            <rect x="-7" y="56" width="38" height="60" rx="1.5" />
+            <path d="M69 56 H119 V76 H74.746 A8 8 0 0 0 69 70.254 Z" />
+            <path d="M35 80 H59.254 A8 8 0 0 0 65 85.746 V116 H35 Z" />
+            <path d="M74.746 80 H119 V116 H69 V85.746 A8 8 0 0 0 74.746 80 Z" />
+
+            {{--
+                The roundabout islands. White against the green in the colour
+                mark; here they take the same ink as the blocks and read as
+                dots sitting in the street junctions.
+            --}}
+            <circle cx="33" cy="22" r="4" />
+            <circle cx="67" cy="78" r="4" />
+        </g>
+    </g>
 </svg>
