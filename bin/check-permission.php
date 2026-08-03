@@ -30,6 +30,7 @@ use Illuminate\Contracts\Console\Kernel;
 use StreetMesh\Protocol\AuthorizationRequest;
 use StreetMesh\Protocol\ClientAssertion;
 use StreetMesh\Protocol\Dpop;
+use StreetMesh\Protocol\Laravel\Attestations\Attestations;
 use StreetMesh\Protocol\Laravel\Identity\Identities;
 use StreetMesh\Protocol\Laravel\Permissions\Permissions;
 use StreetMesh\Protocol\P256;
@@ -267,7 +268,13 @@ $write = $issuer.'/xrpc/com.atproto.repo.createRecord';
  * @param  array<string, mixed>  $record
  * @return array{0: int, 2: mixed}
  */
-$post_record = function (string $token, P256 $with) use ($write): array {
+$statement = $app->make(Attestations::class)->issue(
+    ['result' => 'win', 'seat' => 'white', 'pgn' => ''],
+    $venue,
+    $app->make(Identities::class)->forServer()->keyId(),
+);
+
+$post_record = function (string $token, P256 $with) use ($write, $statement): array {
     $handle = curl_init($write);
     $headers = [];
 
@@ -275,7 +282,13 @@ $post_record = function (string $token, P256 $with) use ($write): array {
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => (string) json_encode([
             'collection' => 'com.streetmesh.games.chess',
-            'record' => ['result' => 'win', 'seat' => 'white', 'pgn' => ''],
+
+            /*
+             * Signed, because a record written on somebody's behalf is worth
+             * only what the writer's continued existence is worth unless it
+             * can be checked without them.
+             */
+            'record' => ['attestation' => $statement],
         ]),
         CURLOPT_HTTPHEADER => [
             'Authorization: DPoP '.$token,
