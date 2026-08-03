@@ -8,7 +8,9 @@
     },
     "dependencies": {
         "@laravel/passkeys": "^0.2.0",
+        "@streetmesh/hub": "file:hub",
         "@tailwindcss/vite": "^4.1.11",
+        "chess.js": "^1.4.0",
         "colyseus.js": "^0.16.22",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^3.1",

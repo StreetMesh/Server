@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# Run this venue's hub, with whatever experiences it has installed.
+#
+#   ./hub-serve
+#
+# One of three things a working venue needs running: Herd serves the PHP, Vite
+# serves the browser assets, and this serves the rooms. None of them starts the
+# others, and a board that connects to nothing is usually this one missing.
+
+set -euo pipefail
+
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Node does not read the system keychain, and the hub fetches the venue's DID
+# document over TLS to check a ticket. Without this every ticket is refused for
+# a reason that has nothing to do with the ticket.
+export NODE_EXTRA_CA_CERTS="${NODE_EXTRA_CA_CERTS:-$HOME/Library/Application Support/Herd/config/valet/CA/LaravelValetCASelfSigned.pem}"
+
+export HUB_EXPERIENCES="${HUB_EXPERIENCES:-./hub-experiences.ts}"
+export HUB_PORT="${HUB_PORT:-2567}"
+
+cd "$here"
+
+exec node --experimental-strip-types hub/src/index.ts
