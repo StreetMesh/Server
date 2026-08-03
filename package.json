@@ -9,9 +9,6 @@
     "dependencies": {
         "@laravel/passkeys": "^0.2.0",
         "@tailwindcss/vite": "^4.1.11",
-        "colyseus": {
-            "js": "^0.16.22"
-        },
         "colyseus.js": "^0.16.22",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^3.1",
