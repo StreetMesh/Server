@@ -33,8 +33,12 @@ $seat = $argv[2] ?? 'white';
 /*
  * Not saved. This stands in for somebody already seated, which the realtime
  * half has no way of knowing anything about — it is told, in a signature.
+ *
+ * Nameable, because two tickets for one table are usually two *people*: a
+ * check that minted the same visitor twice found only that nobody may take
+ * two seats, which is true and not what it was asking.
  */
-$who = isset($argv[1]) ? 'bob' : 'alice';
+$who = $argv[3] ?? (isset($argv[1]) ? 'bob' : 'alice');
 
 $visitor = new Delegation([
     'did' => 'did:web:'.$who.'.home.test',
