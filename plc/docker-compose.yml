@@ -1,0 +1,50 @@
+# The PLC directory, as actually deployed.
+#
+# This is Bluesky's own implementation — the software running plc.directory —
+# rather than our reading of the specification. That is the entire point of
+# running it: an operation this server builds is accepted or refused by the same
+# code the network runs, so a misunderstanding shows up here rather than in
+# somebody else's audit log, where it would be permanent.
+#
+#   ../plc-serve
+#
+# Postgres rather than the in-memory database the server also offers, because a
+# directory that forgets is worse than none: a resident's identity would vanish
+# on restart while their handle, their records and every venue's copy of them
+# carried on referring to it.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: plc
+      POSTGRES_PASSWORD: plc
+      POSTGRES_DB: plc
+    volumes:
+      - directory:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U plc']
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  directory:
+    build:
+      context: ./source
+      dockerfile: packages/server/Dockerfile
+    # The image's own command is its production entrypoint, which requires
+    # deployment credentials in a shape only Bluesky's infrastructure supplies.
+    # `bin.js` is the same server with configuration taken from the environment.
+    entrypoint: ['dumb-init', '--']
+    command: ['node', '/app/packages/server/dist/bin.js']
+    environment:
+      DATABASE_URL: postgres://plc:plc@db:5432/plc
+      PORT: '2582'
+    ports:
+      - '2582:2582'
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  directory:

@@ -20,6 +20,11 @@ A domicile and a venue are separate applications in separate checkouts, as
 anybody operating them would have it. A server that is both is a matter of
 configuration, not of sharing a directory.
 
+**Building something people can do at a venue?** Start at
+[`EXPERIENCES.md`](EXPERIENCES.md) instead — the four processes a working server
+needs running, the shape of an experience package, and the traps that cost the
+most time.
+
 For the bigger picture — the values, the vocabulary, and how this fits into Avatars / Protocol / MeshObject / StreetTiles / Hub / Browser — see **The Dream** at <https://github.com/StreetMesh>.
 
 ## Stack

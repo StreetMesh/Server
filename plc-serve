@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+#
+# Run a PLC directory for local development.
+#
+#   ./plc-serve            start it, building and cloning on first run
+#   ./plc-serve stop       stop it, keeping what it holds
+#   ./plc-serve reset      stop it and forget every identity it ever issued
+#
+# The fourth thing a working server needs running, alongside Herd for the PHP,
+# Vite for the browser assets and ./hub-serve for the rooms.
+#
+# What it holds is not scratch data. A did:plc identity exists because this
+# directory says it does, so wiping it orphans every resident on this machine —
+# their handle still resolves, their records still name them, and nothing can
+# check any of it. `reset` is therefore a separate word you have to type.
+
+set -euo pipefail
+
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source="$here/plc/source"
+
+# Bluesky's own implementation, which is the point — see plc/docker-compose.yml.
+# Pinned by clone rather than vendored, because it is somebody else's software
+# and this repository should not be carrying a copy of it.
+if [ ! -d "$source" ]; then
+    echo "Fetching the PLC directory implementation..."
+    git clone --depth 1 https://github.com/did-method-plc/did-method-plc.git "$source"
+fi
+
+cd "$here/plc"
+
+case "${1:-start}" in
+    stop)
+        docker compose down
+        ;;
+    reset)
+        # `-v` is what makes this different from `stop`: it takes the volume,
+        # and with it every identity this directory has ever issued.
+        docker compose down -v
+        echo "The directory has forgotten every identity it issued."
+        ;;
+    start)
+        docker compose up -d --build
+        echo -n "Waiting for the directory..."
+        for _ in $(seq 1 30); do
+            if curl -sf http://localhost:2582/_health >/dev/null 2>&1; then
+                echo " ready at http://localhost:2582"
+                exit 0
+            fi
+            echo -n "."
+            sleep 1
+        done
+        echo
+        echo "It did not come up. docker compose -f plc/docker-compose.yml logs" >&2
+        exit 1
+        ;;
+    *)
+        echo "usage: ./plc-serve [start|stop|reset]" >&2
+        exit 1
+        ;;
+esac
