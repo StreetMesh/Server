@@ -30,6 +30,31 @@
                 placeholder="email@example.com"
             />
 
+            {{--
+                The address, which is the part of this form that is not like
+                the rest of it. Everything else here is between this person and
+                this server; this is the name every other server on the network
+                will know them by.
+
+                The host is shown and not editable, because it is not theirs to
+                choose — a resident picks the name in front of it, and this
+                server supplies its own after it.
+            --}}
+            <flux:input
+                name="address"
+                :label="__('Address')"
+                :value="old('address')"
+                type="text"
+                required
+                autocomplete="username"
+                :placeholder="__('yourname')"
+                :description="__('How people find you anywhere else. You cannot change it later.')"
+            >
+                <x-slot name="iconTrailing">
+                    <flux:text class="pr-3 whitespace-nowrap">.{{ $residentHost }}</flux:text>
+                </x-slot>
+            </flux:input>
+
             <!-- Password -->
             <flux:input
                 name="password"

@@ -4434,7 +4434,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/laravel-domicile",
-                "reference": "b71c5d61e30bd91b500e705cd279d282081909fc"
+                "reference": "65ce683ab0eaa3906421ed7d7bd0858dd00845c4"
             },
             "require": {
                 "illuminate/support": "^12.0|^13.0",
@@ -4464,7 +4464,8 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "StreetMesh\\Domicile\\Tests\\": "tests/"
+                    "StreetMesh\\Domicile\\Tests\\": "tests/",
+                    "StreetMesh\\Domicile\\Tests\\Fixtures\\": "tests/fixtures/"
                 }
             },
             "scripts": {

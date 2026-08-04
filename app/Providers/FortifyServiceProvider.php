@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
+use StreetMesh\Domicile\Residents\Residents;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -49,7 +50,16 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::verifyEmailView(fn () => view('pages::auth.verify-email'));
         Fortify::twoFactorChallengeView(fn () => view('pages::auth.two-factor-challenge'));
         Fortify::confirmPasswordView(fn () => view('pages::auth.confirm-password'));
-        Fortify::registerView(fn () => view('pages::auth.register'));
+        /*
+         * Registering here hands out an address as well as an account, and the
+         * form has to show which server the address will sit under. Resolved
+         * when the screen is drawn rather than shared at boot, because asking
+         * for the server's identity creates one if none exists — not something
+         * to do on the way past on every request, console command included.
+         */
+        Fortify::registerView(fn () => view('pages::auth.register', [
+            'residentHost' => app(Residents::class)->host(),
+        ]));
         Fortify::resetPasswordView(fn () => view('pages::auth.reset-password'));
         Fortify::requestPasswordResetLinkView(fn () => view('pages::auth.forgot-password'));
     }
