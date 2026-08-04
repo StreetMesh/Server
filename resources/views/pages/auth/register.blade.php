@@ -39,6 +39,13 @@
                 The host is shown and not editable, because it is not theirs to
                 choose — a resident picks the name in front of it, and this
                 server supplies its own after it.
+
+                It no longer says the name is permanent, because it is not. A
+                resident's identifier is a did:plc, which is the hash of the
+                operation that created it rather than an address, so the name
+                above it can change without costing them a single record they
+                have already signed. What is worth saying is that people will
+                know them by it.
             --}}
             <flux:input
                 name="address"
@@ -48,7 +55,7 @@
                 required
                 autocomplete="username"
                 :placeholder="__('yourname')"
-                :description="__('Choose wisely: you cannot change it.')"
+                :description="__('Choose well: this is how people will know you.')"
             >
                 <x-slot name="iconTrailing">
                     <flux:text class="pr-3 whitespace-nowrap">.{{ $residentHost }}</flux:text>
