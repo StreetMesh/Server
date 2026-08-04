@@ -17,7 +17,9 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # a reason that has nothing to do with the ticket.
 export NODE_EXTRA_CA_CERTS="${NODE_EXTRA_CA_CERTS:-$HOME/Library/Application Support/Herd/config/valet/CA/LaravelValetCASelfSigned.pem}"
 
-export HUB_EXPERIENCES="${HUB_EXPERIENCES:-./hub-experiences.ts}"
+# A pattern rather than a list. Installing a package puts a room where this
+# already looks, so turning an experience on is one step rather than two.
+export HUB_ROOMS="${HUB_ROOMS:-./packages/*/hub/src/room.ts}"
 export HUB_PORT="${HUB_PORT:-2567}"
 
 cd "$here"

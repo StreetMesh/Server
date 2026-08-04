@@ -1,23 +1,30 @@
 /*
  * What the browser gets, beyond what Livewire and Flux bring themselves.
  *
- * Packages that ship a screen with behaviour are imported here, by name. That
- * is the current answer to "how does an installed package get its JavaScript
- * into the page", and it is a deliberate placeholder: the host naming each one
- * means installing an experience is two steps rather than one, which is worse
- * than how views and styles work.
+ * Nothing here names a package. An installed package that puts something on the
+ * page ships `resources/js/alpine.js` exporting its components by name, and
+ * this finds it — the same arrangement as styles, found by a `@source` glob,
+ * and screens, which resolve through a Livewire namespace.
  *
- * Views resolve through a Livewire namespace and styles through a `@source`
- * glob, both discovered rather than listed. JavaScript has no equivalent yet.
+ * `import.meta.glob` is Vite's, and it resolves at build time rather than in
+ * the browser: the pattern becomes real imports in the bundle, so nothing is
+ * fetched dynamically and nothing is looked up at runtime.
  */
 
-import chessTable from '../../packages/laravel-chess/resources/js/table.js'
+const packages = import.meta.glob('../../packages/*/resources/js/alpine.js', { eager: true })
 
-/*
- * Registered on Alpine rather than exported, because a Blade template asks for
- * a component by name — `x-data="chessTable(...)"` — and has no import of its
- * own.
- */
 document.addEventListener('alpine:init', () => {
-    window.Alpine.data('chessTable', chessTable)
+    for (const [path, module] of Object.entries(packages)) {
+        const components = module.default
+
+        if (!components) {
+            console.warn(`[streetmesh] ${path} exports no components, so nothing from it reaches the page.`)
+
+            continue
+        }
+
+        for (const [name, component] of Object.entries(components)) {
+            window.Alpine.data(name, component)
+        }
+    }
 })
