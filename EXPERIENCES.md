@@ -43,7 +43,7 @@ does nothing" is that one is missing.
 |---|---|---|---|
 | **PHP** | Herd (always on) | `https://server.test` | Site does not load |
 | **Assets** | `npm run dev` | `https://server.test:5173` | Page renders unstyled; no interactivity |
-| **Hub** | `./hub-serve` | `:2567` | Boards connect to nothing; "Not connected" |
+| **Hub** | `./hub-serve` | `wss://hub.test` → `:2567` | Boards connect to nothing; "Could not reach the table" |
 | **Directory** | `./plc-serve` | `https://plc.test` → `:2582` | Registration fails; identities unresolvable |
 
 ```sh
@@ -94,7 +94,7 @@ php artisan migrate
 | `APP_URL` | `https://server.test` | Links and redirects point at the wrong host |
 | `APP_KEY` | `php artisan key:generate` | The server can hold no identity at all — keys are encrypted at rest |
 | `STREETMESH_HOST` | `server.test` | The DID document publishes `https://` with no host, and every venue walking the chain finds nothing |
-| `STREETMESH_HUB` | `ws://127.0.0.1:2567` | Boards connect to nothing |
+| `STREETMESH_HUB` | `wss://hub.test` | Boards connect to nothing |
 | `STREETMESH_VENUE` / `STREETMESH_HOME` | `true` | The capability is not announced, so the screens do not appear |
 
 **If you forget `--recurse-submodules`**, `composer install` prints
@@ -292,6 +292,12 @@ Session keys are dot-notation paths. Writing `streetmesh.visitor.intended`
 **replaces** whatever `streetmesh.visitor` held. Keep keys as siblings, never as
 one another's children.
 
+### One person is sitting in two chairs
+
+A delegation is one trip through the door, not a person. Coming back — the next
+day, or in another browser — mints a fresh one for the same human, so anything
+keyed on `delegation_id` counts them twice. Ask by `did`.
+
 ### A config default never applies
 `config('a.b', $default)` returns the default only when the key is **absent**. A
 key that is present and `null` — the ordinary case for an unset env var — gives
@@ -307,6 +313,17 @@ ECDSA `(r, s)` has an equally valid twin `(r, n − s)`. ATProtocol requires the
 lower one. OpenSSL picks at random **and verifies both**, so round-trip tests
 pass on signatures the network rejects. `P256::sign()` normalizes now — if you
 add signing anywhere, keep it low-S.
+
+### The board says "Could not reach the table" in Safari and not in Chrome
+
+`wss://`, not `ws://`. The page is served over https, and a browser refuses an
+insecure WebSocket from a secure page — Chrome makes an exception for localhost
+and Safari does not, so this looks like a Safari bug and is not one. The hub sits
+behind Herd's TLS at `hub.test`:
+
+```sh
+herd proxy hub http://127.0.0.1:2567 --secure
+```
 
 ### A resident's name resolves to the server
 Resident handles are subdomains (`alice.server.test`), so `.well-known`
