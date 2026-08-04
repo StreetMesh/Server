@@ -191,7 +191,7 @@ Exported **by name**, not registered. A package that reaches for a global
 ## How installing is one step
 
 Nothing has a registry. Five separate glob patterns find your package, which is
-why installing an experience is `composer require` and nothing else.
+why installing an experience needs no wiring on the PHP side at all.
 
 | What | Pattern | Where |
 |---|---|---|
@@ -204,6 +204,19 @@ why installing an experience is `composer require` and nothing else.
 `import.meta.glob` resolves when Vite builds its module graph, not in the
 browser. If a newly installed package's components do not appear, **restart
 Vite** before looking anywhere else.
+
+### npm dependencies are the exception
+
+The PHP half installs itself. The JavaScript half does not: your package's
+browser and hub code resolve imports from the **host's** `node_modules`, so
+anything you import has to be in the host's `package.json`. Chess relies on the
+host having `colyseus.js`, `chess.js` and `@colyseus/schema` for exactly this
+reason.
+
+Prefer inlining small assets over adding a dependency. Chess carries its piece
+artwork as path data rather than importing an icon package — a few hundred bytes
+against one more thing an operator has to install, and one more registry that
+can refuse to serve it.
 
 ---
 
