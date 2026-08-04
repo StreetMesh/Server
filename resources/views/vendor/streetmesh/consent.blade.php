@@ -51,24 +51,37 @@
             button disabled while the form is still being gathered contributes
             neither — the request would arrive with no answer in it at all.
             Waiting a turn lets the submission leave first.
+
+            Which one was pressed is remembered, because only that one should
+            look like it is doing something. Flux turns a submit button's
+            spinner on whenever it is disabled, so disabling both spun both —
+            and a screen that appears to be allowing and refusing at the same
+            time is not a reassuring one.
         --}}
         <form
             method="POST"
             action="{{ route('streetmesh.oauth.approve') }}"
             class="flex gap-3"
-            x-data="{ answering: false }"
-            @submit="setTimeout(() => (answering = true), 0)"
+            x-data="{ answer: null }"
+            x-on:submit="const pressed = $event.submitter?.value; setTimeout(() => (answer = pressed), 0)"
         >
             @csrf
             <input type="hidden" name="request_uri" value="{{ $permission->request_uri }}">
 
+            {{--
+                The one that was pressed is disabled, which is what draws its
+                spinner. The other is only made inert — unpressable and faded,
+                but not pretending to be busy, because it is not.
+            --}}
             <flux:button
                 type="submit"
                 name="answer"
                 value="yes"
                 variant="primary"
-                class="w-full"
-                x-bind:disabled="answering"
+                class="w-full transition-opacity"
+                x-bind:disabled="answer === 'yes'"
+                x-bind:inert="answer === 'no'"
+                x-bind:class="answer === 'no' ? 'opacity-50' : ''"
             >
                 {{ __('Allow') }}
             </flux:button>
@@ -77,8 +90,10 @@
                 type="submit"
                 name="answer"
                 value="no"
-                class="w-full"
-                x-bind:disabled="answering"
+                class="w-full transition-opacity"
+                x-bind:disabled="answer === 'no'"
+                x-bind:inert="answer === 'yes'"
+                x-bind:class="answer === 'yes' ? 'opacity-50' : ''"
             >
                 {{ __('Not now') }}
             </flux:button>
