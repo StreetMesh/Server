@@ -15,7 +15,7 @@
     <div class="flex flex-col gap-6">
         <x-auth-header
             :title="__(':venue would like permission', ['venue' => $venue])"
-            :description="__('You can take this back at any time.')"
+            :description="__('You can revoke this at any time.')"
         />
 
         {{--
