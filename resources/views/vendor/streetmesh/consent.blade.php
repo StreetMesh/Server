@@ -41,15 +41,45 @@
             would prefer — "Not now" is a full-width button beside it rather
             than a link tucked underneath.
         --}}
-        <form method="POST" action="{{ route('streetmesh.oauth.approve') }}" class="flex gap-3">
+        {{--
+            Answering takes a round trip to the venue's server, which is long
+            enough to press again. Both buttons go dead on the first press so
+            the second does nothing.
+
+            Deferred by a tick rather than disabled in the submit handler. The
+            answer travels as the pressed button's own name and value, and a
+            button disabled while the form is still being gathered contributes
+            neither — the request would arrive with no answer in it at all.
+            Waiting a turn lets the submission leave first.
+        --}}
+        <form
+            method="POST"
+            action="{{ route('streetmesh.oauth.approve') }}"
+            class="flex gap-3"
+            x-data="{ answering: false }"
+            @submit="setTimeout(() => (answering = true), 0)"
+        >
             @csrf
             <input type="hidden" name="request_uri" value="{{ $permission->request_uri }}">
 
-            <flux:button type="submit" name="answer" value="yes" variant="primary" class="w-full">
+            <flux:button
+                type="submit"
+                name="answer"
+                value="yes"
+                variant="primary"
+                class="w-full"
+                x-bind:disabled="answering"
+            >
                 {{ __('Allow') }}
             </flux:button>
 
-            <flux:button type="submit" name="answer" value="no" class="w-full">
+            <flux:button
+                type="submit"
+                name="answer"
+                value="no"
+                class="w-full"
+                x-bind:disabled="answering"
+            >
                 {{ __('Not now') }}
             </flux:button>
         </form>
