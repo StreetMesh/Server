@@ -68,7 +68,7 @@ $delegations = $app->make(Delegations::class);
 $begun = $delegations->begin(
     $host,
     (array) config('streetmesh.venue.scopes'),
-    'https://'.$host.'/visit/callback',
+    'https://'.$host.'/connect/callback',
 );
 
 $check('a typed name finds somewhere to ask', true, $begun['delegation']->issuer);
@@ -89,7 +89,7 @@ $check('somebody approves it', $code !== '', $resident);
 
 // ── And the venue trades it, over the network, for something it can spend ───
 
-$seated = $delegations->complete($state, $code, 'https://'.$host.'/visit/callback');
+$seated = $delegations->complete($state, $code, 'https://'.$host.'/connect/callback');
 
 $check(
     'the venue is given something it can spend',

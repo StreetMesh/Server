@@ -4494,7 +4494,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/laravel-venue",
-                "reference": "dbf49679ae69df6987657f2917b7f3688ee89758"
+                "reference": "89a22823d56abc794b15a5192308dde0777848be"
             },
             "require": {
                 "illuminate/support": "^12.0|^13.0",
@@ -4524,7 +4524,8 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "StreetMesh\\Venue\\Tests\\": "tests/"
+                    "StreetMesh\\Venue\\Tests\\": "tests/",
+                    "StreetMesh\\Venue\\Tests\\Fixtures\\": "tests/fixtures/"
                 }
             },
             "scripts": {

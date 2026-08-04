@@ -151,7 +151,7 @@ $scope = 'atproto '.Scope::forRepo(['com.streetmesh.games.chess'], [Scope::CREAT
 
 $fields = AuthorizationRequest::pushed(
     clientId: $client,
-    redirectUri: $issuer.'/visit/callback',
+    redirectUri: $issuer.'/connect/callback',
     state: bin2hex(random_bytes(8)),
     pkce: $pkce,
     assertion: ClientAssertion::for($client, $issuer, $venue),
@@ -237,7 +237,7 @@ $token = $issuer.'/oauth/token';
     $token,
     AuthorizationRequest::redeem(
         clientId: $client,
-        redirectUri: $issuer.'/visit/callback',
+        redirectUri: $issuer.'/connect/callback',
         code: $code,
         pkce: $pkce,
         assertion: ClientAssertion::for($client, $issuer, $venue),
