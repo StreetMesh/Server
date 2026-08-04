@@ -48,7 +48,7 @@
                 required
                 autocomplete="username"
                 :placeholder="__('yourname')"
-                :description="__('How people find you anywhere else. You cannot change it later.')"
+                :description="__('Choose wisely: you cannot change it.')"
             >
                 <x-slot name="iconTrailing">
                     <flux:text class="pr-3 whitespace-nowrap">.{{ $residentHost }}</flux:text>
