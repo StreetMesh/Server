@@ -17,6 +17,45 @@
                 <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
             </div>
         </div>
+        {{--
+            Who you are here as, when that is a different question.
+
+            A venue knows you by a permission your own server gave it, not by
+            an account — so on a server that is both a domicile and a venue,
+            the same person has two identities on screen at once. They belong
+            in one place rather than competing, and this is the place people
+            already look.
+
+            Absent entirely on a server with no venue, and on a venue nobody
+            has arrived at.
+        --}}
+        @if ($visiting = app(\StreetMesh\Venue\Visitors::class)->current(request()))
+            <flux:menu.separator />
+
+            <div class="px-1 py-1.5 text-start text-sm">
+                <flux:text class="text-xs">{{ __('Visiting as') }}</flux:text>
+                <flux:heading class="truncate">{{ $visiting->handle }}</flux:heading>
+            </div>
+
+            {{--
+                "Revoke", not "Leave", and next to "Log out" on purpose — they
+                are neighbours and must not read as the same act. Logging out
+                ends a session on this server; this gives back a permission
+                somebody else's server issued.
+            --}}
+            <form method="POST" action="{{ route('venue.leave') }}" class="w-full">
+                @csrf
+                <flux:menu.item
+                    as="button"
+                    type="submit"
+                    icon="key"
+                    class="w-full cursor-pointer"
+                >
+                    {{ __('Revoke access') }}
+                </flux:menu.item>
+            </form>
+        @endif
+
         <flux:menu.separator />
         <flux:menu.radio.group>
             <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
