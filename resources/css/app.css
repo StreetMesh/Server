@@ -60,6 +60,18 @@
      *
      * Not while disabled: a control that cannot be pressed should not invite it.
      */
+    /*
+     * Hidden until Alpine has had a chance to decide.
+     *
+     * `x-cloak` is used in half a dozen places across the application and was
+     * styled in none of them, which makes it a no-op: every element wearing it
+     * flashes visible on load and is then hidden, which is the exact thing the
+     * attribute exists to prevent.
+     */
+    [x-cloak] {
+        display: none !important;
+    }
+
     button:not(:disabled),
     [role='button']:not([aria-disabled='true']),
     summary {

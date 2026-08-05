@@ -1,3 +1,5 @@
+import './echo.js'
+
 /*
  * What the browser gets, beyond what Livewire and Flux bring themselves.
  *

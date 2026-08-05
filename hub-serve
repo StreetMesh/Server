@@ -17,6 +17,30 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # a reason that has nothing to do with the ticket.
 export NODE_EXTRA_CA_CERTS="${NODE_EXTRA_CA_CERTS:-$HOME/Library/Application Support/Herd/config/valet/CA/LaravelValetCASelfSigned.pem}"
 
+# The one thing the hub says to the venue with, read from the venue's own .env
+# rather than kept a second time. Two copies of a shared secret are two things
+# that can disagree, and the way you find out they have is that nothing
+# happens.
+#
+# Read one key rather than sourcing the file: a .env holds values with spaces,
+# hashes and quotes in them, and asking bash to interpret all of that to fetch
+# one string is a way to be surprised.
+if [ -f "$here/.env" ]; then
+    SM_REALTIME_SECRET="$(
+        grep -E '^[[:space:]]*SM_REALTIME_SECRET=' "$here/.env" \
+            | tail -1 \
+            | cut -d= -f2- \
+            | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'$/\1/"
+    )"
+    export SM_REALTIME_SECRET
+fi
+
+if [ -z "${SM_REALTIME_SECRET:-}" ]; then
+    echo "No SM_REALTIME_SECRET in $here/.env." >&2
+    echo "The hub needs the same value the venue has, or the venue will not believe it." >&2
+    exit 1
+fi
+
 # A pattern rather than a list. Installing a package puts a room where this
 # already looks, so turning an experience on is one step rather than two.
 export HUB_ROOMS="${HUB_ROOMS:-./packages/*/hub/src/room.ts}"
