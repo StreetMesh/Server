@@ -33,7 +33,19 @@
             <flux:menu.separator />
 
             <div class="px-1 py-1.5 text-start text-sm">
-                <flux:text class="text-xs">{{ __('Visiting as') }}</flux:text>
+                {{--
+                    Names the venue rather than the act. "Visiting as" told
+                    somebody what to call themselves, which they knew; this
+                    tells them where they are, which on a network of servers
+                    that all look alike is the part worth saying.
+
+                    The host rather than the application's own name, because it
+                    is what a handle is built from and what somebody would type
+                    to come back.
+                --}}
+                <flux:text class="text-xs">
+                    {{ __('Visiting :venue', ['venue' => config('streetmesh.host') ?? config('app.name')]) }}
+                </flux:text>
                 <flux:heading class="truncate">{{ $visiting->handle }}</flux:heading>
             </div>
 
