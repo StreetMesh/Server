@@ -39,13 +39,12 @@
 
     <div class="px-1 py-1.5 text-start text-sm">
         {{--
-            Names the venue rather than the act. "Visiting as" told somebody
-            what to call themselves, which they knew; this tells them where they
-            are, which on a network of servers that all look alike is the part
-            worth saying.
+            Names the venue and then hands off to the address underneath it:
+            "Visiting server.test as" / "alice.home.test". One sentence broken
+            across two lines rather than a label and an unrelated value.
         --}}
         <flux:text class="text-xs">
-            {{ __('Visiting :venue', ['venue' => config('streetmesh.host') ?? config('app.name')]) }}
+            {{ __('Visiting :venue as', ['venue' => config('streetmesh.host') ?? config('app.name')]) }}
         </flux:text>
         <flux:heading class="truncate">{{ $visiting->handle }}</flux:heading>
     </div>
