@@ -49,6 +49,23 @@
 
 @layer base {
 
+    /*
+     * Anything you press looks pressable.
+     *
+     * Tailwind v4 dropped the browser's own `cursor: pointer` on buttons, and
+     * Flux does not put it back — so every control in the application, its own
+     * and every package's, was showing an arrow. Set here rather than remembered
+     * on each button, because the ones that get forgotten are the ones nobody
+     * is looking at.
+     *
+     * Not while disabled: a control that cannot be pressed should not invite it.
+     */
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']),
+    summary {
+        cursor: pointer;
+    }
+
     *,
     ::after,
     ::before,
