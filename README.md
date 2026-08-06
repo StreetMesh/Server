@@ -88,6 +88,8 @@ STREETMESH_HUB=wss://your.hub
 STREETMESH_REALTIME_SECRET=      # the same value wherever the hub runs
 ```
 
+For putting one in the cloud, see [DEPLOYING.md](DEPLOYING.md).
+
 And check that it worked from outside:
 
 ```bash
