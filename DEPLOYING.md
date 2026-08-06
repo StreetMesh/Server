@@ -86,10 +86,15 @@ cannot be released fails the venue's release too — which is the ordering worth
 having:
 
 ```sh
+git submodule update --init --recursive
 composer install --no-dev --optimize-autoloader
 npm ci && npm run build
 php artisan hub:deploy
 ```
+
+The submodule line is not optional and its absence is silent: Composer prints
+`Symlinking from`, exits 0, and creates no `vendor/streetmesh/` at all. Nothing
+fails until a class is not found.
 
 **Deploy commands**
 
@@ -102,15 +107,12 @@ is committed is not what this server builds, asks the running hub which build it
 is, and **does nothing when it already matches**. That last part is what keeps a
 copy change to a Blade file from ending somebody's game.
 
-> **Unverified:** whether Laravel Cloud's build container has a `.git` directory
-> with remotes. The Colyseus CLI needs one — it works out which commit to deploy
-> from git rather than uploading anything. If it does not, run the CLI from
-> GitHub Actions on changes to `hub-build/**` instead, and drop `hub:deploy`
-> from the build commands.
-
-**Submodules.** `packages/*` are submodules, and `composer.json` resolves them
-as path repositories. Without them, `composer install` finds empty directories
-and nothing works.
+> **Partly unverified.** The Colyseus CLI works out which commit to deploy from
+> git rather than uploading anything, so it needs a real checkout. Initialising
+> submodules in the build proves `git` and `.git` are both there; what is not yet
+> confirmed is that `origin` is configured, which is what the CLI reads. If it
+> turns out not to be, run the CLI from GitHub Actions on changes to
+> `hub-build/**` instead and drop `hub:deploy` from the build commands.
 
 ### Environment
 
