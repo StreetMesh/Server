@@ -8,6 +8,7 @@
 /storage/pail
 /vendor
 .env
+.colyseus-cloud.json
 .env.backup
 .env.production
 .phpactor.json
