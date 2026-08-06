@@ -68,7 +68,24 @@ alias:
 
 ```dotenv
 STREETMESH_HOST=your.domain
-STREETMESH_VENUE=false           # true if this server hosts experiences
+```
+
+A server offers whatever it has installed, which is all most servers need to
+say. Say more only to run two different servers from one codebase — each
+capability has a switch named after itself, and setting one to `false` takes it
+off this server entirely:
+
+```dotenv
+STREETMESH_VENUE=false           # somewhere people live, and nothing else
+STREETMESH_DOMICILE=false        # somewhere people gather, and nothing else
+```
+
+A server that says it is a venue needs a hub to gather in and a secret to
+recognise it by, and refuses to start without either:
+
+```dotenv
+STREETMESH_HUB=wss://your.hub
+STREETMESH_REALTIME_SECRET=      # the same value wherever the hub runs
 ```
 
 And check that it worked from outside:

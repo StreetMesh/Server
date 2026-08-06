@@ -26,26 +26,44 @@ export NODE_EXTRA_CA_CERTS="${NODE_EXTRA_CA_CERTS:-$HOME/Library/Application Sup
 # hashes and quotes in them, and asking bash to interpret all of that to fetch
 # one string is a way to be surprised.
 if [ -f "$here/.env" ]; then
-    SM_REALTIME_SECRET="$(
-        grep -E '^[[:space:]]*SM_REALTIME_SECRET=' "$here/.env" \
+    STREETMESH_REALTIME_SECRET="$(
+        grep -E '^[[:space:]]*STREETMESH_REALTIME_SECRET=' "$here/.env" \
             | tail -1 \
             | cut -d= -f2- \
             | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'$/\1/"
     )"
-    export SM_REALTIME_SECRET
+    export STREETMESH_REALTIME_SECRET
 fi
 
-if [ -z "${SM_REALTIME_SECRET:-}" ]; then
-    echo "No SM_REALTIME_SECRET in $here/.env." >&2
+if [ -z "${STREETMESH_REALTIME_SECRET:-}" ]; then
+    echo "No STREETMESH_REALTIME_SECRET in $here/.env." >&2
     echo "The hub needs the same value the venue has, or the venue will not believe it." >&2
     exit 1
 fi
 
-# A pattern rather than a list. Installing a package puts a room where this
-# already looks, so turning an experience on is one step rather than two.
-export HUB_ROOMS="${HUB_ROOMS:-./packages/*/hub/src/room.ts}"
-export HUB_PORT="${HUB_PORT:-2567}"
+export PORT="${PORT:-2567}"
 
 cd "$here"
 
-exec node --experimental-strip-types hub/src/index.ts
+# Built before it is started, so what runs here is the artifact that deploys
+# rather than something assembled a second way. That is the whole point: "it
+# works locally" has to be a statement about the thing that ships.
+php artisan hub:build --quiet
+
+build="$here/hub-build"
+
+# The generated package brings its own dependencies — a room may need a chess
+# engine, and the hub cannot know that. Installed only when the manifest has
+# moved, because most builds change a room rather than what it depends on.
+if [ ! -d "$build/node_modules" ] || [ "$build/package.json" -nt "$build/node_modules" ]; then
+    (cd "$build" && npm install --silent)
+fi
+
+# What this hub is, so it can answer for itself. Read from the artifact rather
+# than recomputed, so the two can never disagree.
+HUB_BUILD="$(grep -o "HUB_BUILD: '[a-f0-9]*'" "$build/ecosystem.config.cjs" | cut -d"'" -f2)"
+export HUB_BUILD
+
+cd "$build"
+
+exec node --experimental-strip-types index.ts

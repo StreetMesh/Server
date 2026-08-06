@@ -18,7 +18,7 @@ surfaces.
 
 | Surface | Where it lives | What it is for |
 |---|---|---|
-| **Rules** | `hub/src/room.ts` | The authority on what may happen. Runs in the hub, not the browser. |
+| **Rules** | `room/src/room.ts` | The authority on what may happen. Runs in the hub, not the browser. |
 | **Screen** | `resources/views/livewire/` + `resources/js/` | What a visitor sees and touches. |
 | **Records** | `src/` | What outlives the session — written into each participant's own repository. |
 
@@ -50,7 +50,7 @@ does nothing" is that one is missing.
 cd ~/repos/StreetMesh/Server
 
 ./plc-serve        # terminal 1 — Docker: PLC directory + Postgres
-./hub-serve        # terminal 2 — Colyseus, rooms from installed packages
+./hub-serve        # terminal 2 — builds this server's hub, then runs it
 npm run dev        # terminal 3 — Vite
 ```
 
@@ -94,8 +94,9 @@ php artisan migrate
 | `APP_URL` | `https://server.test` | Links and redirects point at the wrong host |
 | `APP_KEY` | `php artisan key:generate` | The server can hold no identity at all — keys are encrypted at rest |
 | `STREETMESH_HOST` | `server.test` | The DID document publishes `https://` with no host, and every venue walking the chain finds nothing |
-| `STREETMESH_HUB` | `wss://hub.test` | Boards connect to nothing |
-| `STREETMESH_VENUE` / `STREETMESH_HOME` | `true` | The capability is not announced, so the screens do not appear |
+| `STREETMESH_HUB` | `wss://hub.test` | A server that says it is a venue refuses to start — nothing it offers could open |
+| `STREETMESH_REALTIME_SECRET` | any string | A venue refuses to start; without it a hub cannot tell it anything |
+| `STREETMESH_VENUE` / `STREETMESH_DOMICILE` | unset | Nothing. Unset means offered, which is what one machine running one of each wants. Set either to `false` and that capability is not offered at all — no screens, nothing in the navigation, nothing in the DID document |
 
 **If you forget `--recurse-submodules`**, `composer install` prints
 `Symlinking...`, **exits 0**, and never creates `vendor/streetmesh/`. Nothing
@@ -127,7 +128,7 @@ packages/laravel-chess/
 │   └── js/
 │       ├── alpine.js                 # exports the browser components
 │       └── table.js
-├── hub/
+├── room/
 │   ├── package.json
 │   └── src/room.ts                   # the rules
 └── tests/
@@ -155,6 +156,7 @@ interface Experience
     public function route(): string;        // its own screen
     public function action(): ?string;      // button text, or null for "Launch"
     public function scopes(): array;        // what a visitor must agree to
+    public function room(): ?string;        // where its room lives, or null
 }
 ```
 
@@ -162,7 +164,13 @@ interface Experience
 installed packages disagreed would walk somebody through a consent screen and
 then fail to write the record it had just promised them.
 
-### `hub/src/room.ts`
+`room()` returns an absolute path to the directory holding your room, or `null`
+if your experience has nothing live — a gallery is a perfectly good experience
+with nobody to keep in step. It is declared for the same reason: the server
+copies what you point at into the hub it builds, rather than guessing at a
+layout that belongs to your package.
+
+### `room/src/room.ts`
 
 ```ts
 import { Occupant, VenueRoom, type Ticket } from '@streetmesh/hub'
@@ -190,15 +198,16 @@ Exported **by name**, not registered. A package that reaches for a global
 
 ## How installing is one step
 
-Nothing has a registry. Five separate glob patterns find your package, which is
-why installing an experience needs no wiring on the PHP side at all.
+Nothing has a registry. Four glob patterns find your package and one method
+tells the server where your room is, which is why installing an experience needs
+no wiring on the PHP side at all.
 
 | What | Pattern | Where |
 |---|---|---|
 | PHP | `packages/*` path repo + `extra.laravel.providers` | `composer.json` |
 | Screens | `Livewire::addNamespace(...)` in your provider | your provider |
 | Browser JS | `../../packages/*/resources/js/alpine.js` | `resources/js/app.js` |
-| Hub rooms | `./packages/*/hub/src/room.ts` | `hub-serve` |
+| Hub rooms | `Experience::room()`, collected by `php artisan hub:build` | your `Experience` |
 | Styles | `../../packages/*/resources/views/**/*.blade.php` | `resources/css/app.css` |
 
 `import.meta.glob` resolves when Vite builds its module graph, not in the
