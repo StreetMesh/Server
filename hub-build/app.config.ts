@@ -8,12 +8,17 @@
  * what we want today, and WebTransport later is this file and nothing
  * else — which is the reason the hub stopped standing up a server of its
  * own.
+ *
+ * `@colyseus/tools` exports its `config()` as a CommonJS default, which
+ * a type checker reading this as an ES module cannot call. It only
+ * validates the options and hands them back, and `listen` takes them
+ * either way — so the options are exported directly rather than
+ * carrying a build failure for a function that does nothing here.
  */
 
-import config from '@colyseus/tools'
 import { hub } from './hub/mod.ts'
 import experience0 from './rooms/com.streetmesh.games.chess/room.ts'
 
-export default config(hub([
+export default hub([
   experience0,
-]))
+])

@@ -4,7 +4,13 @@
     "type": "module",
     "description": "Generated. This server's hub, with the rooms it has installed.",
     "scripts": {
+        "build": "tsc --noEmit",
         "start": "node --experimental-strip-types index.ts"
+    },
+    "devDependencies": {
+        "typescript": "^5.7.0",
+        "@types/node": "^22.10.0",
+        "@types/express": "^5.0.6"
     },
     "dependencies": {
         "@colyseus/core": "^0.16.0",
