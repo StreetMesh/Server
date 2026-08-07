@@ -3,22 +3,32 @@
 **Where to start if you want to run a StreetMesh server** — a domicile, a venue,
 or one server that is both.
 
-This is the starting point, not a worked example. It is close to a stock Laravel
-install and stays that way: **all StreetMesh capability arrives as Laravel
-packages mounted under [`packages/`](packages/)**, so that each capability stays
-portable into any other Laravel host and keeps its own history, issues and
-release cadence. What is left here is the glue that cannot live in a package,
-and it should stay small enough to read in one sitting.
+This is both the starting point and the worked example. It is close to a stock
+Laravel install and stays that way: **all StreetMesh capability arrives as
+Laravel packages mounted under [`packages/`](packages/)**, so that each
+capability stays portable into any other Laravel host and keeps its own history,
+issues and release cadence. What is left here is the glue that cannot live in a
+package, and it should stay small enough to read in one sitting.
 
-For servers you can look at rather than build from, see
-[`Home`](https://github.com/StreetMesh/Home) — what a dedicated domicile can
-look like — and [`Games`](https://github.com/StreetMesh/Games), the same for a
-venue. Both are this repository with capabilities installed and configured, and
-both actually run.
+**Everything is installed here — domicile, venue, and an experience — and
+configuration decides which of them a given deployment actually is.** Turn the
+venue off and this is a domicile; turn the domicile off and it is a venue; leave
+both on and it is a server that does both. Nothing is forked and nothing is
+copied.
 
-A domicile and a venue are separate applications in separate checkouts, as
-anybody operating them would have it. A server that is both is a matter of
-configuration, not of sharing a directory.
+That is not a convenience, it is the claim being tested. Two servers built from
+one commit, differing only by a switch, is what makes "domicile and venue are
+capabilities rather than kinds of server" a fact about the code rather than a
+sentence in a glossary.
+
+It is what runs in front of you: a domicile at [`stme.sh`](https://stme.sh) and
+a venue at
+[`tabletop.streetmesh.com`](https://tabletop.streetmesh.com), from this
+repository — see [`DEPLOYING.md`](DEPLOYING.md).
+
+They are separate *applications*, with their own databases, their own identities
+and their own domains, as anybody operating them would have it. They are not
+separate *codebases*.
 
 **Building something people can do at a venue?** Start at
 [`EXPERIENCES.md`](EXPERIENCES.md) instead — the four processes a working server
