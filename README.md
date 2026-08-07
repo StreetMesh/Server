@@ -173,8 +173,9 @@ offered by whatever is installed, arranged by whoever runs the server:
 A name nothing provides is skipped rather than fatal, so removing a package does
 not break a page.
 
-Both live in [`routes/web.php`](routes/web.php) and
-[`resources/views/streetmesh`](resources/views/streetmesh), because they belong
+Both live in [`routes/web.php`](routes/web.php) and are drawn by
+[`welcome.blade.php`](resources/views/welcome.blade.php) and
+[`dashboard.blade.php`](resources/views/dashboard.blade.php), because they belong
 to the application rather than to any package. Two routes sharing a path do not
 collide loudly in Laravel — the later silently replaces the earlier — so a
 package claiming the root would win or lose on boot order with nobody deciding.
