@@ -19,7 +19,21 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        /*
+         * No accounts, no account routes.
+         *
+         * Fortify serves `/login`, `/register` and the password flow whether or
+         * not this server has anybody to sign in. On a venue that meant a login
+         * form for accounts it cannot issue — and a registration form that
+         * would happily create one — sitting next to screens people were
+         * already using, at the same paths their own domicile uses.
+         *
+         * Registered here rather than in `boot`, because Fortify loads its
+         * routes when it boots and by then it is too late to decline them.
+         */
+        if (config('streetmesh.capabilities.domicile') === false) {
+            Fortify::ignoreRoutes();
+        }
     }
 
     /**

@@ -1,3 +1,11 @@
+{{--
+    Who is here, and the way in or out, are questions only the installed
+    capabilities can answer — a domicile means a resident with an account, a
+    venue means a visitor holding permission from somewhere else, and the
+    framework's `auth()` can see only the first.
+--}}
+@inject('capabilities', 'StreetMesh\Protocol\Laravel\Capabilities\Capabilities')
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
     <head>
@@ -47,21 +55,36 @@
             </flux:sidebar.nav>
 
             {{--
-                Guarded, because this chrome is not only for people with an
-                account here. A venue's screens are public by design — a visitor
-                arrives holding a name issued somewhere else, and may be holding
-                nothing at all — so a layout that reaches for `auth()->user()`
-                unguarded is a layout that only a domicile can use.
+                Whoever is here, asked of the capabilities rather than of
+                `auth()`.
+
+                A venue's visitor is not signed in — they hold permission from
+                another server, and the framework knows nothing about them. This
+                corner used to check `auth()`, decide nobody was there, and
+                offer a "Log in" link to somebody already using the place, for
+                an account that server cannot issue.
+
+                And when nobody is here, the way in is the one that capability
+                actually has: a login form at a domicile, an address box at a
+                venue.
             --}}
-            @auth
-                <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
-            @else
+            @php($whoever = $capabilities->whoever())
+
+            @if ($whoever !== null)
+                <x-desktop-user-menu
+                    class="hidden lg:block"
+                    :name="$whoever['name']"
+                    :leave="$whoever['leave']"
+                />
+            @elseif ($capabilities->frontAction(config('streetmesh.front_page')) !== null)
+                @php($in = $capabilities->frontAction(config('streetmesh.front_page')))
+
                 <flux:sidebar.nav class="hidden lg:block">
-                    <flux:sidebar.item icon="arrow-right-end-on-rectangle" :href="route('login')" wire:navigate>
-                        {{ __('Log in') }}
+                    <flux:sidebar.item icon="arrow-right-end-on-rectangle" :href="route($in['route'])" wire:navigate>
+                        {{ __($in['label']) }}
                     </flux:sidebar.item>
                 </flux:sidebar.nav>
-            @endauth
+            @endif
         </flux:sidebar>
 
         <!-- Mobile User Menu -->
@@ -70,25 +93,25 @@
 
             <flux:spacer />
 
-            @guest
-                <flux:button :href="route('login')" size="sm" variant="ghost" wire:navigate>
-                    {{ __('Log in') }}
+            @if ($whoever === null && ($in = $capabilities->frontAction(config('streetmesh.front_page'))) !== null)
+                <flux:button :href="route($in['route'])" size="sm" variant="ghost" wire:navigate>
+                    {{ __($in['label']) }}
                 </flux:button>
-            @endguest
+            @endif
 
-            @auth
-            <flux:dropdown position="top" align="end">
-                <flux:profile
-                    :initials="auth()->user()->initials()"
-                    icon-trailing="chevron-down"
-                />
+            @if ($whoever !== null)
+                <flux:dropdown position="top" align="end">
+                    <flux:profile
+                        :initials="auth()->user()?->initials() ?? Str::upper(Str::substr($whoever['name'], 0, 2))"
+                        icon-trailing="chevron-down"
+                    />
 
-                {{-- The same menu as the sidebar's, because it is the same menu. --}}
-                <flux:menu>
-                    <x-user-menu-items />
-                </flux:menu>
-            </flux:dropdown>
-            @endauth
+                    {{-- The same menu as the sidebar's, because it is the same menu. --}}
+                    <flux:menu>
+                        <x-user-menu-items :leave="$whoever['leave']" />
+                    </flux:menu>
+                </flux:dropdown>
+            @endif
         </flux:header>
 
         {{ $slot }}

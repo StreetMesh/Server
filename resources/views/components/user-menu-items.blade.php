@@ -9,14 +9,25 @@
 
     One file, used twice. Neither dropdown decides what is in the menu.
 --}}
-<div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-    <flux:avatar :name="auth()->user()->name" :initials="auth()->user()->initials()" />
+@props(['leave' => null])
 
-    <div class="grid flex-1 text-start text-sm leading-tight">
-        <flux:heading class="truncate">{{ auth()->user()->name }}</flux:heading>
-        <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
+{{--
+    The account, when there is one.
+
+    A venue has no accounts at all, so everything below that reads
+    `auth()->user()` is a domicile's half of this menu. A visitor gets the part
+    that describes them instead — which is the block after this one.
+--}}
+@auth
+    <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+        <flux:avatar :name="auth()->user()->name" :initials="auth()->user()->initials()" />
+
+        <div class="grid flex-1 text-start text-sm leading-tight">
+            <flux:heading class="truncate">{{ auth()->user()->name }}</flux:heading>
+            <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
+        </div>
     </div>
-</div>
+@endauth
 
 {{--
     Who you are here as, when that is a different question.
@@ -35,7 +46,9 @@
     page down with it.
 --}}
 @if (request()->hasSession() && ($visiting = app(\StreetMesh\Venue\Visitors::class)->current(request())))
-    <flux:menu.separator />
+    @auth
+        <flux:menu.separator />
+    @endauth
 
     <div class="px-1 py-1.5 text-start text-sm">
         {{--
@@ -63,6 +76,12 @@
     </form>
 @endif
 
+{{--
+    Settings and signing out belong to an account, so they are absent where
+    there is none. A venue's visitor leaves by giving the permission back, which
+    is the item above.
+--}}
+@auth
 <flux:menu.separator />
 
 <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
@@ -81,3 +100,4 @@
         {{ __('Log out') }}
     </flux:menu.item>
 </form>
+@endauth
