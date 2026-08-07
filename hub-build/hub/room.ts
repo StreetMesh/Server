@@ -33,6 +33,22 @@ export interface JoinOptions {
   room?: string
 }
 
+/**
+ * What the room did, on one line each.
+ *
+ * A hub is the one part of this nobody can attach a debugger to: it runs
+ * somewhere else, and the questions it can be asked from outside are
+ * deliberately narrow. When two people who joined the same table cannot see
+ * each other, the thing worth knowing is whether they were ever in the same
+ * room — and the room is the only thing that knows.
+ *
+ * The Colyseus id as well as the venue's name for it, because the whole class
+ * of bug here is two rooms wearing one name.
+ */
+function note(what: string, room: { roomId: string; venueName: string; clients: unknown[] }): void {
+  console.log(`[room] ${what} ${room.venueName} as ${room.roomId} (${room.clients.length} here)`)
+}
+
 export abstract class VenueRoom<State extends OccupancyType = OccupancyType> extends Room<State> {
   protected readonly seats = new Map<string, Ticket>()
 
@@ -73,9 +89,13 @@ export abstract class VenueRoom<State extends OccupancyType = OccupancyType> ext
      * without this, a venue asking how a game ended has nothing to ask about.
      */
     remember(this, this.venueRoom)
+
+    note('opened', { roomId: this.roomId, venueName: this.venueRoom, clients: this.clients })
   }
 
   onDispose(): void {
+    note('disposed', { roomId: this.roomId, venueName: this.venueRoom, clients: this.clients })
+
     forget(this.venueRoom)
 
     /*
@@ -179,6 +199,12 @@ export abstract class VenueRoom<State extends OccupancyType = OccupancyType> ext
 
     this.seated(client, auth.ticket)
 
+    note(`joined ${auth.ticket.name} (${auth.ticket.seat})`, {
+      roomId: this.roomId,
+      venueName: this.venueRoom,
+      clients: this.clients,
+    })
+
     this.tell()
   }
 
@@ -219,6 +245,12 @@ export abstract class VenueRoom<State extends OccupancyType = OccupancyType> ext
     if (ticket) {
       this.left(client, ticket)
     }
+
+    note(`left ${ticket?.name ?? 'somebody'}`, {
+      roomId: this.roomId,
+      venueName: this.venueRoom,
+      clients: this.clients,
+    })
 
     this.tell()
   }

@@ -10,7 +10,7 @@ module.exports = {
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
-        HUB_BUILD: '68f1a254cb405f04',
+        HUB_BUILD: '6d02315a32e814c0',
       },
     },
   ],
