@@ -107,12 +107,16 @@ is committed is not what this server builds, asks the running hub which build it
 is, and **does nothing when it already matches**. That last part is what keeps a
 copy change to a Blade file from ending somebody's game.
 
-> **Partly unverified.** The Colyseus CLI works out which commit to deploy from
-> git rather than uploading anything, so it needs a real checkout. Initialising
-> submodules in the build proves `git` and `.git` are both there; what is not yet
-> confirmed is that `origin` is configured, which is what the CLI reads. If it
-> turns out not to be, run the CLI from GitHub Actions on changes to
-> `hub-build/**` instead and drop `hub:deploy` from the build commands.
+> **What a build container does to git**, learned the hard way and worth knowing
+> before something else depends on it. `origin` is configured and fetches fine.
+> But the **index is detached** — every tracked file reads as staged-deleted and
+> every file as untracked — and **`HEAD` is detached** too, because a commit is
+> checked out rather than a branch. Neither is a broken checkout; both look
+> exactly like one.
+>
+> So `hub:deploy` abstains from its git checks when the index holds nothing, and
+> passes the branch explicitly rather than asking a checkout that cannot say.
+> Set `COLYSEUS_BRANCH` if yours is not `main`.
 
 ### Environment
 
