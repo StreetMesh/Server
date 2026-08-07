@@ -50,6 +50,24 @@ function note(what: string, room: { roomId: string; venueName: string; clients: 
 }
 
 export abstract class VenueRoom<State extends OccupancyType = OccupancyType> extends Room<State> {
+  /**
+   * How long a table stays up with nobody at it.
+   *
+   * Colyseus disposes a room the moment it empties, which is right for a lobby
+   * and wrong for a game. A browser drops a socket for all sorts of reasons
+   * that are not somebody leaving — a reload, a navigation, a laptop lid, a
+   * connection that blinked — and if the table dies in that gap it takes the
+   * game with it. A new room then opens under the same name, so the venue and
+   * everybody else see a table that is fine and a game that never happened.
+   *
+   * Long enough to cover a reload and a bad minute of signal. Not so long that
+   * an abandoned table hangs around: the venue is told when this expires, and
+   * that is what settles a game nobody came back to.
+   */
+  private static readonly EMPTY_FOR_SECONDS = 120
+
+  private emptying: ReturnType<typeof setTimeout> | null = null
+
   protected readonly seats = new Map<string, Ticket>()
 
   /** The venue's name for this room, which every ticket must agree with. */
@@ -70,6 +88,11 @@ export abstract class VenueRoom<State extends OccupancyType = OccupancyType> ext
     }
 
     this.venueRoom = options.room
+
+    /*
+     * Ours to close, not Colyseus's. See EMPTY_FOR_SECONDS.
+     */
+    this.autoDispose = false
 
     /*
      * An experience that wants state of its own sets it in `opened` and calls
@@ -94,6 +117,11 @@ export abstract class VenueRoom<State extends OccupancyType = OccupancyType> ext
   }
 
   onDispose(): void {
+    if (this.emptying !== null) {
+      clearTimeout(this.emptying)
+      this.emptying = null
+    }
+
     note('disposed', { roomId: this.roomId, venueName: this.venueRoom, clients: this.clients })
 
     forget(this.venueRoom)
@@ -199,6 +227,15 @@ export abstract class VenueRoom<State extends OccupancyType = OccupancyType> ext
 
     this.seated(client, auth.ticket)
 
+    /*
+     * Somebody is here, so the table is not closing. This is the ordinary case
+     * after a reload: the same person, seconds later, and nothing was lost.
+     */
+    if (this.emptying !== null) {
+      clearTimeout(this.emptying)
+      this.emptying = null
+    }
+
     note(`joined ${auth.ticket.name} (${auth.ticket.seat})`, {
       roomId: this.roomId,
       venueName: this.venueRoom,
@@ -253,6 +290,18 @@ export abstract class VenueRoom<State extends OccupancyType = OccupancyType> ext
     })
 
     this.tell()
+
+    if (this.clients.length === 0) {
+      this.emptying = setTimeout(() => {
+        note('closing, nobody came back', {
+          roomId: this.roomId,
+          venueName: this.venueRoom,
+          clients: this.clients,
+        })
+
+        this.disconnect()
+      }, VenueRoom.EMPTY_FOR_SECONDS * 1000)
+    }
   }
 
   /** Who is here, as the venue vouched for them. */
