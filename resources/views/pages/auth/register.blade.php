@@ -47,6 +47,27 @@
                 have already signed. What is worth saying is that people will
                 know them by it.
             --}}
+            {{--
+                Shaped as it is typed rather than refused afterwards.
+
+                A rejected address costs a round trip and a red sentence about a
+                name somebody had already settled on. The rule is the one
+                `Handle` enforces, which is the hostname rule: letters, numbers
+                and hyphens, not starting or ending with a hyphen.
+
+                Lower-cased here because `Handle` lower-cases it anyway, so a
+                capital would be accepted and then quietly changed — better to
+                show what is actually being claimed.
+
+                A trailing hyphen is left alone until the field is left. Taking
+                it away as it is typed would mean nobody could ever type
+                `mary-jane`: the hyphen would vanish before the `j` arrived.
+                A leading one has no such excuse and goes immediately.
+
+                Only rewritten when the value would differ, because assigning to
+                `value` puts the caret at the end, and doing that on every
+                keystroke makes the field impossible to edit in the middle.
+            --}}
             <flux:input
                 name="address"
                 :label="__('Address')"
@@ -54,8 +75,31 @@
                 type="text"
                 required
                 autocomplete="username"
-                :placeholder="__('yourname')"
+                autocapitalize="off"
+                spellcheck="false"
+                maxlength="63"
+                :placeholder="__('username')"
                 :description="__('Choose well: this is how people will know you.')"
+                x-data="{
+                    shape(settled) {
+                        let name = $el.value.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/^-+/, '');
+
+                        if (settled) {
+                            name = name.replace(/-+$/, '');
+                        }
+
+                        if (name === $el.value) {
+                            return;
+                        }
+
+                        const at = Math.max(0, $el.selectionStart - ($el.value.length - name.length));
+
+                        $el.value = name;
+                        $el.setSelectionRange(at, at);
+                    },
+                }"
+                x-on:input="shape(false)"
+                x-on:blur="shape(true)"
             >
                 <x-slot name="iconTrailing">
                     <flux:text class="pr-3 whitespace-nowrap">.{{ $residentHost }}</flux:text>
