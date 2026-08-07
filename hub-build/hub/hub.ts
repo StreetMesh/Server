@@ -17,6 +17,7 @@
  * puts it, and where anybody reading it will look for it.
  */
 
+import { LocalDriver, LocalPresence } from '@colyseus/core'
 import type { ConfigOptions } from '@colyseus/tools'
 import { install, type Experience } from './install.ts'
 import { routes } from './answers.ts'
@@ -36,10 +37,32 @@ export type HubOptions = Omit<ConfigOptions, 'initializeGameServer' | 'initializ
 }
 
 export function hub(experiences: Experience[], also: HubOptions = {}): ConfigOptions {
-  const { initializeGameServer, initializeExpress, ...rest } = also
+  const { initializeGameServer, initializeExpress, options, ...rest } = also
 
   return {
     ...rest,
+
+    /*
+     * One process, said out loud.
+     *
+     * `@colyseus/tools` otherwise decides this by counting CPUs: more than one
+     * and it reaches for Redis, whether or not there is a Redis to reach. On a
+     * developer's machine that quietly works, because a development
+     * environment tends to be running one; somewhere else it quietly does not,
+     * and the symptom is two players in what looks like the same room who
+     * cannot see each other.
+     *
+     * A hub keeps its room registry in memory — see `answers.ts` — so one
+     * process is not a default, it is the assumption the design is built on.
+     * Spreading it across several needs that registry somewhere shared, and
+     * would be a decision with a Redis address attached rather than a
+     * consequence of how many cores somebody's machine has.
+     */
+    options: {
+      driver: new LocalDriver(),
+      presence: new LocalPresence(),
+      ...options,
+    },
 
     initializeGameServer: (server) => {
       install(server, experiences)

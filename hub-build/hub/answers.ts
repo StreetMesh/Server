@@ -42,6 +42,17 @@ export function forget(name: string): void {
 }
 
 /**
+ * This process, distinct from any other serving the same name.
+ *
+ * A hub keeps its rooms in memory, so two processes behind one address are two
+ * hubs pretending to be one: people who joined the same table land in different
+ * rooms and cannot see each other. It is invisible from outside — every process
+ * answers every question plausibly — so this is here to make it countable. Ask
+ * for the build a few times; more than one answer means more than one hub.
+ */
+const process_id = Math.random().toString(36).slice(2, 8)
+
+/**
  * Which build this hub is running.
  *
  * The venue generates the hub from what it has installed and knows the
@@ -53,7 +64,7 @@ export function forget(name: string): void {
  * legitimate thing to be; it simply cannot answer this.
  */
 function answerBuild(_request: Request, response: Response): void {
-  response.json({ build: process.env.HUB_BUILD ?? 'unknown' })
+  response.json({ build: process.env.HUB_BUILD ?? 'unknown', process: process_id })
 }
 
 /**
