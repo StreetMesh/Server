@@ -31,6 +31,10 @@ and git is what carries the result.
 artifact that deploys. Changing a room without regenerating means you never ran
 it.
 
+**And forgetting fails loudly.** `HubBuildTest` rebuilds into a temporary
+directory and compares fingerprints, so a room changed without rebuilding fails
+`composer test` rather than shipping the previous hub in silence.
+
 ---
 
 ## The hub, on Colyseus Cloud
