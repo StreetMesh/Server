@@ -19,6 +19,7 @@ Route::get('/', function (Capabilities $capabilities, Identities $identities) {
     return view('welcome', [
         'identity' => $identities->forServer(),
         'front' => $capabilities->frontPage(config('streetmesh.front_page')),
+        'action' => $capabilities->frontAction(config('streetmesh.front_page')),
     ]);
 })->name('home');
 
