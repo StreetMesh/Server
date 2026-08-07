@@ -138,6 +138,23 @@ The hub needs `STREETMESH_REALTIME_SECRET` set to the same value, in the
 Colyseus application's own environment. It is a comma-separated list, newest
 first, which is how it rotates: add the new one, deploy both, remove the old.
 
+### WebTransport, when it comes
+
+Not here. Colyseus Cloud does not carry it, and the reason is structural rather
+than a missing feature: `H3Transport` terminates its own TLS over UDP, so a
+managed platform fronting you with an HTTP load balancer cannot pass it through.
+Trying it means somewhere you control — Forge, or a machine with UDP/443.
+
+The hub is ready for that and deliberately so. Transport is a single option in
+the generated `app.config.ts`, unnamed today so Colyseus picks one; the hub does
+not stand up a server of its own, and its two endpoints are Express routes
+because `H3Transport` takes an Express application and has nowhere to put a bare
+`http.Server`. Both of those choices exist for this and for no other reason.
+
+A local experiment will also need its own certificate: browsers want one that is
+publicly trusted, or `serverCertificateHashes` with a short-lived one, and a
+development CA is neither.
+
 ---
 
 ## A domicile
