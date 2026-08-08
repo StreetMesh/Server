@@ -148,7 +148,7 @@ export class ChessRoom extends VenueRoom<ChessStateType> {
   private resign(client: Client): void {
     const seat = this.playerAt(client)
 
-    if (seat === '' || !this.bothHere()) {
+    if (seat === '' || !this.bothSeatsTaken()) {
       return
     }
 
@@ -156,15 +156,22 @@ export class ChessRoom extends VenueRoom<ChessStateType> {
   }
 
   /**
-   * Whether there are two people playing rather than one person waiting.
+   * Whether this is a game rather than one person waiting for an opponent.
    *
    * Resigning to nobody is not a thing that can happen. The board hides the
    * button, but the board is somebody else's computer — without this, a player
    * alone at a table could end a game that had not started, and the record
    * would say they lost one nobody played.
+   *
+   * Both seats *taken*, not both players connected. This asked who was in the
+   * room, and the two are not the same question once somebody closes a tab: the
+   * opponent still holds their chair, the game is still theirs to give up, and
+   * the board went on offering the button — so Resign asked "really?", was
+   * confirmed, and did nothing at all. Which is the state most abandoned games
+   * are in, and exactly when somebody wants this.
    */
-  private bothHere(): boolean {
-    return this.present().filter((who) => SEATS.includes(who.seat as never)).length >= 2
+  private bothSeatsTaken(): boolean {
+    return SEATS.every((seat) => this.taken.has(seat))
   }
 
   private offerDraw(client: Client): void {
@@ -295,13 +302,6 @@ export class ChessRoom extends VenueRoom<ChessStateType> {
     this.settleIfOver()
   }
 
-  /**
-   * Deciding it is over, and saying how.
-   *
-   * Only the outcome is written into state. Turning that into a record is the
-   * venue's job, and the venue asks — this room never calls out, holds no
-   * credential, and could not be believed if it did.
-   */
   /**
    * What the venue will write down, once there is something to write.
    *

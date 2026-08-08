@@ -70,6 +70,20 @@ export abstract class VenueRoom<State extends OccupancyType = OccupancyType> ext
 
   protected readonly seats = new Map<string, Ticket>()
 
+  /**
+   * Which seats the venue has filled, which is not the same as who is here.
+   *
+   * `seats` above is this room's own view, and it empties as people disconnect.
+   * This is the venue's, and it is the one an experience wants whenever the
+   * question is "are there two players" rather than "who can see this now".
+   *
+   * Added to and never subtracted from. Every ticket carries the venue's roster
+   * as it stood when it was signed, so the union of the tickets this room has
+   * seen is the fullest account it has — and a watcher's ticket, which names no
+   * seats at all, must not be able to empty a table.
+   */
+  protected readonly taken = new Set<string>()
+
   /** The venue's name for this room, which every ticket must agree with. */
   protected venueRoom = ''
 
@@ -215,6 +229,10 @@ export abstract class VenueRoom<State extends OccupancyType = OccupancyType> ext
   onJoin(client: Client, options: JoinOptions, auth: Seated): void {
     this.seats.set(client.sessionId, auth.ticket)
     this.issuer ||= auth.ticket.issuer
+
+    for (const seat of auth.ticket.taken) {
+      this.taken.add(seat)
+    }
 
     this.state.occupants.set(
       client.sessionId,

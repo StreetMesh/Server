@@ -25,6 +25,14 @@ export interface Ticket {
   /** Which room, and which seat in it. */
   room: string
   seat: string
+  /**
+   * Every seat the venue has filled, including this one.
+   *
+   * The venue's record rather than this room's — somebody who has closed their
+   * tab still holds their chair. Nothing here can work this out: a room sees
+   * connections, and a connection is not a seat.
+   */
+  taken: string[]
 }
 
 interface Cached {
@@ -207,5 +215,11 @@ export async function verifyTicket(
     name: typeof claims.name === 'string' ? claims.name : claims.sub,
     room: expectedRoom,
     seat: typeof claims.seat === 'string' ? claims.seat : '',
+
+    /*
+     * Absent on a ticket signed before venues said this, which is an empty
+     * roster rather than a refusal — an older venue is not a broken one.
+     */
+    taken: Array.isArray(claims.taken) ? claims.taken.filter((seat) => typeof seat === 'string') : [],
   }
 }

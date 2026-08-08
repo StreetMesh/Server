@@ -51,6 +51,14 @@ $visitor = new Delegation([
 $tickets = $app->make(Tickets::class);
 
 /*
+ * Standing in for the venue's seat roster, which a real one reads from its own
+ * records. Only this ticket-holder's own seat, so that a table minted one
+ * player at a time fills up the way a real one does — the room unions what its
+ * tickets tell it, and a watcher (no seat) adds nothing.
+ */
+$taken = $seat === '' ? [] : [$seat];
+
+/*
  * A second ticket, properly signed and already expired.
  *
  * Editing a good ticket's expiry would break its signature, and the other side
@@ -59,11 +67,11 @@ $tickets = $app->make(Tickets::class);
  * genuinely run out.
  */
 Carbon::setTestNow(now()->subHour());
-$expired = $tickets->mint($visitor, $room, seat: $seat);
+$expired = $tickets->mint($visitor, $room, seat: $seat, taken: $taken);
 Carbon::setTestNow();
 
 echo json_encode([
-    'ticket' => $tickets->mint($visitor, $room, seat: $seat),
+    'ticket' => $tickets->mint($visitor, $room, seat: $seat, taken: $taken),
     'expired' => $expired,
     'room' => $room,
     'expect' => [
