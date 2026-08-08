@@ -2,21 +2,41 @@
     This server's own consent screen, overriding the protocol package's.
 
     The package ships a plain standalone page because it has no business
-    deciding what a domicile looks like. This is a domicile, and it does: the
-    same layout, width and controls as logging in, because being asked to
-    approve something is the same kind of moment and should not arrive looking
-    like a different website.
+    deciding what a domicile looks like. This is a domicile, and it does.
+
+    The venue's door and this screen are two halves of one handover: somebody
+    types their address there, and lands here. So this wears the same frame,
+    with the colour panel on the other side — the layout answering "you are
+    somewhere else now" before the heading has to.
 
     What must survive any version of this screen, and does: the venue is named,
     the request is described in words rather than in scope strings, and refusing
     is exactly as easy as agreeing.
 --}}
-<x-layouts::auth :title="__('Permission')">
+<x-layouts::door :title="__('Permission')" panel="start">
+    {{--
+        Both parties, instead of this server's mark on its own.
+
+        This is the one screen in StreetMesh where two servers are introduced to
+        each other, and the usual single mark over a single name would say the
+        opposite of what is happening here.
+    --}}
+    <x-slot:masthead>
+        <x-handshake :here="config('streetmesh.host')" :there="$venue" />
+    </x-slot:masthead>
+
     <div class="flex flex-col gap-6">
-        <x-auth-header
-            :title="__(':venue would like permission', ['venue' => $venue])"
-            :description="__('You can revoke this at any time.')"
-        />
+        {{--
+            Ranged left, matching the door. `x-auth-header` centres its text,
+            which is right for a card floating mid-screen and wrong in a column
+            with a form under it.
+        --}}
+        <div class="flex flex-col gap-2">
+            <flux:heading size="xl">
+                {{ __(':venue wants to connect', ['venue' => $venue]) }}
+            </flux:heading>
+            <flux:subheading>{{ __('You can revoke this at any time.') }}</flux:subheading>
+        </div>
 
         {{--
             What is being asked for, in sentences the package wrote from the
@@ -25,7 +45,7 @@
             nothing at all.
         --}}
         <flux:callout icon="key">
-            <flux:callout.heading>{{ __('It is asking to') }}</flux:callout.heading>
+            <flux:callout.heading>{{ __("Permissions you're granting:") }}</flux:callout.heading>
             <flux:callout.text>
                 <ul class="list-disc ps-4">
                     @foreach ($asking as $sentence)
@@ -38,7 +58,7 @@
         {{--
             Two answers of equal weight. "Allow" is the primary because it is
             what most people are here to do, not because it is what this server
-            would prefer — "Not now" is a full-width button beside it rather
+            would prefer — "Cancel" is a full-width button beside it rather
             than a link tucked underneath.
         --}}
         {{--
@@ -95,8 +115,8 @@
                 x-bind:inert="answer === 'yes'"
                 x-bind:class="answer === 'yes' ? 'opacity-50' : ''"
             >
-                {{ __('Not now') }}
+                {{ __('Cancel') }}
             </flux:button>
         </form>
     </div>
-</x-layouts::auth>
+</x-layouts::door>
