@@ -5,6 +5,20 @@ use StreetMesh\Chess\Http\SettleController;
 use StreetMesh\Chess\Http\SitController;
 
 /*
+ * The games, for somebody who has not come to play.
+ *
+ * A separate address rather than the lobby with its door taken off, because
+ * the two are different invitations: `chess.lobby` is where you go to play and
+ * asks you to arrive first, and this is where you go to look and asks nothing
+ * at all. One screen serves both — everything on it that acts is guarded
+ * already, so a stranger sees the games and can open any of them.
+ *
+ * Before the table below it, and that is not a matter of taste. `{key}` would
+ * match the word `watch` and answer with a game that does not exist.
+ */
+Route::livewire('experiences/chess/watch', 'chess::lobby')->name('chess.watch');
+
+/*
  * A table is readable by anybody.
  *
  * Somebody following an invitation has not been here before and has no reason

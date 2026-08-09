@@ -14,6 +14,14 @@ import { Client } from 'colyseus.js'
 import { capture, drop, lift, permit, place, refuse } from './sounds.js'
 
 /**
+ * A device somebody is holding, asked once and watched after that.
+ *
+ * At module scope because every board on the page would otherwise ask the same
+ * question of the same browser, and the answer cannot differ between them.
+ */
+const HANDHELD = matchMedia('(pointer: coarse)')
+
+/**
  * Piece artwork from Font Awesome Free, used under CC BY 4.0.
  *
  * Path data rather than the package, so that installing this experience stays
@@ -378,7 +386,6 @@ export default function chessTable({ ticketUrl, settleUrl, seat, invitation, whi
         seat,
         squares: squaresFrom('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR', seat === 'black'),
         moves: [],
-        status: 'Connecting…',
         trouble: '',
         selected: null,
         over: false,
@@ -411,6 +418,20 @@ export default function chessTable({ ticketUrl, settleUrl, seat, invitation, whi
          * so this is what turns the board grey and offers the way back.
          */
         disconnected: false,
+
+        /**
+         * Whether this is a device somebody is holding.
+         *
+         * A coarse pointer rather than a screen width or a user agent string. A
+         * phone in landscape is wider than a small window on a laptop, and a
+         * user agent is a thing browsers lie about on purpose — but "the
+         * pointer cannot be aimed precisely" is true of a finger, false of a
+         * mouse, and is the actual question.
+         *
+         * Set live, because it changes: an iPad reports a coarse pointer until
+         * a trackpad keyboard is attached to it, and a fine one afterwards.
+         */
+        handheld: HANDHELD.matches,
 
         /** How it ended, once it has. */
         outcome: '',
@@ -481,6 +502,8 @@ export default function chessTable({ ticketUrl, settleUrl, seat, invitation, whi
         knight: artwork('n'),
 
         init() {
+            HANDHELD.addEventListener('change', (pointer) => (this.handheld = pointer.matches))
+
             this.connect()
         },
 
@@ -494,7 +517,6 @@ export default function chessTable({ ticketUrl, settleUrl, seat, invitation, whi
         async connect() {
             this.disconnected = false
             this.trouble = ''
-            this.status = 'Connecting…'
 
             /*
              * The next delivery is the game so far rather than anything that
@@ -516,8 +538,6 @@ export default function chessTable({ ticketUrl, settleUrl, seat, invitation, whi
              * to.
              */
             if (!ticketUrl) {
-                this.status = ''
-
                 return
             }
 
@@ -539,8 +559,6 @@ export default function chessTable({ ticketUrl, settleUrl, seat, invitation, whi
                 }
             } catch (refused) {
                 this.trouble = refused.message
-                this.status = ''
-
                 return
             }
 
@@ -551,12 +569,8 @@ export default function chessTable({ ticketUrl, settleUrl, seat, invitation, whi
                 )
             } catch (refused) {
                 this.trouble = 'Could not reach the table.'
-                this.status = ''
-
                 return
             }
-
-            this.status = ''
 
             this.room.onStateChange((state) => {
                 this.moves = [...state.moves]
@@ -582,11 +596,6 @@ export default function chessTable({ ticketUrl, settleUrl, seat, invitation, whi
                 })
 
                 this.over = state.outcome !== ''
-
-                // "Waiting for black" rather than "black to move": this sits in
-                // the corner of somebody's own screen, and what it is telling
-                // them is why nothing is happening.
-                this.status = this.over ? '' : `Waiting for ${state.turn}`
 
                 /*
                  * A game that has just ended becomes a record of itself, here,
@@ -633,14 +642,13 @@ export default function chessTable({ ticketUrl, settleUrl, seat, invitation, whi
 
             this.room.onLeave(() => {
                 /*
-                 * Said as a state rather than as a word in the status line, so
-                 * the board can go quiet and the one useful action can be
-                 * offered. A table that has dropped looks exactly like a live
+                 * A state rather than a sentence, so the board can go quiet and
+                 * the one useful action can take the place of the rest. A table
+                 * that has dropped looks exactly like a live
                  * one otherwise, which is how somebody comes back from lunch
                  * and cannot work out why their move does nothing.
                  */
                 this.disconnected = true
-                this.status = ''
             })
         },
 
@@ -669,9 +677,15 @@ export default function chessTable({ ticketUrl, settleUrl, seat, invitation, whi
          * copying a link is about to paste it somewhere themselves; somebody
          * sharing is handing it to a person. One button that chose between them
          * by asking the browser what it supported got this wrong both ways.
+         *
+         * Having the API is not reason enough to use it. Desktop Safari, Edge
+         * and Chrome all publish `navigator.share`, and on a laptop the sheet it
+         * opens is a short list of things nobody wanted — while Copy link and a
+         * code on screen are both useful there. So it takes a share sheet *and*
+         * a device held in the hand.
          */
         get canShare() {
-            return Boolean(navigator.share)
+            return Boolean(navigator.share) && this.handheld
         },
 
         /**

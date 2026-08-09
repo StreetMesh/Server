@@ -3,6 +3,7 @@
 namespace StreetMesh\Chess;
 
 use StreetMesh\Protocol\Scope;
+use StreetMesh\Venue\Experiences\Audience;
 use StreetMesh\Venue\Experiences\Experience;
 use StreetMesh\Venue\Experiences\Settles;
 use StreetMesh\Venue\Gatherings\Gathering;
@@ -85,6 +86,39 @@ final class ChessExperience implements Experience, Settles
     public function action(): string
     {
         return 'Play';
+    }
+
+    /**
+     * The games, for somebody who has not come to play.
+     *
+     * The same list as `route()` shows, at an address that asks nothing of
+     * anybody. Playing still means arriving first — the buttons that act are
+     * behind the door wherever the list is read from — but looking at what is
+     * on does not, and it used to.
+     *
+     * @return array{label: string, route: string}
+     */
+    public function watching(): array
+    {
+        return ['label' => 'Watch', 'route' => 'chess.watch'];
+    }
+
+    /**
+     * Chess is a spectator sport.
+     *
+     * Anybody holding the address may watch, including somebody who has never
+     * been to this venue. Nothing is given away that both players cannot
+     * already see, and a game people can watch is a better thing than a game
+     * they cannot.
+     *
+     * The same answer for every game so far, which is the simplest thing this
+     * can say and not the only thing it will ever say. The gathering is a
+     * parameter because the day a game wants to be unlisted, here is where it
+     * says so.
+     */
+    public function audience(Gathering $gathering): Audience
+    {
+        return Audience::Anybody;
     }
 
     /**

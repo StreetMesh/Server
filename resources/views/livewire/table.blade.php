@@ -1,5 +1,9 @@
 <?php
 
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use StreetMesh\Chess\ChessExperience;
@@ -70,6 +74,48 @@ new #[Title('Chess')] class extends Component
     public function seated(): bool
     {
         return $this->place() !== null;
+    }
+
+    /**
+     * The way to this table, as something a phone camera can read.
+     *
+     * Two people at one table are often two people in one room, and the way
+     * they have been handing a game over is by reading a URL out loud or
+     * typing it into a message. A code on the screen is the shortest path
+     * between "look at this" and a board on somebody else's phone.
+     *
+     * Drawn here rather than in the browser. The address is already known on
+     * this side, the answer never changes for a given game, and a QR encoder in
+     * JavaScript would be a second one — the server already has this one, for
+     * two-factor codes.
+     *
+     * The whole address goes in, absolute. A code holding a path would scan to
+     * nothing on the phone that read it, which is the only device that ever
+     * scans it.
+     *
+     * SVG so it stays sharp on whatever it is shown on, and so it needs no
+     * image extension installed to render.
+     */
+    public function qr(): string
+    {
+        $invitation = route('chess.table', $this->key);
+
+        return (new Writer(new ImageRenderer(
+            new RendererStyle(320, margin: 1),
+            new SvgImageBackEnd,
+        )))->writeString($invitation);
+    }
+
+    /**
+     * Whether whoever is looking at this came through the door.
+     *
+     * Not the same as having a place here — most people reading a board have
+     * neither, and one of the two is what decides whether a link into the rest
+     * of the venue leads anywhere they can go.
+     */
+    public function arrived(): bool
+    {
+        return app(Visitors::class)->current(request()) !== null;
     }
 
     private function place(): ?Seat
@@ -167,11 +213,20 @@ new #[Title('Chess')] class extends Component
 
             `wire:ignore` because Livewire must not re-render underneath it: a
             round trip to PHP between two clicks would fight the live state.
+
+            Everybody looking at this page asks for a ticket, not only the two
+            people playing. Watching a game means watching it happen, and a
+            board that opened no socket for a passer-by showed them the position
+            as it stood when the page loaded and then nothing ever again.
+
+            Whether they get one is the venue's answer, and behind that the
+            experience's. A request that should be refused comes back refused,
+            and the board goes on showing the position it already has.
         --}}
         <div
             wire:ignore
             x-data="chessTable({
-                ticketUrl: @js($this->seated() ? route('venue.ticket', $game->key) : null),
+                ticketUrl: @js(route('venue.ticket', $game->key)),
                 settleUrl: @js(route('chess.settle', $game->key)),
                 seat: @js($this->seat()),
                 invitation: @js(route('chess.table', $game->key)),

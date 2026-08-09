@@ -102,6 +102,171 @@ class GameTest extends TestCase
     }
 
     /**
+     * Somebody who has never been here, reading what is on.
+     *
+     * The whole point of a second address for one list: `chess.lobby` is where
+     * you go to play and asks you to arrive first, and this asks nothing. A
+     * stranger who wanted to watch a game met a form asking them to name their
+     * own server, which is a toll nobody pays to look at a chessboard.
+     */
+    public function test_a_stranger_can_read_what_games_are_on(): void
+    {
+        $games = $this->games();
+        $game = $games->open($this->player('alice'));
+
+        $games->join($game, $this->player('bob'));
+
+        $this->get(route('chess.watch'))
+            ->assertOk()
+            ->assertSee(substr($game->key, -6));
+    }
+
+    /**
+     * And is offered the way in rather than a button that does nothing.
+     *
+     * Starting a game refuses without a visitor, so on a page anybody may read
+     * it had to stop being offered to the people it would refuse.
+     */
+    public function test_a_stranger_is_offered_the_way_in_rather_than_a_dead_button(): void
+    {
+        $this->get(route('chess.watch'))
+            ->assertOk()
+            ->assertSee('Sign in to play')
+            ->assertDontSee('Start a game');
+    }
+
+    /**
+     * A free chair is not an invitation to somebody the venue cannot name.
+     *
+     * A game with one player read "Play" to every stranger on the public list,
+     * on a button wired to an action that refuses without a visitor — so it
+     * promised a game it could not give and then did nothing when pressed. It
+     * offers what it can actually deliver, and links to the table to deliver
+     * it.
+     */
+    public function test_a_stranger_is_offered_a_look_rather_than_a_game(): void
+    {
+        $game = $this->games()->open($this->player('alice'));
+
+        $this->get(route('chess.watch'))
+            ->assertOk()
+            ->assertSee(route('chess.table', $game->key), escape: false)
+            ->assertDontSee('Play');
+    }
+
+    /**
+     * A watcher is told what is happening, not asked to take a chair.
+     *
+     * The header swapped the whole status line for "Sit to play" for anybody
+     * not seated. That was fine when only players had a live board and nobody
+     * else had anything to be told — now that a passer-by watches, "not
+     * seated" is the ordinary state of somebody following a game, and they
+     * were shown an invitation instead of the game.
+     */
+    public function test_a_full_game_does_not_offer_a_watcher_a_chair(): void
+    {
+        $games = $this->games();
+        $game = $games->open($this->player('alice'));
+
+        $games->join($game, $this->player('bob'));
+
+        $this->get(route('chess.table', $game->key))
+            ->assertOk()
+            ->assertDontSee('Sit to play');
+    }
+
+    /**
+     * And still offers one while there is one, because there is.
+     */
+    public function test_a_game_with_a_free_chair_still_offers_it(): void
+    {
+        $game = $this->games()->open($this->player('alice'));
+
+        $this->get(route('chess.table', $game->key))
+            ->assertOk()
+            ->assertSee('Sit to play');
+    }
+
+    /**
+     * The way out of a game leads somewhere a stranger can actually go.
+     */
+    public function test_the_way_back_from_a_game_does_not_face_a_stranger_with_a_door(): void
+    {
+        $game = $this->games()->open($this->player('alice'));
+
+        $this->get(route('chess.table', $game->key))
+            ->assertOk()
+            ->assertSee(route('chess.watch'), escape: false)
+            ->assertDontSee(route('chess.lobby').'"', escape: false);
+    }
+
+    /**
+     * Handing somebody the table across a room rather than across a network.
+     *
+     * Drawn on this side, so it is in the page rather than fetched.
+     */
+    public function test_a_game_can_be_handed_over_as_a_code(): void
+    {
+        $game = $this->games()->open($this->player('alice'));
+
+        $this->get(route('chess.table', $game->key))
+            ->assertOk()
+            ->assertSee('Scan to open this game')
+            ->assertSee('<svg', escape: false);
+    }
+
+    /**
+     * The two things a laptop has no share sheet for.
+     *
+     * On a device with one, the button is the share and there is no menu at
+     * all — pressing a button to be offered a chooser is being asked to choose
+     * to choose.
+     */
+    public function test_a_laptop_is_offered_the_link_and_the_code(): void
+    {
+        $game = $this->games()->open($this->player('alice'));
+
+        $this->get(route('chess.table', $game->key))
+            ->assertOk()
+            ->assertSee('Copy link')
+            ->assertSee('QR code')
+            ->assertSee('!disconnected && canShare', escape: false)
+            ->assertSee('!disconnected && !canShare', escape: false);
+    }
+
+    /**
+     * The one button offers something instead of narrating.
+     *
+     * "Waiting for white" sat where the only action goes and told somebody
+     * what the board in front of them was already showing. A game under way
+     * now offers the way to hand it to somebody.
+     *
+     * Asserted on the binding rather than the words: the line was drawn by
+     * Alpine from room state, so its text was never in what the server sent
+     * and a test looking for it would have passed all along.
+     */
+    public function test_the_action_spot_offers_something_rather_than_narrating(): void
+    {
+        $games = $this->games();
+        $game = $games->open($this->player('alice'));
+
+        $games->join($game, $this->player('bob'));
+
+        $this->get(route('chess.table', $game->key))
+            ->assertOk()
+            ->assertSee('Share')
+            ->assertDontSee('x-text="status"', escape: false);
+    }
+
+    /**
+     * Watching is not playing. The list is readable; the door is still there.
+     */
+    public function test_the_lobby_itself_still_asks_somebody_to_arrive(): void
+    {
+        $this->get(route('chess.lobby'))->assertRedirect(route('venue.connect'));
+    }
+
+    /**
      * A game other people can watch is a better thing than a game they cannot,
      * so a third arrival joins the audience rather than being turned away.
      */

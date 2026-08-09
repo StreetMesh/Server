@@ -46,6 +46,18 @@ new #[Title('Chess')] class extends Component
     }
 
     /**
+     * Whether whoever is reading this came through the door.
+     *
+     * The screen is at two addresses: one for people who came to play, and one
+     * anybody may read. Everything that acts already refuses without a visitor,
+     * and this is what stops those things being offered in the first place.
+     */
+    public function arrived(): bool
+    {
+        return app(Visitors::class)->current(request()) !== null;
+    }
+
+    /**
      * Who is actually at each open table, asked of the hub.
      *
      * Kept apart from the games themselves because they answer different
@@ -95,7 +107,20 @@ new #[Title('Chess')] class extends Component
     public function action(Gathering $game): string
     {
         $visitor = app(Visitors::class)->current(request());
-        $mine = $visitor === null ? null : app(Gatherings::class)->seatOf($game, $visitor);
+
+        /*
+         * Nobody who has not arrived is being offered a game.
+         *
+         * A free chair is not an invitation to somebody the venue cannot name,
+         * and this said "Play" to every stranger reading the public list —
+         * a word the venue was in no position to honour, on a button that then
+         * did nothing at all when pressed.
+         */
+        if ($visitor === null) {
+            return __('Watch');
+        }
+
+        $mine = app(Gatherings::class)->seatOf($game, $visitor);
 
         if ($mine !== null) {
             return $mine->seat === '' ? __('Watch') : __('Play');
@@ -161,9 +186,23 @@ new #[Title('Chess')] class extends Component
     <div class="flex items-center justify-between gap-4">
         <flux:heading size="xl">{{ __('Chess') }}</flux:heading>
 
-        <flux:button wire:click="start" variant="primary" icon="plus">
-            {{ __('Start a game') }}
-        </flux:button>
+        {{--
+            Only to somebody who could actually start one.
+
+            This list is readable by anybody now, and `start` refuses without a
+            visitor — so a stranger reading it would be shown a button that did
+            nothing whatever when pressed. The way in is offered instead, which
+            is what they would have needed first anyway.
+        --}}
+        @if ($this->arrived())
+            <flux:button wire:click="start" variant="primary" icon="plus">
+                {{ __('Start a game') }}
+            </flux:button>
+        @else
+            <flux:button :href="route('venue.connect')" variant="primary" wire:navigate>
+                {{ __('Sign in to play') }}
+            </flux:button>
+        @endif
     </div>
 
     @php($present = $this->present())
@@ -250,9 +289,25 @@ new #[Title('Chess')] class extends Component
                     </flux:text>
                 @endif
 
-                <flux:button wire:click="sit('{{ $game->key }}')" variant="outline">
-                    {{ $this->action($game) }}
-                </flux:button>
+                {{--
+                    A link for somebody who has not arrived, and an action for
+                    somebody who has.
+
+                    `sit` takes a chair, and it refuses without a visitor — so
+                    on the public list this was a button that asked "really?"
+                    of nobody and did nothing when clicked. A stranger goes
+                    straight to the table instead, which is readable by anybody
+                    and is the whole of what watching is.
+                --}}
+                @if ($this->arrived())
+                    <flux:button wire:click="sit('{{ $game->key }}')" variant="outline">
+                        {{ $this->action($game) }}
+                    </flux:button>
+                @else
+                    <flux:button :href="route('chess.table', $game->key)" variant="outline" wire:navigate>
+                        {{ $this->action($game) }}
+                    </flux:button>
+                @endif
             </div>
         </flux:card>
     @empty
