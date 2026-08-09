@@ -89,11 +89,15 @@ class BlendedMarkTest extends TestCase
     }
 
     /**
-     * And a venue somewhere else stays a shop front, because there is no way to
-     * know what it looks like and no fetching a stranger's image into a
-     * permission screen to find out.
+     * A venue somewhere else is drawn from its own origin.
+     *
+     * The convention every venue serves, so a hostname is enough to build the
+     * address and nothing has to be fetched, negotiated or believed. Only
+     * `games.example` can put a picture at `games.example`, which is what makes
+     * it worth showing at all — a copy served from here would be this server
+     * vouching for a likeness it cannot check.
      */
-    public function test_a_venue_elsewhere_stays_anonymous(): void
+    public function test_a_venue_elsewhere_is_drawn_from_its_own_origin(): void
     {
         $screen = view('streetmesh::consent', [
             'venue' => 'games.example',
@@ -101,10 +105,28 @@ class BlendedMarkTest extends TestCase
             'permission' => (object) ['request_uri' => 'urn:whatever'],
         ])->render();
 
-        $this->assertStringNotContainsString('tabletop', $screen);
+        $this->assertStringContainsString('https://games.example/mark.svg', $screen);
+        $this->assertStringContainsString('https://games.example/mark-dark.svg', $screen);
 
-        // One mark, in its two grounds: this server's, and a glyph beside it.
-        $this->assertSame(2, substr_count($screen, '/brand/'));
+        // Nothing of this server's venue half leaks onto somebody else's side.
+        $this->assertStringNotContainsString('tabletop', $screen);
+    }
+
+    /**
+     * A name that is not a hostname buys nobody an address.
+     *
+     * This is built from a string that arrived over the wire, and the one thing
+     * it must never do is point somebody's browser somewhere a stranger chose.
+     */
+    public function test_a_venue_that_is_not_a_hostname_is_drawn_as_nothing(): void
+    {
+        $screen = view('streetmesh::consent', [
+            'venue' => '',
+            'asking' => ['Add a game to your records'],
+            'permission' => (object) ['request_uri' => 'urn:whatever'],
+        ])->render();
+
+        $this->assertStringNotContainsString('/mark.svg', $screen);
     }
 
     /**
