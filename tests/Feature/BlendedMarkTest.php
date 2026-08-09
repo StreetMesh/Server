@@ -130,6 +130,23 @@ class BlendedMarkTest extends TestCase
     }
 
     /**
+     * The sidebar too, which is the screen somebody actually spends time on.
+     *
+     * Chrome belongs to no capability in particular, so it wears the mark of
+     * whichever one greets people. A venue-only server is that venue
+     * everywhere — not on the two screens somebody remembered to label.
+     */
+    public function test_the_chrome_wears_the_venue_mark_on_a_venue(): void
+    {
+        config()->set('streetmesh.front_page', 'venue');
+
+        $this->actingAs(\App\Models\User::factory()->create())
+            ->get('/experiences')
+            ->assertOk()
+            ->assertSee('tabletop-mark-small.svg', escape: false);
+    }
+
+    /**
      * Configuring nothing changes nothing.
      *
      * The point of a default is that a server nobody has branded looks the way

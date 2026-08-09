@@ -14,7 +14,14 @@
     'for' => null,
 ])
 
-@php($mark = app(\StreetMesh\Protocol\Laravel\Capabilities\Capabilities::class)->mark($for))
+{{--
+    Naming nobody gets the mark of whichever capability greets people, which is
+    what this server is to somebody looking at it. The operator's preference
+    decides it on a server that is more than one thing; a server that is only a
+    venue needs no configuration at all.
+--}}
+@php($mark = app(\StreetMesh\Protocol\Laravel\Capabilities\Capabilities::class)
+    ->mark($for, config('streetmesh.front_page')))
 
 {{--
     A mark, in colour.
