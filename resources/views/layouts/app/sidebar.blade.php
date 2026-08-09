@@ -6,6 +6,20 @@
 --}}
 @inject('capabilities', 'StreetMesh\Protocol\Laravel\Capabilities\Capabilities')
 
+{{--
+    Whether the home page has anything on it.
+
+    It is a collection of panels the installed capabilities offer, and a server
+    whose capabilities offer none has a page that renders an apology. Offering a
+    link to it is worse than not having it: somebody follows "Home" expecting
+    the middle of the building and arrives nowhere, which reads as a bug in the
+    server rather than a page nobody has built yet.
+
+    Asked rather than hard-coded per capability, so this comes back on its own
+    the day a panel exists.
+--}}
+@php($home = $capabilities->widgets(config('streetmesh.home_page')) !== [])
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
     <head>
@@ -14,15 +28,18 @@
     <body class="min-h-screen bg-white dark:bg-zinc-800">
         <flux:sidebar sticky collapsible="mobile" class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
             <flux:sidebar.header>
-                <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
+                {{-- The front page when there is no home page to go to. --}}
+                <x-app-logo :sidebar="true" href="{{ $home ? route('dashboard') : route('home') }}" wire:navigate />
                 <flux:sidebar.collapse class="lg:hidden" />
             </flux:sidebar.header>
 
             <flux:sidebar.nav>
                 <flux:sidebar.group :heading="__('Platform')" class="grid">
-                    <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                        {{ __('Home') }}
-                    </flux:sidebar.item>
+                    @if ($home)
+                        <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+                            {{ __('Home') }}
+                        </flux:sidebar.item>
+                    @endif
 
                     {{--
                         Whatever is installed, in the order it registered. A

@@ -58,11 +58,19 @@
                         a default: Livewire's `#[Layout]` cannot pass a named
                         slot, so any screen framed that way gets this.
                     --}}
+                    {{--
+                        The venue's mark, because this door is the venue's.
+
+                        Somebody standing here is arriving at the place with the
+                        sign over it, not at the server underneath. On a blended
+                        server those differ, and the same screen is reached from
+                        the venue every time.
+                    --}}
                     @if (isset($masthead))
                         {{ $masthead }}
                     @else
                         <div class="flex items-center gap-3">
-                            <x-app-mark size="size-9" />
+                            <x-app-mark size="size-9" for="venue" />
                             <flux:heading size="lg">{{ config('app.name', 'StreetMesh') }}</flux:heading>
                         </div>
                     @endif

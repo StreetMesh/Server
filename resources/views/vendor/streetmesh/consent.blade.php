@@ -46,8 +46,18 @@
         --}}
         <flux:callout icon="key">
             <flux:callout.heading>{{ __("Permissions you're granting:") }}</flux:callout.heading>
+            {{--
+                A list without markers.
+
+                Still a list — a screen reader should say how many permissions
+                are being granted, and that is what the element is for — but a
+                bullet earns its place by separating items that would otherwise
+                run together, and these are already separated by being sentences
+                on their own lines. Most of the time there is exactly one, and a
+                bulleted list of one is a bullet pointing at nothing.
+            --}}
             <flux:callout.text>
-                <ul class="list-disc ps-4">
+                <ul class="flex list-none flex-col gap-2">
                     @foreach ($asking as $sentence)
                         <li>{{ $sentence }}</li>
                     @endforeach

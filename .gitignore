@@ -24,3 +24,6 @@ yarn-error.log
 /.vscode
 /.zed
 plc/source
+
+# macOS leaves these everywhere and nobody wants them in a repository.
+.DS_Store
