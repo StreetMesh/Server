@@ -7,18 +7,23 @@
 @inject('capabilities', 'StreetMesh\Protocol\Laravel\Capabilities\Capabilities')
 
 {{--
-    Whether the home page has anything on it.
+    Whether there is a home page, and whether it is this reader's.
 
-    It is a collection of panels the installed capabilities offer, and a server
-    whose capabilities offer none has a page that renders an apology. Offering a
-    link to it is worse than not having it: somebody follows "Home" expecting
-    the middle of the building and arrives nowhere, which reads as a bug in the
-    server rather than a page nobody has built yet.
+    Two questions, and only asking the first was the bug. The page is a
+    collection of panels the installed capabilities offer, so a server whose
+    capabilities offer none has a page that renders an apology — but it also
+    sits behind `auth`, which means a *resident*. A venue's visitor is not one:
+    they arrived holding permission from a server somewhere else and this one
+    has no account for them, and never will.
 
-    Asked rather than hard-coded per capability, so this comes back on its own
-    the day a panel exists.
+    So the whole menu offered them Home, and following it hit the middle of a
+    building they had not been let into. On a venue with no domicile there is
+    not even a sign-in to send them to, which is how a menu item became a 500.
+
+    Asked rather than hard-coded per capability, so it comes back on its own the
+    day a panel exists and somebody lives here to look at it.
 --}}
-@php($home = $capabilities->widgets(config('streetmesh.home_page')) !== [])
+@php($home = auth()->check() && $capabilities->widgets(config('streetmesh.home_page')) !== [])
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
