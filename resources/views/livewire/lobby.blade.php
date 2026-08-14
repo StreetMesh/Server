@@ -358,4 +358,26 @@ new #[Title('Chess')] class extends Component
             @endforeach
         </div>
     @endif
+
+    {{--
+        This screen is somewhere people can talk.
+
+        All this experience does is say so. The conversation itself is the
+        venue's — it lives in the badge in the corner along with the party and
+        the cameras, so that one thing on screen is where talking happens rather
+        than one per experience.
+
+        Named after this experience rather than called `/lobby`, because a venue
+        with three experiences installed would otherwise have three lobbies
+        sharing one conversation.
+    --}}
+    {{-- A mark on the page rather than a call, because the page is what gets
+         swapped when somebody navigates: read from here it is always the
+         current answer, where a value pushed in by script would outlive the
+         screen that pushed it. --}}
+    <div
+        hidden
+        data-streetmesh-space="{{ \StreetMesh\Chess\ChessExperience::COLLECTION }}/lobby"
+        data-streetmesh-label="{{ __('Lobby') }}"
+    ></div>
 </div>

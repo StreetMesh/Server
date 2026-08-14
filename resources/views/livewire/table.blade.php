@@ -269,5 +269,25 @@ new #[Title('Chess')] class extends Component
                 @include('chess::player', ['side' => 'near'])
             </div>
         </div>
+
+        {{--
+            This table is somewhere people can talk.
+
+            The venue's conversation, not ours — this experience decides that a
+            table is a place people may talk in, and nothing more. What a
+            conversation is, who may read one and where it is kept are the
+            venue's business, the same way seating and audiences already are.
+
+            The space is the room's own name, so a table and the room it is
+            played in are one place rather than two that have to be kept in
+            step.
+        --}}
+        @if ($this->game())
+            <div
+                hidden
+                data-streetmesh-space="{{ $this->game()->room() }}"
+                data-streetmesh-label="{{ __('Table') }}"
+            ></div>
+        @endif
     @endif
 </div>

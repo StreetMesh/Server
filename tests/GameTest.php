@@ -407,4 +407,35 @@ class GameTest extends TestCase
 
         $this->assertCount(2, $games->settle($game, $this->finished()));
     }
+
+    /**
+     * The lobby and the table are places people can talk.
+     *
+     * All this experience does is say so — the conversation itself lives in
+     * the venue's badge, along with the party and the cameras. So what is
+     * asserted here is that the declaration is made, and the venue's own
+     * tests cover what is done with it.
+     */
+    public function test_the_lobby_is_somewhere_people_can_talk(): void
+    {
+        session([Visitors::SESSION_KEY => $this->player('alice')->id]);
+
+        $this->get(route('chess.lobby'))
+            ->assertOk()
+            ->assertSee('data-streetmesh-space', escape: false)
+            ->assertSee(ChessExperience::COLLECTION.'/lobby', escape: false);
+    }
+
+    public function test_a_table_is_somewhere_people_can_talk(): void
+    {
+        $alice = $this->player('alice');
+        $game = $this->games()->open($alice);
+
+        session([Visitors::SESSION_KEY => $alice->id]);
+
+        $this->get(route('chess.table', $game->key))
+            ->assertOk()
+            ->assertSee('data-streetmesh-space', escape: false)
+            ->assertSee($game->room(), escape: false);
+    }
 }
