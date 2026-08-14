@@ -31,7 +31,7 @@ and their own domains, as anybody operating them would have it. They are not
 separate *codebases*.
 
 **Building something people can do at a venue?** Start at
-[`EXPERIENCES.md`](EXPERIENCES.md) instead — the four processes a working server
+[`EXPERIENCES.md`](EXPERIENCES.md) instead — the three processes a working server
 needs running, the shape of an experience package, and the traps that cost the
 most time.
 

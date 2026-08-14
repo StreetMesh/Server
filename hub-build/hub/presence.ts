@@ -30,6 +30,23 @@ export const Occupant = schema({
    * party would call an audience — present, but not playing.
    */
   seat: 'string',
+
+  /**
+   * The party this person is here with, or empty for somebody on their own.
+   *
+   * Here rather than kept to themselves, and that is the point of it. Somebody
+   * in a party has their voice superseded by the party's, which leaves them
+   * present in this room and unhearable in it — and a person who cannot be told
+   * that is a person talking to a wall without knowing why.
+   *
+   * It is also the only thing that makes a private channel legible to the
+   * people it is being used beside. A venue with parties on has decided to
+   * allow that; it has not decided to hide it.
+   *
+   * The party's room name rather than a flag, so two people can tell whether
+   * they are in the *same* one.
+   */
+  party: 'string',
 })
 
 export const Occupancy = schema({

@@ -36,7 +36,7 @@ is this" and is announced in a DID document to strangers. An experience answers
 
 ## The moving parts
 
-Four things run. **None of them starts the others**, and the usual cause of "it
+Three things run. **None of them starts the others**, and the usual cause of "it
 does nothing" is that one is missing.
 
 | | Command | Serves | Symptom when it is down |
@@ -44,14 +44,22 @@ does nothing" is that one is missing.
 | **PHP** | Herd (always on) | `https://server.test` | Site does not load |
 | **Assets** | `npm run dev` | `https://server.test:5173` | Page renders unstyled; no interactivity |
 | **Hub** | `./hub-serve` | `wss://hub.test` → `:2567` | Boards connect to nothing; "Could not reach the table" |
-| **Directory** | `./plc-serve` | `https://plc.test` → `:2582` | Registration fails; identities unresolvable |
 
 ```sh
 cd ~/repos/StreetMesh/Server
 
-./plc-serve        # terminal 1 — Docker: PLC directory + Postgres
-./hub-serve        # terminal 2 — builds this server's hub, then runs it
-npm run dev        # terminal 3 — Vite
+./hub-serve        # terminal 1 — builds this server's hub, then runs it
+npm run dev        # terminal 2 — Vite
+```
+
+There used to be a fourth, and getting rid of it is worth a sentence: the PLC
+directory ran in Docker, on its own host, with a Postgres beside it — a
+container, a compose file and a daemon to remember, for the sake of four
+endpoints. It is now a setting:
+
+```
+STREETMESH_PLC_HOST=true
+STREETMESH_PLC_DIRECTORY="${APP_URL}/plc"
 ```
 
 ### Why each exists
@@ -62,14 +70,23 @@ their rooms together.
 
 **The directory** is where `did:plc` identities live. A resident's identifier is
 the hash of the operation that created it, so it carries no address and survives
-them renaming or moving. We run [Bluesky's own
-implementation](https://github.com/did-method-plc/did-method-plc) rather than
-our reading of the spec — it is the software `plc.directory` runs, and it has
-already caught a defect that our own tests agreed with for months.
+them renaming or moving. In development this server keeps its own, at `/plc`;
+in production point `STREETMESH_PLC_DIRECTORY` at the real one and leave
+`STREETMESH_PLC_HOST` off.
 
-> `./plc-serve reset` destroys every identity the directory ever issued. Their
-> handles still resolve and their records still name them, and nothing can check
-> any of it. That is why it is a separate word you have to type.
+> **The local directory will not recover an identity.** The real one lets a
+> higher-priority rotation key fork a chain and nullify what a lower one did,
+> which is how somebody takes an identity back from a server that has gone bad.
+> Ours refuses the conflict instead. That is the right trade for development and
+> the wrong one for a registry anybody relies on.
+
+> **And it is our reading of the spec rather than the spec's own software.**
+> That distinction has already cost us once: running [Bluesky's
+> implementation](https://github.com/did-method-plc/did-method-plc) caught a
+> defect our own tests had agreed with for months. `./plc-serve` still stands it
+> up in Docker, and `php packages/protocol/bin/check-plc.php https://plc.test`
+> still checks us against it — worth doing when anything about operations,
+> signatures or CIDs changes, and not worth doing daily.
 
 ---
 

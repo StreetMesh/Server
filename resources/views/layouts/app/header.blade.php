@@ -80,5 +80,20 @@
         @endpersist
 
         @fluxScripts
+
+        {{--
+            Talking to the people around you.
+
+            One badge in the corner of every screen this venue serves, and
+            everything to do with talking behind it — the room, the party, and
+            your camera and microphone. It draws itself in iframes of its own,
+            so it sits above whatever an experience has put on the page without
+            inheriting a stylesheet, a stacking context or a re-render.
+
+            Wiring, and only wiring. Everything it does belongs to the venue
+            package; this is the application saying where it goes.
+        --}}
+        @include('venue::comms.widget')
+
     </body>
 </html>

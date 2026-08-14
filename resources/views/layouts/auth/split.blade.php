@@ -47,5 +47,11 @@
         @endpersist
 
         @fluxScripts
+
+        {{-- Talking to the people around you — see the note in the app layout.
+             On every screen this server serves, because a badge that comes and
+             goes with the layout is one people stop trusting. --}}
+        @include('venue::comms.widget')
+
     </body>
 </html>

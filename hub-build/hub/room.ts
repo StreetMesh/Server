@@ -240,6 +240,7 @@ export abstract class VenueRoom<State extends OccupancyType = OccupancyType> ext
         did: auth.ticket.subject,
         name: auth.ticket.name,
         seat: auth.ticket.seat,
+        party: auth.ticket.party,
       }),
     )
 

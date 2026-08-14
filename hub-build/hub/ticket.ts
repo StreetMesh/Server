@@ -33,6 +33,14 @@ export interface Ticket {
    * connections, and a connection is not a seat.
    */
   taken: string[]
+  /**
+   * The room name of the party this person is here with, or empty.
+   *
+   * The venue's word, like everything else on a ticket. A browser that could
+   * say which party it was in would be a browser that could put itself in
+   * somebody else's.
+   */
+  party: string
 }
 
 interface Cached {
@@ -221,5 +229,11 @@ export async function verifyTicket(
      * roster rather than a refusal — an older venue is not a broken one.
      */
     taken: Array.isArray(claims.taken) ? claims.taken.filter((seat) => typeof seat === 'string') : [],
+
+    /*
+     * Absent on a ticket from a venue that does not do parties, which is
+     * nobody's party rather than a refusal — the same reading `taken` gets.
+     */
+    party: typeof claims.party === 'string' ? claims.party : '',
   }
 }

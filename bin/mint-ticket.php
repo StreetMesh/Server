@@ -59,6 +59,12 @@ $tickets = $app->make(Tickets::class);
 $taken = $seat === '' ? [] : [$seat];
 
 /*
+ * Who they are here with, for checking that a room can show it. Empty is the
+ * ordinary answer and what every ticket carried before venues did parties.
+ */
+$party = $argv[4] ?? '';
+
+/*
  * A second ticket, properly signed and already expired.
  *
  * Editing a good ticket's expiry would break its signature, and the other side
@@ -67,16 +73,17 @@ $taken = $seat === '' ? [] : [$seat];
  * genuinely run out.
  */
 Carbon::setTestNow(now()->subHour());
-$expired = $tickets->mint($visitor, $room, seat: $seat, taken: $taken);
+$expired = $tickets->mint($visitor, $room, seat: $seat, taken: $taken, party: $party);
 Carbon::setTestNow();
 
 echo json_encode([
-    'ticket' => $tickets->mint($visitor, $room, seat: $seat, taken: $taken),
+    'ticket' => $tickets->mint($visitor, $room, seat: $seat, taken: $taken, party: $party),
     'expired' => $expired,
     'room' => $room,
     'expect' => [
         'sub' => $visitor->did,
         'name' => $visitor->handle,
         'seat' => $seat,
+        'party' => $party,
     ],
 ], JSON_UNESCAPED_SLASHES), "\n";
