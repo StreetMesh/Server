@@ -28,7 +28,6 @@ import { MapSchema, schema } from '@colyseus/schema'
 import type { Client } from '@colyseus/core'
 import { Occupant } from './presence.ts'
 import { VenueRoom } from './room.ts'
-import type { Ticket } from './ticket.ts'
 
 /** Anything longer than this is not a room name, it is somebody testing. */
 const SPACE_LIMIT = 200
@@ -86,7 +85,7 @@ export class PartyRoom extends VenueRoom<PartyStateType> {
     })
   }
 
-  protected seated(client: Client, ticket: Ticket): void {
+  protected seated(client: Client): void {
     /*
      * Nowhere in particular, until they say. A member who joined the party from
      * the lobby and has not moved since is genuinely in no experience, and an
@@ -94,8 +93,6 @@ export class PartyRoom extends VenueRoom<PartyStateType> {
      * in the map, and a missing one reads as somebody who has gone.
      */
     this.state.spaces.set(client.sessionId, '')
-
-    client.send('joined', { party: ticket.room })
   }
 
   protected left(client: Client): void {
