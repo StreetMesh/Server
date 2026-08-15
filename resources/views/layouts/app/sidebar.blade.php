@@ -146,6 +146,8 @@
 
         @fluxScripts
 
+        @include('streetmesh::unreachable')
+
         {{--
             Talking to the people around you.
 
