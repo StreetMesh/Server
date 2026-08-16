@@ -202,25 +202,56 @@ export default { chessTable }
 Exported **by name**, not registered. A package that reaches for a global
 `window.Alpine` only works in one application.
 
+Point at it from your `composer.json`, which is what makes the server look:
+
+```json
+"extra": { "streetmesh": { "components": "resources/js/alpine.js" } }
+```
+
 ---
 
 ## How installing is one step
 
-Nothing has a registry. Four glob patterns find your package and one method
-tells the server where your room is, which is why installing an experience needs
-no wiring on the PHP side at all.
+Nothing has a registry. Your package says what it offers and the server finds
+it through Composer's own record of what is installed, which is why installing
+an experience needs no wiring on the server's side at all — and why it works
+the same whether your package sits in `packages/` or arrives from a registry
+into `vendor/`.
 
-| What | Pattern | Where |
+| What | How it is found | Where you declare it |
 |---|---|---|
-| PHP | `packages/*` path repo + `extra.laravel.providers` | `composer.json` |
-| Screens | `Livewire::addNamespace(...)` in your provider | your provider |
-| Browser JS | `../../packages/*/resources/js/alpine.js` | `resources/js/app.js` |
+| PHP | `extra.laravel.providers` | `composer.json` |
+| Screens | `Livewire::addNamespace(...)` | your provider |
+| Browser JS | `extra.streetmesh.components` | `composer.json` |
+| Styles | `extra.streetmesh.views` | `composer.json` |
+| Entry points | `extra.streetmesh.entries` | `composer.json` |
 | Hub rooms | `Experience::room()`, collected by `php artisan hub:build` | your `Experience` |
-| Styles | `../../packages/*/resources/views/**/*.blade.php` | `resources/css/app.css` |
 
-`import.meta.glob` resolves when Vite builds its module graph, not in the
-browser. If a newly installed package's components do not appear, **restart
-Vite** before looking anywhere else.
+So the whole of the front-end declaration is:
+
+```json
+"extra": {
+    "laravel": { "providers": ["Acme\\Hello\\HelloServiceProvider"] },
+    "streetmesh": {
+        "components": "resources/js/alpine.js",
+        "views": "resources/views"
+    }
+}
+```
+
+`components` is a module exporting your Alpine components by name. `views` is
+scanned by Tailwind, so every class in your markup survives the build. `entries`
+is for anything that has to be built as an entry point rather than imported —
+rare, and the venue's comms widget is the example.
+
+**Declaring something you do not ship is a build failure**, naming your package
+and what it claimed. That is deliberate: the alternative was a component that
+never registered and markup that rendered unstyled, with nothing said either
+way.
+
+The declarations are read when Vite starts, not in the browser. If a newly
+installed package's components do not appear, **restart Vite** before looking
+anywhere else.
 
 ### npm dependencies are the exception
 

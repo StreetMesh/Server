@@ -213,17 +213,38 @@ git log pre-monorepo/laravel-venue -- src/Chat/Chat.php
 They are no longer where the work happens — a change made there does not reach
 this server, and nothing here will tell you so.
 
-### Styles are the exception to "live immediately"
+### What a package puts on the page
 
-Tailwind scans for class names at build time and will not look inside a package
-on its own, so [`resources/css/app.css`](resources/css/app.css) names them:
+A package declares its browser assets in its own `composer.json`, and
+[`vite/streetmesh.js`](vite/streetmesh.js) resolves those declarations against
+`vendor/composer/installed.json` — Composer's record of what is installed:
 
-```css
-@source '../../packages/*/resources/views/**/*.blade.php';
+```json
+"extra": {
+    "streetmesh": {
+        "components": "resources/js/alpine.js",
+        "views": "resources/views",
+        "entries": ["resources/js/comms/host.js"]
+    }
+}
 ```
 
-Named at `packages/` rather than at `vendor/`, because `vendor/streetmesh/*` are
-symlinks and a scanner that declines to follow one would silently find nothing.
+`components` is merged into Alpine, `views` is scanned by Tailwind, `entries` is
+built as entry points. Two generated files carry the result to the tools that
+need it — Vite reads imports and Tailwind reads `@source` lines, and neither can
+be handed a list. Both are gitignored and rewritten whenever Vite starts.
+
+This replaced a pair of globs over `packages/*`. Those found every package we
+ship and nothing installed anywhere else, so an experience arriving from a
+registry into `vendor/` had its components silently not register and its markup
+silently render unstyled. Declared paths are checked, and naming something you
+do not ship fails the build instead.
+
+Symlinks are resolved before anything is written, because Tailwind will not
+follow one: a `@source` naming `vendor/streetmesh/*` scans nothing and strips
+every class it should have found.
+
+### Styles are still the exception to "live immediately"
 
 A package change that introduces a class the build has never seen needs
 `npm run build` before it looks right. The PHP side of the change is live and the

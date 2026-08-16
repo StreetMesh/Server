@@ -67,6 +67,10 @@
             "providers": [
                 "StreetMesh\\Chess\\ChessServiceProvider"
             ]
+        },
+        "streetmesh": {
+            "components": "resources/js/alpine.js",
+            "views": "resources/views"
         }
     },
     "config": {

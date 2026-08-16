@@ -4,29 +4,29 @@ import './echo.js'
  * What the browser gets, beyond what Livewire and Flux bring themselves.
  *
  * Nothing here names a package. An installed package that puts something on the
- * page ships `resources/js/alpine.js` exporting its components by name, and
- * this finds it — the same arrangement as styles, found by a `@source` glob,
- * and screens, which resolve through a Livewire namespace.
+ * page ships a module exporting its components by name and points at it from
+ * its own `composer.json`:
  *
- * `import.meta.glob` is Vite's, and it resolves at build time rather than in
- * the browser: the pattern becomes real imports in the bundle, so nothing is
- * fetched dynamically and nothing is looked up at runtime.
+ *   "extra": { "streetmesh": { "components": "resources/js/alpine.js" } }
+ *
+ * The generated module is that declaration, resolved — see vite/streetmesh.js.
+ * It is real imports rather than a runtime lookup, so a component that is not
+ * in the bundle is a build failure rather than a page that quietly does less
+ * than it should.
  */
 
-const packages = import.meta.glob('../../packages/*/resources/js/alpine.js', { eager: true })
+import packages from './streetmesh.generated.js'
 
 document.addEventListener('alpine:init', () => {
-    for (const [path, module] of Object.entries(packages)) {
-        const components = module.default
-
+    for (const { package: name, components } of packages) {
         if (!components) {
-            console.warn(`[streetmesh] ${path} exports no components, so nothing from it reaches the page.`)
+            console.warn(`[streetmesh] ${name} declares components and its module exports none, so nothing from it reaches the page.`)
 
             continue
         }
 
-        for (const [name, component] of Object.entries(components)) {
-            window.Alpine.data(name, component)
+        for (const [component, definition] of Object.entries(components)) {
+            window.Alpine.data(component, definition)
         }
     }
 })

@@ -55,6 +55,12 @@
             "providers": [
                 "StreetMesh\\Venue\\VenueServiceProvider"
             ]
+        },
+        "streetmesh": {
+            "views": "resources/views",
+            "entries": [
+                "resources/js/comms/host.js"
+            ]
         }
     },
     "config": {

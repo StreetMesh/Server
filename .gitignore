@@ -7,6 +7,13 @@
 /storage/*.key
 /storage/pail
 /vendor
+
+# Written by vite/streetmesh.js from what Composer has installed, on every dev
+# server start and every build. Committing them would be committing a copy of
+# the installed set, which is the thing they are derived from.
+/resources/js/streetmesh.generated.js
+/resources/css/streetmesh.generated.css
+
 .env
 .colyseus-cloud.json
 .env.backup

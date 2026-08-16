@@ -55,6 +55,9 @@
             "providers": [
                 "StreetMesh\\Domicile\\DomicileServiceProvider"
             ]
+        },
+        "streetmesh": {
+            "views": "resources/views"
         }
     },
     "config": {

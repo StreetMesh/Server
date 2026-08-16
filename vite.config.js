@@ -4,6 +4,25 @@ import {
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import tailwindcss from "@tailwindcss/vite";
+import streetmesh from './vite/streetmesh.js';
+
+/*
+ * What the installed packages contribute, read from Composer's record of what
+ * is installed rather than from a glob over `packages/*`. A package installed
+ * from a registry lands in `vendor/` and is reached by exactly the same
+ * declaration — which is what lets somebody else's experience work here.
+ *
+ * `entries` are the files a package needs built as entry points rather than
+ * imported: the venue's comms widget is one, because it holds the camera, the
+ * microphone and the peer connections in this document, where a navigation
+ * cannot reload them out from under a stream.
+ *
+ * `allow` is anything installed from outside this directory — a path
+ * repository pointing at a checkout somebody is developing beside us. Vite
+ * refuses to serve a file outside its root until told, and the refusal reads
+ * like a missing file.
+ */
+const packages = streetmesh(import.meta.dirname);
 
 export default defineConfig({
     plugins: [
@@ -12,20 +31,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/js/passkeys.js',
-
-                /*
-                 * The comms widget. It runs in this document and stays there:
-                 * the badge, panel and stage are iframes it arranges and draws
-                 * into, but the camera, the microphone and the peer connections
-                 * are held here, because a navigation reloads every frame on
-                 * the page and a stream cannot outlive the document that
-                 * acquired it.
-                 *
-                 * Named here because it is an entry point rather than something
-                 * imported, which is the one thing the package cannot arrange
-                 * for itself.
-                 */
-                'packages/laravel-venue/resources/js/comms/host.js',
+                ...packages.entries,
             ],
             refresh: true,
             fonts: [
@@ -40,6 +46,9 @@ export default defineConfig({
         cors: true,
         watch: {
             ignored: ['**/storage/framework/views/**'],
+        },
+        fs: {
+            allow: ['.', ...packages.allow],
         },
     },
 });

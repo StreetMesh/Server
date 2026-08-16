@@ -53,6 +53,9 @@
             "providers": [
                 "StreetMesh\\Protocol\\Laravel\\ProtocolServiceProvider"
             ]
+        },
+        "streetmesh": {
+            "views": "resources/views"
         }
     },
     "config": {
