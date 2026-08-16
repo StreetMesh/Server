@@ -1,0 +1,20 @@
+{
+  "name": "@streetmesh/chess-room",
+  "version": "0.0.1",
+  "description": "The chess room, for a StreetMesh hub.",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/room.ts",
+  "peerDependencies": {
+    "@streetmesh/hub": "*"
+  },
+  "dependencies": {
+    "chess.js": "^1.0.0"
+  },
+  "scripts": {
+    "check:rules": "node --experimental-strip-types check-rules.ts",
+    "check:watching": "node --experimental-strip-types check-watching.ts",
+    "check:settling": "node --experimental-strip-types check-settling.ts",
+    "check:endings": "node --experimental-strip-types check-endings.ts"
+  }
+}
