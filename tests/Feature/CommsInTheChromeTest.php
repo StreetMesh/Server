@@ -20,6 +20,20 @@ class CommsInTheChromeTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * Including the mark for somebody nobody could reach.
+     *
+     * The icons are inlined into the page's own configuration rather than
+     * loaded, so a missing one is not a broken request anywhere — it is a
+     * circle that draws an empty box where the explanation should be.
+     */
+    public function test_the_chrome_carries_the_unreachable_mark(): void
+    {
+        $this->get(route('venue.experiences'))
+            ->assertOk()
+            ->assertSee('unreachable:', escape: false);
+    }
+
     public function test_every_screen_carries_the_badge(): void
     {
         $this->get(route('venue.experiences'))
