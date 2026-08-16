@@ -90,15 +90,18 @@ cannot be released fails the venue's release too — which is the ordering worth
 having:
 
 ```sh
-git submodule update --init --recursive
 composer install --no-dev --optimize-autoloader
 npm ci && npm run build
 php artisan hub:deploy
 ```
 
-The submodule line is not optional and its absence is silent: Composer prints
-`Symlinking from`, exits 0, and creates no `vendor/streetmesh/` at all. Nothing
-fails until a class is not found.
+This used to open with `git submodule update --init --recursive`, back when the
+packages lived in six other repositories. It is now in the way rather than
+merely redundant: a checkout with no submodules and a checkout whose submodules
+were never initialised look the same from here, so the line that used to be the
+difference between them no longer says anything. **Take it out of the build
+command in the Laravel Cloud console** — it lives there, not in this repository,
+so nothing in a deploy of this commit will remove it for you.
 
 **Deploy commands**
 

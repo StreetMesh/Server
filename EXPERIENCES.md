@@ -93,7 +93,7 @@ in production point `STREETMESH_PLC_DIRECTORY` at the real one and leave
 ## First run
 
 ```sh
-git clone --recurse-submodules https://github.com/StreetMesh/Server.git
+git clone https://github.com/StreetMesh/Server.git
 cd Server
 
 composer install
@@ -114,15 +114,6 @@ php artisan migrate
 | `STREETMESH_HUB` | `wss://hub.test` | A server that says it is a venue refuses to start — nothing it offers could open |
 | `STREETMESH_REALTIME_SECRET` | any string | A venue refuses to start; without it a hub cannot tell it anything |
 | `STREETMESH_VENUE` / `STREETMESH_DOMICILE` | unset | Nothing. Unset means offered, which is what one machine running one of each wants. Set either to `false` and that capability is not offered at all — no screens, nothing in the navigation, nothing in the DID document |
-
-**If you forget `--recurse-submodules`**, `composer install` prints
-`Symlinking...`, **exits 0**, and never creates `vendor/streetmesh/`. Nothing
-fails until a class is not found. Recover with:
-
-```sh
-git submodule update --init --recursive
-composer install
-```
 
 ---
 
@@ -248,20 +239,20 @@ can refuse to serve it.
 
 ## Working on packages
 
-`packages/*` are git submodules, mounted by a Composer path repository:
+`packages/*` live in this repository, mounted by a Composer path repository:
 
 ```json
 "repositories": [{ "type": "path", "url": "packages/*" }]
 ```
 
-Edit them **in `Server/packages/`**. That directory is the real checkout, not a
-copy — commit and push from inside it, then bump the pointer in `Server`.
+Edit them **in `Server/packages/`**. `vendor/streetmesh/*` are symlinks into
+that directory, so a change is live on the next request and one commit ships
+both halves of it.
 
-> **A package's own test suite does not see its siblings.** Each package
-> resolves `streetmesh/*` from a git clone in its own `vendor/`. Change
-> `protocol-laravel` and the venue's suite still tests last week's code until
-> you `composer update streetmesh/protocol-laravel` inside the venue. This bites
-> constantly and looks like a caching bug.
+Each package resolves its siblings the same way — `packages/laravel-chess/vendor/
+streetmesh/laravel-venue` is a symlink to `packages/laravel-venue` — so a
+package's own suite tests the code next to it rather than a copy fetched at some
+earlier date.
 
 ---
 
@@ -286,10 +277,6 @@ And per package: `composer test` (pint, phpstan, phpunit).
 
 Ordered by how much time each one costs. **Symptom first**, because that is what
 you will have.
-
-### "Class not found" after a clean clone
-A missing submodule. `composer install` exits 0 and silently creates no
-`vendor/streetmesh/`. → `git submodule update --init --recursive`
 
 ### Every ticket is refused, for reasons that have nothing to do with tickets
 The hub was started directly with `node`. Node does **not** read the macOS

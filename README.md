@@ -45,26 +45,17 @@ For the bigger picture — the values, the vocabulary, and how this fits into Av
 
 ## Getting a server running
 
-The packages are git submodules, and Composer will not tell you if they are
-missing — so clone recursively:
+Everything is in this repository, including the packages:
 
 ```bash
-git clone --recurse-submodules git@github.com:StreetMesh/Server.git
+git clone git@github.com:StreetMesh/Server.git
 cd Server
 composer setup
-```
-
-`composer setup` inits the submodules first and then does the rest. If you
-already cloned without `--recurse-submodules`, this is the missing step:
-
-```bash
-git submodule update --init --recursive
 ```
 
 Or the long way, which is what `setup` runs:
 
 ```bash
-git submodule update --init --recursive
 composer install
 cp .env.example .env
 php artisan key:generate          # required — identity keys are encrypted at rest
@@ -141,8 +132,8 @@ And one that is not a Composer package, because it is not PHP:
 | --- | --- | --- |
 | `hub/` | [`Hub`](https://github.com/StreetMesh/Hub) | The authoritative multiplayer host. Rooms, and who is allowed in them. |
 
-`hub/` is a submodule like the others, and needs `npm install` inside it before
-it will run or check anything. It is the only part of a server that is not PHP,
+`hub/` is in this repository like the packages, and needs `npm install` inside it
+before it will run or check anything. It is the only part of a server that is not PHP,
 and it holds no credential — see its README for why that is the whole of its
 security model.
 
@@ -182,10 +173,8 @@ package claiming the root would win or lose on boot order with nobody deciding.
 
 ## How the packages are wired in
 
-Two mechanisms stacked, and it is worth knowing they are two.
-
-**The source is a git submodule, not a Composer download.** Each package under
-`packages/` is a submodule of its own repository — see [`.gitmodules`](.gitmodules).
+**The source is in this repository.** Each package under `packages/` is ordinary
+tracked content, committed here alongside the application that installs it.
 
 **Composer mounts them as a path repository**, one glob covering all of them:
 
@@ -195,36 +184,34 @@ Two mechanisms stacked, and it is worth knowing they are two.
 
 So `vendor/streetmesh/*` are symlinks into `packages/*`, and the version
 constraints in `require` are `"*"` — no constraint is doing any work, because
-the submodule pointer is what decides the version.
+the checkout decides the version.
 
 What follows from that:
 
-- A fresh clone or worktree needs `git submodule update --init --recursive`.
-  `git worktree remove` needs `--force`.
-- **A deploy has to init the submodules before installing.** On Laravel Cloud,
-  the build command must start with `git submodule update --init --recursive`.
-
-  Skip it and **nothing complains**. Composer prints `Symlinking from
-  packages/protocol` and exits `0` — but the directories are empty, so
-  `vendor/streetmesh/` is never created and the failure surfaces later as a
-  missing class at runtime. There is no install-time error to notice, which is
-  the whole reason this is written down.
+- A clone needs nothing but `composer install`. So does a worktree, and so does
+  a deploy.
 - Editing a package is live immediately — no `composer update`, because the
   symlink is the working copy. That is the point of the arrangement.
-- Shipping a package change is two commits: one in the package repository, then
-  one here moving the submodule pointer.
+- Shipping a package change is one commit, in the same place as the change to
+  the application that uses it.
+
+### They used to be submodules
+
+Until they came in-tree, each package lived in its own repository and was
+mounted here as a git submodule. Two things are worth keeping from that.
+
+**The history came with them**, so `git blame` on a package file answers with
+the commit that wrote it, under the path it had at the time. `git log` on the
+new path does not reach back, because the files moved; the old heads are tagged
+so you can get at them anyway:
 
 ```bash
-cd packages/<name>
-git checkout main
-# ...edit, commit, push to StreetMesh/<Package>...
-cd ../..
-git add packages/<name>
-git commit -m "Bump <name> to <sha>"
+git log pre-monorepo/laravel-venue -- src/Chat/Chat.php
 ```
 
-Forget the second commit and you get the half-shipped symptom: it works on your
-machine and the deploy is still on the old pointer.
+**The repositories they came from still exist** and still hold that history.
+They are no longer where the work happens — a change made there does not reach
+this server, and nothing here will tell you so.
 
 ### Styles are the exception to "live immediately"
 
@@ -245,7 +232,7 @@ styling is not — an unstyled element rather than an error.
 ### Adding a new package
 
 ```bash
-git submodule add https://github.com/StreetMesh/<Package>.git packages/<slug>
+mkdir packages/<slug>          # ...with a composer.json naming streetmesh/<slug>
 composer require streetmesh/<slug>:*
 ```
 
