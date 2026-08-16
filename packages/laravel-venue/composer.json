@@ -1,0 +1,74 @@
+{
+    "name": "streetmesh/laravel-venue",
+    "description": "The visitor-facing half of a StreetMesh server.",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "illuminate/support": "^12.0|^13.0",
+        "streetmesh/protocol-laravel": "@dev",
+        "livewire/livewire": "^4.1",
+        "livewire/flux": "^2.13"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.18",
+        "larastan/larastan": "^3.0",
+        "orchestra/testbench": "^10.0|^11.0",
+        "phpunit/phpunit": "^11.4"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../protocol-laravel",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "../protocol",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/StreetMesh/Protocol-Laravel.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/StreetMesh/Protocol-PHP.git"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "StreetMesh\\Venue\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "StreetMesh\\Venue\\Tests\\": "tests/",
+            "StreetMesh\\Venue\\Tests\\Fixtures\\": "tests/fixtures/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "StreetMesh\\Venue\\VenueServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "lint:check": "pint --test",
+        "types:check": "phpstan analyse",
+        "test": [
+            "@lint:check",
+            "@types:check",
+            "phpunit"
+        ]
+    }
+}
