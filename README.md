@@ -5,7 +5,7 @@
 
 # StreetMesh Server
 
-**Build multiplayer experiences on a server you own — where people sign in with a username from any other server.**
+**Build multiplayer experiences on a server you own — where people sign in with a username that belongs to them, not to you.**
 
 StreetMesh Server is a Laravel application. Install it and you have somewhere
 people can visit and do things together: games, shops, screening rooms. They
@@ -22,7 +22,7 @@ account, no third party. PHP, Node, and a browser.
 
 ## What you get
 
-- **Federated sign-in.** Visitors arrive with a username from anywhere. Their identity lives on their server, not yours, and survives them moving.
+- **Portable identity.** Visitors arrive with a username issued anywhere. It lives on their server, not yours, and follows them when they rename themselves or move.
 - **Authoritative multiplayer rooms.** A Node hub decides what is actually true; a browser can claim what it likes and be refused.
 - **Voice and video.** Peer-to-peer parties between visitors, with no service in the middle.
 - **Text chat**, venue-wide, over Laravel Reverb.
