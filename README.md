@@ -5,10 +5,11 @@ or one server that is both.
 
 This is both the starting point and the worked example. It is close to a stock
 Laravel install and stays that way: **all StreetMesh capability arrives as
-Laravel packages mounted under [`packages/`](packages/)**, so that each
-capability stays portable into any other Laravel host and keeps its own history,
-issues and release cadence. What is left here is the glue that cannot live in a
-package, and it should stay small enough to read in one sitting.
+Laravel packages under [`packages/`](packages/)**, so that each capability stays
+portable into any other Laravel host. They are developed here and released from
+here — one repository, one commit for a change and the code that uses it. What is
+left in the host is the glue that cannot live in a package, and it should stay
+small enough to read in one sitting.
 
 **Everything is installed here — domicile, venue, and an experience — and
 configuration decides which of them a given deployment actually is.** Turn the
@@ -40,7 +41,7 @@ For the bigger picture — the values, the vocabulary, and how this fits into Av
 ## Stack
 
 - PHP `^8.3`
-- Laravel `^13.0` (Framework 13.7.x)
+- Laravel `^13.17`
 - SQLite by default (swap via `.env`)
 
 ## Getting a server running
@@ -118,19 +119,27 @@ server rejecting a record.
 
 ## Packages
 
-Capability arrives as Composer packages rather than as code here.
+Capability arrives as Composer packages rather than as code in `app/`. All of
+them live here, under [`packages/`](packages/):
 
-| Package | Repo | Provides |
-| --- | --- | --- |
-| `streetmesh/protocol-laravel` | [`Protocol-Laravel`](https://github.com/StreetMesh/Protocol-Laravel) | Identity, records, attestations, commits |
-| `streetmesh/laravel-domicile` | [`Laravel-Domicile`](https://github.com/StreetMesh/Laravel-Domicile) | The resident-facing half |
-| `streetmesh/laravel-venue` | [`Laravel-Venue`](https://github.com/StreetMesh/Laravel-Venue) | The visitor-facing half |
+| Package | Provides |
+| --- | --- |
+| `streetmesh/protocol` | The protocol in framework-free PHP. Bytes in, bytes out. |
+| `streetmesh/protocol-laravel` | The same, bound to the framework: identity, records, attestations, commits |
+| `streetmesh/laravel-domicile` | The resident-facing half |
+| `streetmesh/laravel-venue` | The visitor-facing half |
+| `streetmesh/laravel-chess` | An experience, and the worked example of one |
 
 And one that is not a Composer package, because it is not PHP:
 
-| Where | Repo | Provides |
-| --- | --- | --- |
-| `hub/` | [`Hub`](https://github.com/StreetMesh/Hub) | The authoritative multiplayer host. Rooms, and who is allowed in them. |
+| Where | Provides |
+| --- | --- |
+| [`hub/`](hub/) | The authoritative multiplayer host. Rooms, and who is allowed in them. |
+
+Each of these had its own repository until they came in-tree, and those
+repositories still exist. **None of them is where the work happens** — see
+[below](#they-used-to-be-submodules). Nothing is published to Packagist or npm
+yet, so there is currently no way to install any of this except from here.
 
 `hub/` is in this repository like the packages, and needs `npm install` inside it
 before it will run or check anything. It is the only part of a server that is not PHP,
@@ -264,4 +273,7 @@ automatically.
 
 ## License
 
-The host application code in this repository is MIT-licensed. Individual packages declare their own licenses inside `packages/<name>/LICENSE`. The StreetMesh prose and documentation at the org level are CC BY-NC-SA 4.0.
+The host application code in this repository is MIT-licensed. Each package
+declares its own license in its `composer.json` — all five are MIT — and carries
+the text at `packages/<name>/LICENSE`. The StreetMesh prose and documentation at
+the org level are CC BY-NC-SA 4.0.
