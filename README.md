@@ -136,8 +136,17 @@ And one that is not a Composer package, because it is not PHP:
 | --- | --- |
 | [`hub/`](hub/) | The authoritative multiplayer host. Rooms, and who is allowed in them. |
 
-Nothing is published to Packagist or npm yet, so there is no way to install any
-of this except from here.
+Each one is released to a repository of its own, because Packagist reads one
+package per repository and reads it at the root:
+
+```bash
+composer split -- --dry-run    # what it would publish, and where
+composer split                 # publish
+```
+
+Where each goes is read from `support.source` in its `composer.json`, and from
+`repository` in the hub's `package.json`. Nothing is on Packagist or npm yet, so
+there is no way to install any of this except from here.
 
 `hub/` is in this repository like the packages, and needs `npm install` inside it
 before it will run or check anything. It is the only part of a server that is not PHP,
