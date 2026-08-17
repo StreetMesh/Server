@@ -1,52 +1,36 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://protocol.streetmesh.com/brand/dark/svg/streetmesh-mark-dark.svg">
+  <img alt="StreetMesh" src="https://protocol.streetmesh.com/brand/svg/streetmesh-mark.svg" width="96">
+</picture>
+
 # StreetMesh Server
 
-**Where to start if you want to run a StreetMesh server** — a domicile, a venue,
-or one server that is both.
+**Run a place on the open web where people arrive as themselves.**
 
-This is both the starting point and the worked example. It is close to a stock
-Laravel install and stays that way: **all StreetMesh capability arrives as
-Laravel packages under [`packages/`](packages/)**, so that each capability stays
-portable into any other Laravel host. They are developed here and released from
-here — one repository, one commit for a change and the code that uses it. What is
-left in the host is the glue that cannot live in a package, and it should stay
-small enough to read in one sitting.
+Somebody signs in to your server with an address issued by a server you have
+never heard of, plays a game of chess against somebody from a third, and walks
+away holding a signed record of it that still verifies after your server is
+gone. That is what this runs.
 
-**Everything is installed here — domicile, venue, and an experience — and
-configuration decides which of them a given deployment actually is.** Turn the
-venue off and this is a domicile; turn the domicile off and it is a venue; leave
-both on and it is a server that does both. Nothing is forked and nothing is
-copied.
+|  |  |
+| --- | --- |
+| **What** | A Laravel application that is a **domicile** (somewhere people live), a **venue** (somewhere people gather), or both. Which one is a setting, not a fork. |
+| **Who** | Anyone who wants to run a server. Anyone who wants to build something people can do at one — start with [`EXPERIENCES.md`](EXPERIENCES.md). |
+| **Where** | Live now: a domicile at [stme.sh](https://stme.sh), a venue at [tabletop.streetmesh.com](https://tabletop.streetmesh.com). One repository, one commit, two deployments. |
+| **Why** | Because a person's identity should not belong to the server they live on. Move, rename yourself, or watch a venue disappear — what you were given still verifies. |
+| **How** | `did:plc` identities, delegated permission a visitor can revoke, records signed by a venue and written into the visitor's own store. A Node hub is authoritative over the present moment; the venue is authoritative over what happened. |
+| **When** | v0 is nearly done. What is left is the part it exists to prove — a game between two people on genuinely different servers. See the [roadmap](https://github.com/StreetMesh/Protocol/blob/main/ROADMAP.md). |
 
-That is not a convenience, it is the claim being tested. Two servers built from
-one commit, differing only by a switch, is what makes "domicile and venue are
-capabilities rather than kinds of server" a fact about the code rather than a
-sentence in a glossary.
+New to the vocabulary? The
+[glossary](https://github.com/StreetMesh/Protocol/blob/main/GLOSSARY.md) defines
+every term in plain words and says which are ours and which are borrowed.
 
-It is what runs in front of you: a domicile at [`stme.sh`](https://stme.sh) and
-a venue at
-[`tabletop.streetmesh.com`](https://tabletop.streetmesh.com), from this
-repository — see [`DEPLOYING.md`](DEPLOYING.md).
+---
 
-They are separate *applications*, with their own databases, their own identities
-and their own domains, as anybody operating them would have it. They are not
-separate *codebases*.
+## Quickstart
 
-**Building something people can do at a venue?** Start at
-[`EXPERIENCES.md`](EXPERIENCES.md) instead — the three processes a working server
-needs running, the shape of an experience package, and the traps that cost the
-most time.
-
-For the bigger picture — the values, the vocabulary, and how this fits into Avatars / Protocol / MeshObject / StreetTiles / Hub / Browser — see **The Dream** at <https://github.com/StreetMesh>.
-
-## Stack
-
-- PHP `^8.3`
-- Laravel `^13.17`
-- SQLite by default (swap via `.env`)
-
-## Getting a server running
-
-Everything is in this repository, including the packages:
+Requires PHP 8.3, Node 22, and a web server pointing at `public/`.
+[Herd](https://herd.laravel.com) is what this is developed against.
 
 ```bash
 git clone git@github.com:StreetMesh/Server.git
@@ -54,45 +38,44 @@ cd Server
 composer setup
 ```
 
-Or the long way, which is what `setup` runs:
+`composer setup` installs everything, writes a `.env`, generates a key,
+migrates, and builds the front end.
 
-```bash
-composer install
-cp .env.example .env
-php artisan key:generate          # required — identity keys are encrypted at rest
-php artisan migrate
-npm install && npm run build
-```
-
-Then tell it the name strangers will reach it by. Under `did:web` this decides
-the server's own identifier, so it has to be the real one rather than a local
-alias:
+Then tell it the name strangers will reach it by. Under `did:web` this becomes
+the server's own identifier, so it has to be the real one:
 
 ```dotenv
 STREETMESH_HOST=your.domain
 ```
 
-A server offers whatever it has installed, which is all most servers need to
-say. Say more only to run two different servers from one codebase — each
-capability has a switch named after itself, and setting one to `false` takes it
-off this server entirely:
+A server offers whatever it has installed. Say more only to run two different
+servers from one codebase:
 
 ```dotenv
-STREETMESH_VENUE=false           # somewhere people live, and nothing else
-STREETMESH_DOMICILE=false        # somewhere people gather, and nothing else
+STREETMESH_VENUE=false      # somewhere people live, and nothing else
+STREETMESH_DOMICILE=false   # somewhere people gather, and nothing else
 ```
 
-A server that says it is a venue needs a hub to gather in and a secret to
-recognise it by, and refuses to start without either:
+A venue needs somewhere to gather and a secret to recognise it by, and refuses
+to start without both:
 
 ```dotenv
 STREETMESH_HUB=wss://your.hub
-STREETMESH_REALTIME_SECRET=      # the same value wherever the hub runs
+STREETMESH_REALTIME_SECRET=   # the same value wherever the hub runs
 ```
 
-For putting one in the cloud, see [DEPLOYING.md](DEPLOYING.md).
+### Running it
 
-And check that it worked from outside:
+Three processes, and **none of them starts the others**. The usual cause of
+"it does nothing" is that one is missing.
+
+```bash
+./hub-serve     # the rooms      → wss://hub.test
+npm run dev     # the assets     → :5173
+                # the PHP is Herd, always on
+```
+
+### Checking it from outside
 
 ```bash
 php artisan streetmesh:check
@@ -101,121 +84,65 @@ php artisan streetmesh:check
 ```
   identity did:web:server.test
   handle   server.test
-  key      zDnaeeCAJ234321mT1dRMkgq3FpMTmbNVLEMmAZMtCYgpEhXU (p256)
 
-  ✓ the name resolves to this identity        did:web:server.test
-  ✓ the document is reachable and claims the name  both directions agree
-  ✓ a stranger finds the key we signed with   zDnaeeCAJ234321mT1dR…
-  ✓ and can verify what we signed             checked against what it published
+  ✓ the name resolves to this identity
+  ✓ the document is reachable and claims the name
+  ✓ a stranger finds the key we signed with
+  ✓ and can verify what we signed
 
   A stranger can verify what this server signs.
 ```
 
-That check signs something and then goes over the network as an ordinary client
-to verify it, so what it exercises is the deployment — DNS, TLS, routing, and
-whether the configured host is the one strangers can actually reach. Everything
-else can be green while this fails, and the first sign would otherwise be another
-server rejecting a record.
+This signs something and then comes back over the network as an ordinary client
+to verify it, so what it tests is the deployment — DNS, TLS, routing, and
+whether the host you configured is the one strangers actually reach. Everything
+else can be green while this fails, and the first sign would otherwise be
+another server rejecting a record.
 
-## Packages
+For putting one in the cloud, see [`DEPLOYING.md`](DEPLOYING.md).
 
-Capability arrives as Composer packages rather than as code in `app/`. All of
-them live here, under [`packages/`](packages/):
+---
+
+## Contributing
+
+### Where the code is
+
+Everything is in this repository. The host application is deliberately thin —
+close to a stock Laravel install — and the behaviour lives in packages:
 
 | Package | Provides |
 | --- | --- |
-| `streetmesh/protocol` | The protocol in framework-free PHP. Bytes in, bytes out. |
-| `streetmesh/protocol-laravel` | The same, bound to the framework: identity, records, attestations, commits |
-| `streetmesh/laravel-domicile` | The resident-facing half |
-| `streetmesh/laravel-venue` | The visitor-facing half |
-| `streetmesh/laravel-chess` | An experience, and the worked example of one |
+| [`packages/protocol`](packages/protocol) | The protocol in framework-free PHP. Bytes in, bytes out. |
+| [`packages/protocol-laravel`](packages/protocol-laravel) | The same, bound to the framework: identity, records, attestations, commits |
+| [`packages/laravel-domicile`](packages/laravel-domicile) | The resident-facing half |
+| [`packages/laravel-venue`](packages/laravel-venue) | The visitor-facing half |
+| [`packages/laravel-chess`](packages/laravel-chess) | An experience, and the worked example of one |
+| [`hub/`](hub) | The authoritative multiplayer host. Not PHP. |
 
-And one that is not a Composer package, because it is not PHP:
+Composer mounts `packages/*` as a path repository, so `vendor/streetmesh/*` are
+symlinks into them: **an edit is live on the next request**, and one commit
+ships a change and the code that uses it.
 
-| Where | Provides |
-| --- | --- |
-| [`hub/`](hub/) | The authoritative multiplayer host. Rooms, and who is allowed in them. |
+Each package resolves its siblings the same way, so a package's own suite tests
+the code next to it rather than a copy fetched at some earlier date.
 
-Each one is released to a repository of its own, because Packagist reads one
-package per repository and reads it at the root:
+### Running the checks
 
 ```bash
-composer split -- --dry-run    # what it would publish, and where
-composer split                 # publish
+composer test                                  # the host
+cd packages/laravel-venue && composer test     # one package
+cd hub && npm run types:check                  # the hub
 ```
 
-Where each goes is read from `support.source` in its `composer.json`, and from
-`repository` in the hub's `package.json`. Nothing is on Packagist or npm yet, so
-there is no way to install any of this except from here.
-
-`hub/` is in this repository like the packages, and needs `npm install` inside it
-before it will run or check anything. It is the only part of a server that is not PHP,
-and it holds no credential — see its README for why that is the whole of its
-security model.
-
-### Two surfaces, and everything else
-
-A server may be a domicile, a venue, or both — capabilities rather than kinds of
-server. Almost nothing overlaps when both are installed: a directory of
-residents, a menu of experiences, a browser for somebody's own records are
-screens with names nothing else wants.
-
-Two surfaces are different, because a server has one of each however many
-capabilities it offers.
-
-**The front page** is what anybody sees at the root, signed in or not. One root,
-so a server offering more than one capability says which greets people:
-
-```dotenv
-STREETMESH_FRONT_PAGE=domicile
-```
-
-**The home page** is what somebody signed in sees. It is a collection of panels
-offered by whatever is installed, arranged by whoever runs the server:
-
-```php
-'home_page' => ['domicile.records', 'venue.experiences'],   // or null for everything
-```
-
-A name nothing provides is skipped rather than fatal, so removing a package does
-not break a page.
-
-Both live in [`routes/web.php`](routes/web.php) and are drawn by
-[`welcome.blade.php`](resources/views/welcome.blade.php) and
-[`dashboard.blade.php`](resources/views/dashboard.blade.php), because they belong
-to the application rather than to any package. Two routes sharing a path do not
-collide loudly in Laravel — the later silently replaces the earlier — so a
-package claiming the root would win or lose on boot order with nobody deciding.
-
-## How the packages are wired in
-
-**The source is in this repository.** Each package under `packages/` is ordinary
-tracked content, committed here alongside the application that installs it.
-
-**Composer mounts them as a path repository**, one glob covering all of them:
-
-```json
-"repositories": [{ "type": "path", "url": "packages/*" }]
-```
-
-So `vendor/streetmesh/*` are symlinks into `packages/*`, and the version
-constraints in `require` are `"*"` — no constraint is doing any work, because
-the checkout decides the version.
-
-What follows from that:
-
-- A clone needs nothing but `composer install`. So does a worktree, and so does
-  a deploy.
-- Editing a package is live immediately — no `composer update`, because the
-  symlink is the working copy. That is the point of the arrangement.
-- Shipping a package change is one commit, in the same place as the change to
-  the application that uses it.
+Each package declares its own — lint, static analysis, phpunit, or some of
+those — and CI runs exactly what you just ran, as one job per package, so a
+failure names the package rather than the repository.
 
 ### What a package puts on the page
 
 A package declares its browser assets in its own `composer.json`, and
-[`vite/streetmesh.js`](vite/streetmesh.js) resolves those declarations against
-`vendor/composer/installed.json` — Composer's record of what is installed:
+[`vite/streetmesh.js`](vite/streetmesh.js) resolves them against Composer's
+record of what is installed:
 
 ```json
 "extra": {
@@ -227,41 +154,37 @@ A package declares its browser assets in its own `composer.json`, and
 }
 ```
 
-`components` is merged into Alpine, `views` is scanned by Tailwind, `entries` is
-built as entry points. Two generated files carry the result to the tools that
-need it — Vite reads imports and Tailwind reads `@source` lines, and neither can
-be handed a list. Both are gitignored and rewritten whenever Vite starts.
+`components` is merged into Alpine, `views` is scanned by Tailwind, `entries`
+is built as an entry point. Because this reads what Composer installed rather
+than a path, an experience installed into `vendor/` works exactly as one in
+`packages/` does. **Declaring a path you do not ship fails the build**, naming
+the package and the claim.
 
-Because it reads what Composer installed rather than a path, a package works the
-same wherever it sits — `packages/` here, or `vendor/` when somebody installs an
-experience of their own. **Declaring a path you do not ship fails the build**,
-naming the package and the claim.
+Styles are the exception to "live immediately": a class the build has never
+seen needs `npm run build` before it looks right — an unstyled element rather
+than an error.
 
-Symlinks are resolved before anything is written, because Tailwind will not
-follow one: a `@source` naming `vendor/streetmesh/*` scans nothing and strips
-every class it should have found.
+### Publishing
 
-### Styles are still the exception to "live immediately"
-
-A package change that introduces a class the build has never seen needs
-`npm run build` before it looks right. The PHP side of the change is live and the
-styling is not — an unstyled element rather than an error.
-
-### Adding a new package
+Packagist reads one package per repository, at the root of it, so each package
+is released to a repository of its own:
 
 ```bash
-mkdir packages/<slug>          # ...with a composer.json naming streetmesh/<slug>
-composer require streetmesh/<slug>:*
+composer split -- --dry-run    # what it would publish, and where
+composer split                 # publish
 ```
 
-No `composer config repositories...` step — the `packages/*` glob already covers
-it. The package's `composer.json` should declare its service provider under
-`extra.laravel.providers` so Laravel's package discovery wires it up
-automatically.
+Where each goes is read from `support.source` in its `composer.json`, and from
+`repository` in the hub's `package.json`. It refuses a dirty tree, refuses to
+publish commits this repository has not pushed, and never forces.
+
+Nothing is on Packagist or npm yet, so there is currently no way to install any
+of this except from here.
+
+---
 
 ## License
 
-The host application code in this repository is MIT-licensed. Each package
-declares its own license in its `composer.json` — all five are MIT — and carries
-the text at `packages/<name>/LICENSE`. The StreetMesh prose and documentation at
-the org level are CC BY-NC-SA 4.0.
+The host application is MIT. Each package declares its own — all five are MIT —
+with the text at `packages/<name>/LICENSE`. StreetMesh prose and documentation
+at the org level are CC BY-NC-SA 4.0.
