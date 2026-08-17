@@ -107,7 +107,14 @@ while IFS=$'\t' read -r prefix repository name; do
     split="split/$(echo "$prefix" | tr '/' '-')"
 
     git branch -D "$split" >/dev/null 2>&1 || true
-    git subtree split --prefix="$prefix" -b "$split" >/dev/null
+
+    # Quiet unless it goes wrong: subtree writes a progress meter and a
+    # "Created branch" line to stderr, which is a hundred lines of noise around
+    # the one line per package that anybody wants to read.
+    if ! noise="$(git subtree split --prefix="$prefix" -b "$split" 2>&1)"; then
+        printf '%s\n' "$noise" >&2
+        fail "Could not split $prefix."
+    fi
 
     count="$(git rev-list --count "$split")"
 
@@ -136,7 +143,11 @@ while IFS=$'\t' read -r prefix repository name; do
 done < <(targets)
 
 printf '\n'
-say "$published published, $skipped refused"
+if [ "$dry_run" = true ]; then
+    say "$published would be published, $skipped would be refused"
+else
+    say "$published published, $skipped refused"
+fi
 printf '\n'
 
 [ "$skipped" -gt 0 ] && exit 1
