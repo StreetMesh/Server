@@ -15,7 +15,7 @@
 
     It lives in this package because every StreetMesh server has it, and because
     what it is about — a browser and a server that have lost each other — is not
-    the business of any one capability. Include it after `@livewireScripts`.
+    the business of any one capability. Include it after `@@livewireScripts`.
 --}}
 
 <div id="streetmesh-trouble" hidden>
@@ -142,7 +142,7 @@
         }
 
         /*
-         * Whichever comes first. This is included after `@livewireScripts`, so
+         * Whichever comes first. This is included after `@@livewireScripts`, so
          * on a page where Livewire has already started there is no event left
          * to wait for.
          */

@@ -325,6 +325,18 @@ passes for the wrong reason.
 register and consults only what `Livewire::addNamespace()` gave it. You need
 both.
 
+### Text from the middle of a script is on the page, in a corner, on every screen
+
+A Blade directive named in a comment. Blade is a text preprocessor and knows
+nothing about JavaScript, so `@livewireScripts` inside a `/* … */` is compiled
+like any other: Livewire's script tags are injected into the comment, the first
+of them closes the surrounding `<script>`, and everything after it renders as
+text. Write `@@livewireScripts` to mean the word.
+
+`assertSee` will not catch it — the text is in the raw source either way. Assert
+that the literal directive survived into the output, which only happens when
+Blade left it alone.
+
 ### Half a form vanishes, and every test still passes
 Nested double quotes in a Blade attribute — `:description="__("don't")"` —
 make Blade give up on the tag, emit it as literal text, and swallow everything
