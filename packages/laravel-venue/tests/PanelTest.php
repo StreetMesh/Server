@@ -159,12 +159,11 @@ class PanelTest extends TestCase
 
         $this->withSession([Visitors::SESSION_KEY => $alice->id]);
 
-        Livewire::test('venue::comms')
-            ->assertOk()
-            ->call('$refresh')
-            ->assertOk()
-            ->call('$refresh')
-            ->assertOk();
+        $panel = Livewire::test('venue::comms');
+
+        $panel->assertOk();
+        $panel->call('$refresh')->assertOk();
+        $panel->call('$refresh')->assertOk();
     }
 
     public function test_the_panel_survives_a_poll_after_the_other_one_leaves(): void
@@ -178,7 +177,8 @@ class PanelTest extends TestCase
 
         $this->withSession([Visitors::SESSION_KEY => $alice->id]);
 
-        $panel = Livewire::test('venue::comms')->assertOk();
+        $panel = Livewire::test('venue::comms');
+        $panel->assertOk();
 
         $parties->leave($party, $bob);
 
@@ -202,7 +202,8 @@ class PanelTest extends TestCase
 
         $this->withSession([Visitors::SESSION_KEY => $alice->id]);
 
-        $panel = Livewire::test('venue::comms')->assertOk();
+        $panel = Livewire::test('venue::comms');
+        $panel->assertOk();
 
         $parties->disband($party);
 

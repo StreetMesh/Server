@@ -3,6 +3,7 @@
 namespace StreetMesh\Protocol\Laravel\Tests;
 
 use DateTimeImmutable;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Testing\TestResponse;
 use StreetMesh\Protocol\P256;
 use StreetMesh\Protocol\Plc;
@@ -34,6 +35,7 @@ class PlcTest extends TestCase
 
     /**
      * @param  array<string, mixed>  $operation
+     * @return TestResponse<JsonResponse>
      */
     private function submit(string $did, array $operation): TestResponse
     {

@@ -29,11 +29,16 @@ class SettleTest extends TestCase
 {
     /**
      * The hub, answering about one room and nothing else.
+     *
+     * @param  array<string, mixed>|null  $result
      */
     private function hubSaying(?array $result): void
     {
         $this->app->instance(Network::class, new class($result) implements Network
         {
+            /**
+             * @param  array<string, mixed>|null  $result
+             */
             public function __construct(private readonly ?array $result) {}
 
             public function get(string $url): ?string

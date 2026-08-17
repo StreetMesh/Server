@@ -2,6 +2,8 @@
 
 namespace StreetMesh\Venue\Tests;
 
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\View;
 use Illuminate\Testing\TestResponse;
 use StreetMesh\Protocol\Laravel\Capabilities\Capabilities;
 use StreetMesh\Protocol\Laravel\Permissions\Delegation;
@@ -58,6 +60,9 @@ class CommsTest extends TestCase
         ]);
     }
 
+    /**
+     * @return TestResponse<Response>
+     */
     private function as(Delegation $who, string $surface): TestResponse
     {
         return $this->withSession([Visitors::SESSION_KEY => $who->id])
@@ -78,7 +83,7 @@ class CommsTest extends TestCase
      */
     protected function defineRoutes($router): void
     {
-        $router->get('comms-host', fn () => view('venue::comms.widget'))->middleware('web');
+        $router->get('comms-host', fn () => View::make('venue::comms.widget'))->middleware('web');
     }
 
     public function test_the_badge_is_a_circle_and_nothing_else(): void

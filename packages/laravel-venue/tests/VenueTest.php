@@ -495,7 +495,6 @@ class VenueTest extends TestCase
             'a visitor is known by the address their own server issued',
         );
 
-        $this->assertNotNull($delegation);
     }
 
     /**

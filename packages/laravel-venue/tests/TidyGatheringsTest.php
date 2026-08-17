@@ -115,7 +115,7 @@ final class TidyGatheringsTest extends TestCase
         {
             public function __construct(private readonly string $present) {}
 
-            public function get(string $url): ?string
+            public function get(string $url): string
             {
                 return str_contains($url, '/present') ? $this->present : '{"build":"test"}';
             }

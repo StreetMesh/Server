@@ -41,6 +41,9 @@ final class BuildHubTest extends Plain
         exec('rm -rf '.escapeshellarg($this->work));
     }
 
+    /**
+     * @return array{rooms: array<int, string>, fingerprint: string}
+     */
     private function build(Experience ...$offered): array
     {
         $experiences = new Experiences;

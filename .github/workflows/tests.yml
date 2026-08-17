@@ -1,3 +1,15 @@
+# What has to be true before anything here is believed.
+#
+# Three kinds of thing live in this repository and each is checked the way it
+# is actually run: the host application, five Composer packages that carry
+# almost all of the behaviour, and a Node hub that is not PHP at all.
+#
+# The packages run as a matrix rather than in one job, so a failure names the
+# package in the check list instead of being one red mark on a job that did
+# six things. Each installs its own dependencies, because that is what its
+# suite does on a laptop and a check that runs a different way is a check that
+# can pass for the wrong reason.
+
 name: tests
 
 on:
@@ -9,8 +21,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  ci:
+  host:
+    name: host
     runs-on: ubuntu-latest
 
     steps:
@@ -30,9 +47,93 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22'
+          cache: npm
 
-      - name: Setup Application
+      # composer install, an .env, a key, a migrated database, and a built
+      # front end. The build matters: a view rendering @vite needs a manifest,
+      # and without one the failure is a missing file rather than a test.
+      - name: Setup application
         run: composer setup
 
-      - name: Run CI Checks
+      - name: Check
         run: composer ci:check
+
+  packages:
+    name: ${{ matrix.package }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - protocol
+          - protocol-laravel
+          - laravel-domicile
+          - laravel-venue
+          - laravel-chess
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+
+      # Each package resolves its siblings through a path repository, so this
+      # tests the code next to it rather than a copy fetched at some earlier
+      # date. That is the whole reason they are in one repository.
+      - name: Install
+        working-directory: packages/${{ matrix.package }}
+        run: composer install --no-interaction --no-progress
+
+      # Whatever the package declares — lint, static analysis, phpunit, or
+      # only some of those. What a maintainer runs is what runs here.
+      - name: Check
+        working-directory: packages/${{ matrix.package }}
+        run: composer test
+
+  hub:
+    name: hub
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: hub/package-lock.json
+
+      - name: Install
+        working-directory: hub
+        run: npm ci
+
+      - name: Types
+        working-directory: hub
+        run: npm run types:check
+
+      # The hub has no tests of its own yet. `npm test` passes on an empty
+      # glob, which is a green tick for having checked nothing, so this says
+      # out loud that there is nothing here rather than letting the tick imply
+      # otherwise. Its real checks — check-ticket, check-join, check-blip,
+      # check-party — each need a StreetMesh server running, which is why they
+      # are not here.
+      - name: Tests
+        working-directory: hub
+        run: |
+          if [ -d test ] && ls test/*.test.ts >/dev/null 2>&1; then
+            npm test
+          else
+            echo "::warning title=Hub is untested::hub/ has no test/ directory. Type checking ran; nothing else did."
+          fi

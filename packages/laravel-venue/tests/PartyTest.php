@@ -308,12 +308,16 @@ class PartyTest extends TestCase
         $party = $this->partyOf($alice, $bob);
 
         $this->parties()->leave($party, $bob);
-        $this->assertNull($this->parties()->partyOf($bob));
+
+        $left = $this->parties()->partyOf($bob);
+        $this->assertNull($left);
 
         /* The same trip through the door, which is the case that failed. */
         $this->parties()->joinByCode((string) $party->code, $bob);
 
-        $this->assertSame($party->id, $this->parties()->partyOf($bob)?->id);
+        $rejoined = $this->parties()->partyOf($bob);
+        $this->assertNotNull($rejoined, 'coming back should seat them again');
+        $this->assertSame($party->id, $rejoined->id);
         $this->assertSame(2, $this->parties()->present($party)->count());
     }
 
