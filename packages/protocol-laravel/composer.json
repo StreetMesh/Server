@@ -72,5 +72,8 @@
             "phpunit"
         ],
         "types:check": "phpstan analyse"
+    },
+    "support": {
+        "source": "https://github.com/StreetMesh/Protocol-Laravel"
     }
 }

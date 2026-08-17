@@ -35,5 +35,9 @@
   },
   "bin": {
     "streetmesh-hub": "src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/StreetMesh/Hub.git"
   }
 }

@@ -62,6 +62,10 @@
         "lint": [
             "pint --parallel"
         ],
+        "split": [
+            "Composer\\Config::disableProcessTimeout",
+            "bin/split"
+        ],
         "lint:check": [
             "pint --parallel --test"
         ],
