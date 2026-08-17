@@ -303,4 +303,32 @@ return [
 
     ],
 
+    /*
+     |--------------------------------------------------------------------------
+     | Releasing this server's hub
+     |--------------------------------------------------------------------------
+     |
+     | What `php artisan hub:deploy` sends the built hub to Colyseus Cloud with.
+     |
+     | Named here rather than read from the environment where they are used,
+     | because `env()` answers null once the configuration is cached — which is
+     | what a production deploy does, and is the one place these are wanted. A
+     | command reading them directly cannot tell a credential that is missing
+     | from a credential it is no longer allowed to see, and reports the wrong
+     | one of those.
+     |
+     | `branch` is which branch of this repository the hub is released from, for
+     | a server that does not call it `main`.
+     |
+     */
+    'deploy' => [
+
+        'application' => env('COLYSEUS_APPLICATION_ID'),
+
+        'token' => env('COLYSEUS_TOKEN'),
+
+        'branch' => env('COLYSEUS_BRANCH'),
+
+    ],
+
 ];

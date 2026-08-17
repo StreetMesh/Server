@@ -55,7 +55,13 @@ final class DomicileCapability implements Capability
         }
 
         return [
-            'name' => (string) (app(Identities::class)->forUser($user)?->handle ?? $user->name),
+            /*
+             * `name` is asked for by attribute rather than as a property,
+             * because this package cannot see the host's user model and the
+             * framework's base class declares no such thing. It is a fallback
+             * for somebody who has an account here but no address yet.
+             */
+            'name' => (string) (app(Identities::class)->forUser($user)->handle ?? $user->getAttribute('name')),
             'leave' => ['label' => 'Log out', 'route' => 'logout'],
         ];
     }

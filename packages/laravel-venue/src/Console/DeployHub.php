@@ -32,8 +32,16 @@ class DeployHub extends Command
         $into = (string) (config('streetmesh.venue.build.into') ?: base_path('hub-build'));
         $from = (string) (config('streetmesh.venue.build.hub') ?: base_path('hub'));
         $hub = (string) config('streetmesh.venue.hub');
+        $application = (string) config('streetmesh.venue.deploy.application');
+        $token = (string) config('streetmesh.venue.deploy.token');
 
-        foreach (['streetmesh.venue.hub' => $hub, 'COLYSEUS_APPLICATION_ID' => (string) env('COLYSEUS_APPLICATION_ID'), 'COLYSEUS_TOKEN' => (string) env('COLYSEUS_TOKEN')] as $name => $value) {
+        $required = [
+            'streetmesh.venue.hub' => $hub,
+            'streetmesh.venue.deploy.application' => $application,
+            'streetmesh.venue.deploy.token' => $token,
+        ];
+
+        foreach ($required as $name => $value) {
             if ($value === '') {
                 $this->components->error("No {$name}, so there is nowhere to send the hub.");
 
@@ -71,8 +79,8 @@ class DeployHub extends Command
 
         $deploy = new Deploy(
             endpoint: Deploy::endpointFor($hub),
-            applicationId: (string) env('COLYSEUS_APPLICATION_ID'),
-            token: (string) env('COLYSEUS_TOKEN'),
+            applicationId: $application,
+            token: $token,
             repository: base_path(),
             branch: $this->branch(),
         );
@@ -148,7 +156,7 @@ class DeployHub extends Command
             return $named;
         }
 
-        return (string) (env('COLYSEUS_BRANCH') ?: 'main');
+        return (string) (config('streetmesh.venue.deploy.branch') ?: 'main');
     }
 
     /**

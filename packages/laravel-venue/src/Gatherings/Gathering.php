@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
  * @property string $key
  * @property string $status
  * @property Carbon|null $concluded_at
+ * @property array<string, mixed>|null $outcome
  */
 class Gathering extends Model
 {

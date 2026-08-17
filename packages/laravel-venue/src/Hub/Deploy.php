@@ -74,10 +74,8 @@ final class Deploy
     /**
      * Hand it over, and wait to be told it arrived.
      *
-     * @return array{deployed: bool, why: string}
-     */
-    /**
      * @param  null|callable(string): void  $watching  every line the CLI writes
+     * @return array{deployed: bool, why: string}
      */
     public function send(string $fingerprint, bool $regardless = false, ?callable $watching = null): array
     {

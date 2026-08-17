@@ -22,9 +22,6 @@ final readonly class AvailableAddress implements ValidationRule
 {
     public function __construct(private Residents $residents) {}
 
-    /**
-     * @param  Closure(string): void  $fail
-     */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         try {

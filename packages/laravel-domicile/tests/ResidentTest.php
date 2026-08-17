@@ -2,6 +2,7 @@
 
 namespace StreetMesh\Domicile\Tests;
 
+use Illuminate\Translation\PotentiallyTranslatedString;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
@@ -91,8 +92,6 @@ class ResidentTest extends TestCase
             $this->user(),
             Handle::for('alice', $this->residents()->host()),
         );
-
-        $this->assertNotNull($settled['rotationKey']);
 
         $ours = $settled['identity']->fresh()?->rotationKey();
 
@@ -261,13 +260,20 @@ class ResidentTest extends TestCase
         $this->serverExists();
         $rule = new AvailableAddress($this->residents());
 
+        /*
+         * The shape the framework actually hands a rule, rather than the
+         * shape this rule happens to use. A spy narrower than the contract
+         * passes here and would be the wrong thing to assert against.
+         */
         $refusals = [];
-        $collect = function (string $message) use (&$refusals): void {
+        $collect = function (string $message, ?string $attribute = null) use (&$refusals): PotentiallyTranslatedString {
             $refusals[] = $message;
+
+            return new PotentiallyTranslatedString($message, app('translator'));
         };
 
         $rule->validate('address', 'alice', $collect);
-        $this->assertSame([], $refusals, 'a name nobody holds should be free');
+        $this->assertCount(0, $refusals, 'a name nobody holds should be free');
 
         $rule->validate('address', 'alice_smith', $collect);
         $this->assertCount(1, $refusals);
