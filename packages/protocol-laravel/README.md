@@ -2,9 +2,11 @@
 
 The StreetMesh protocol, bound to the framework.
 
-```sh
-composer require streetmesh/protocol-laravel
-```
+> **Not on Packagist yet**, so `composer require streetmesh/protocol-laravel`
+> will not find it. Until it is published, get it from
+> [`Server`](https://github.com/StreetMesh/Server), which is also where it is
+> developed — this repository is published from there, at
+> `packages/protocol-laravel`. Issues and pull requests belong there.
 
 The protocol itself lives in
 [`streetmesh/protocol`](https://github.com/StreetMesh/Protocol-PHP), which knows

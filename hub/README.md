@@ -7,6 +7,10 @@
 
 **The authoritative half of a venue: rooms, and who is allowed in them.**
 
+> Developed in [`Server`](https://github.com/StreetMesh/Server), at `hub/`, and
+> published here. Issues and pull requests belong there. Not on npm yet, so
+> `npm install @streetmesh/hub` will not find it.
+
 Anything people do together needs one place that decides what is true *right
 now* — whose turn it is, where the video is paused, what the current bid stands
 at. Not a place that collects opinions from the participants and takes the
@@ -83,6 +87,8 @@ choosing for them and being wrong most of the time.
 ```sh
 ./check-ticket    # does a ticket PHP signed verify here?
 ./check-join      # does it open a door, and does nothing else?
+./check-blip      # does an announcement over the shared secret land?
+./check-party     # do two people find each other well enough to connect?
 ```
 
 The second matters because the first can pass while the room admits everybody

@@ -12,6 +12,10 @@ Two people who live on different servers play a game, and each of them ends up
 holding their own verifiable record of it. That sentence is the whole of v0, and
 this package is the part of it that is actually chess.
 
+> Developed in [`Server`](https://github.com/StreetMesh/Server), at
+> `packages/laravel-chess`, and published here. Issues and pull requests belong
+> there.
+
 ## What an experience turns out to be
 
 Everything hard is asked for rather than built. Arriving from another server,
@@ -24,7 +28,7 @@ What is left is three things:
 
 | | |
 | --- | --- |
-| `hub/src/room.ts` | The rules, enforced where a browser cannot argue with them. |
+| `room/src/room.ts` | The rules, enforced where a browser cannot argue with them. |
 | `resources/views/livewire/` | The screens: a lobby, and a board. |
 | `src/Games.php` | What a finished game is worth writing down. |
 
