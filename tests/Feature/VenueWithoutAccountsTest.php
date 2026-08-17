@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\RouteCollection;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
@@ -48,7 +49,7 @@ class VenueWithoutAccountsTest extends TestCase
         $without = collect(Route::getRoutes()->getRoutes())
             ->reject(fn ($route): bool => $route->getName() === 'login');
 
-        $collection = new \Illuminate\Routing\RouteCollection;
+        $collection = new RouteCollection;
 
         foreach ($without as $route) {
             $collection->add($route);

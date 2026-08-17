@@ -2,11 +2,12 @@
 
 namespace StreetMesh\Venue\Http;
 
-use Illuminate\Http\Response;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Http\Response;
+use StreetMesh\Venue\Comms;
 use StreetMesh\Venue\Parties\Parties;
 use StreetMesh\Venue\Visitors;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * The three documents the comms widget is made of.
@@ -28,7 +29,7 @@ final class CommsController
     public function __construct(
         private readonly Parties $parties,
         private readonly Visitors $visitors,
-        private readonly \StreetMesh\Venue\Comms $comms,
+        private readonly Comms $comms,
     ) {}
 
     /**

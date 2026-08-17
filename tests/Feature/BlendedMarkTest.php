@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -140,7 +141,7 @@ class BlendedMarkTest extends TestCase
     {
         config()->set('streetmesh.front_page', 'venue');
 
-        $this->actingAs(\App\Models\User::factory()->create())
+        $this->actingAs(User::factory()->create())
             ->get('/experiences')
             ->assertOk()
             ->assertSee('tabletop-mark-small.svg', escape: false);

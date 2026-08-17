@@ -3,8 +3,10 @@
 namespace StreetMesh\Venue\Tests;
 
 use PHPUnit\Framework\TestCase as Plain;
+use StreetMesh\Venue\Experiences\Audience;
 use StreetMesh\Venue\Experiences\Experience;
 use StreetMesh\Venue\Experiences\Experiences;
+use StreetMesh\Venue\Gatherings\Gathering;
 use StreetMesh\Venue\Hub\Build;
 
 /**
@@ -199,9 +201,9 @@ final class BuildHubTest extends Plain
                 return null;
             }
 
-            public function audience(\StreetMesh\Venue\Gatherings\Gathering $gathering): \StreetMesh\Venue\Experiences\Audience
+            public function audience(Gathering $gathering): Audience
             {
-                return \StreetMesh\Venue\Experiences\Audience::Anybody;
+                return Audience::Anybody;
             }
 
             public function scopes(): array

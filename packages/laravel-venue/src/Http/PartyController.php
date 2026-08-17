@@ -4,6 +4,7 @@ namespace StreetMesh\Venue\Http;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use StreetMesh\Protocol\Laravel\Permissions\Delegation;
 use StreetMesh\Venue\Media\Peer;
 use StreetMesh\Venue\Parties\Invitation;
 use StreetMesh\Venue\Parties\Parties;
@@ -153,7 +154,7 @@ final class PartyController
      * here would mean the route was wired up wrong — which is worth failing
      * loudly for rather than answering as though nobody was home.
      */
-    private function visitor(Request $request): \StreetMesh\Protocol\Laravel\Permissions\Delegation
+    private function visitor(Request $request): Delegation
     {
         $visitor = $this->visitors->current($request);
 

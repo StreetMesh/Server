@@ -3,8 +3,10 @@
 namespace StreetMesh\Venue\Tests;
 
 use Illuminate\Testing\TestResponse;
+use StreetMesh\Protocol\Laravel\Capabilities\Capabilities;
 use StreetMesh\Protocol\Laravel\Permissions\Delegation;
 use StreetMesh\Protocol\P256;
+use StreetMesh\Venue\Comms;
 use StreetMesh\Venue\Parties\Parties;
 use StreetMesh\Venue\Visitors;
 
@@ -291,11 +293,11 @@ class CommsTest extends TestCase
         /* The switch the operator sets, which is settled before anything
            boots — see `Capabilities::offers`. */
         $this->app->instance(
-            \StreetMesh\Protocol\Laravel\Capabilities\Capabilities::class,
-            new \StreetMesh\Protocol\Laravel\Capabilities\Capabilities(['venue' => false]),
+            Capabilities::class,
+            new Capabilities(['venue' => false]),
         );
 
-        $this->assertFalse($this->app->make(\StreetMesh\Venue\Comms::class)->offered());
+        $this->assertFalse($this->app->make(Comms::class)->offered());
     }
 
     public function test_a_venue_with_comms_off_has_none(): void

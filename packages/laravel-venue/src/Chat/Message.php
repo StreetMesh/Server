@@ -2,6 +2,7 @@
 
 namespace StreetMesh\Venue\Chat;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -45,9 +46,9 @@ class Message extends Model
      * question about the end of a list and reading the whole thing to find it
      * is how a busy space gets slow.
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, Message>
+     * @return Collection<int, Message>
      */
-    public static function recentlyIn(string $space): \Illuminate\Database\Eloquent\Collection
+    public static function recentlyIn(string $space): Collection
     {
         return self::query()
             ->where('space', $space)

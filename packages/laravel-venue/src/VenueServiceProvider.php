@@ -2,19 +2,19 @@
 
 namespace StreetMesh\Venue;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Foundation\Http\Middleware\TrimStrings;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use RuntimeException;
 use StreetMesh\Protocol\Laravel\Capabilities\Capabilities;
 use StreetMesh\Venue\Console\BuildHub;
-use Illuminate\Console\Scheduling\Schedule;
 use StreetMesh\Venue\Console\DeployHub;
 use StreetMesh\Venue\Console\TidyGatherings;
 use StreetMesh\Venue\Console\TidyParties;
-use Illuminate\Support\Facades\Log;
 
 class VenueServiceProvider extends ServiceProvider
 {

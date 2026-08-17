@@ -3,8 +3,8 @@
 namespace StreetMesh\Chess;
 
 use Illuminate\Support\ServiceProvider;
-use StreetMesh\Protocol\Laravel\Capabilities\Capabilities;
 use Livewire\Livewire;
+use StreetMesh\Protocol\Laravel\Capabilities\Capabilities;
 use StreetMesh\Venue\Experiences\Experiences;
 
 class ChessServiceProvider extends ServiceProvider

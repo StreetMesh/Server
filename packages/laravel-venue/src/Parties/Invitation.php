@@ -2,6 +2,7 @@
 
 namespace StreetMesh\Venue\Parties;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -76,8 +77,8 @@ class Invitation extends Model
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<Invitation>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<Invitation>
+     * @param  Builder<Invitation>  $query
+     * @return Builder<Invitation>
      */
     public function scopeOpen($query)
     {

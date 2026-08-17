@@ -8,8 +8,10 @@ use StreetMesh\Protocol\Laravel\Capabilities\Capabilities;
 use StreetMesh\Protocol\Laravel\Identity\Identities;
 use StreetMesh\Protocol\Laravel\Permissions\Delegation;
 use StreetMesh\Protocol\P256;
+use StreetMesh\Venue\Experiences\Audience;
 use StreetMesh\Venue\Experiences\Experience;
 use StreetMesh\Venue\Experiences\Experiences;
+use StreetMesh\Venue\Gatherings\Gathering;
 use StreetMesh\Venue\Http\ConnectController;
 use StreetMesh\Venue\Tests\Fixtures\Resident;
 use StreetMesh\Venue\VenueCapability;
@@ -629,9 +631,9 @@ class VenueTest extends TestCase
                 return null;
             }
 
-            public function audience(\StreetMesh\Venue\Gatherings\Gathering $gathering): \StreetMesh\Venue\Experiences\Audience
+            public function audience(Gathering $gathering): Audience
             {
-                return \StreetMesh\Venue\Experiences\Audience::Anybody;
+                return Audience::Anybody;
             }
 
             /**
@@ -710,9 +712,9 @@ class VenueTest extends TestCase
                 return null;
             }
 
-            public function audience(\StreetMesh\Venue\Gatherings\Gathering $gathering): \StreetMesh\Venue\Experiences\Audience
+            public function audience(Gathering $gathering): Audience
             {
-                return \StreetMesh\Venue\Experiences\Audience::Anybody;
+                return Audience::Anybody;
             }
 
             /**

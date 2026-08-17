@@ -2,6 +2,7 @@
 
 namespace StreetMesh\Venue\Gatherings;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -197,9 +198,9 @@ final class Gatherings
      * people met, and that is not this. Still open, because a concluded
      * gathering is a record rather than an invitation.
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, Gathering>
+     * @return Collection<int, Gathering>
      */
-    public function waiting(int $minutes): \Illuminate\Database\Eloquent\Collection
+    public function waiting(int $minutes): Collection
     {
         return Gathering::query()
             ->where('status', Gathering::OPEN)

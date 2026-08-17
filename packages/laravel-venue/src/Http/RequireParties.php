@@ -4,8 +4,8 @@ namespace StreetMesh\Venue\Http;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use StreetMesh\Venue\Parties\Parties;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * A venue that does not do parties has nowhere to do them.

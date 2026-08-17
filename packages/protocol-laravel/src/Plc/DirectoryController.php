@@ -58,9 +58,6 @@ final class DirectoryController
         return response()->json($document);
     }
 
-    /**
-     * @return JsonResponse
-     */
     public function log(string $did): JsonResponse
     {
         $this->refuseUnlessHosting();

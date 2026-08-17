@@ -36,7 +36,7 @@ class ConsentScreenTest extends TestCase
         $screen = $this->screen('server.test');
 
         $this->assertStringContainsString('server.test wants to connect', $screen);
-        $this->assertStringContainsString("Permissions you&#039;re granting:", $screen);
+        $this->assertStringContainsString('Permissions you&#039;re granting:', $screen);
         $this->assertStringContainsString('com.streetmesh.games.chess', $screen);
     }
 

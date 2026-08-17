@@ -6,8 +6,8 @@ use StreetMesh\Protocol\Laravel\Http\ConsentController;
 use StreetMesh\Protocol\Laravel\Http\IdentityController;
 use StreetMesh\Protocol\Laravel\Http\PermissionController;
 use StreetMesh\Protocol\Laravel\Http\PermissionMetadataController;
-use StreetMesh\Protocol\Laravel\Plc\DirectoryController;
 use StreetMesh\Protocol\Laravel\Http\RepoController;
+use StreetMesh\Protocol\Laravel\Plc\DirectoryController;
 
 /*
  * Everything a stranger may ask without introducing themselves.

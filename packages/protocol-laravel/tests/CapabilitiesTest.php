@@ -191,5 +191,4 @@ final class CapabilitiesTest extends Plain
         $this->assertStringContainsString('venue-mark-small.svg', $capabilities->mark(null, 'venue')->light());
         $this->assertStringContainsString('domicile-mark-small.svg', $capabilities->mark(null, 'domicile')->light());
     }
-
 }

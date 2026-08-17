@@ -2,6 +2,7 @@
 
 namespace StreetMesh\Venue\Parties;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -53,8 +54,8 @@ class Party extends Model
      * case-insensitive by specification and everything that carries text
      * around feels free to act on it.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<Party>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<Party>
+     * @param  Builder<Party>  $query
+     * @return Builder<Party>
      */
     public function scopeKeyed($query, string $key)
     {

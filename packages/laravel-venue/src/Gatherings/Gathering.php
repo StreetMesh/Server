@@ -2,6 +2,7 @@
 
 namespace StreetMesh\Venue\Gatherings;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -50,8 +51,8 @@ class Gathering extends Model
      * arrived as "There is no game here" — which reads as the game being over
      * rather than as the address having been tidied up on the way.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<Gathering>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<Gathering>
+     * @param  Builder<Gathering>  $query
+     * @return Builder<Gathering>
      */
     public function scopeKeyed($query, string $key)
     {
