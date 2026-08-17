@@ -136,10 +136,8 @@ And one that is not a Composer package, because it is not PHP:
 | --- | --- |
 | [`hub/`](hub/) | The authoritative multiplayer host. Rooms, and who is allowed in them. |
 
-Each of these had its own repository until they came in-tree, and those
-repositories still exist. **None of them is where the work happens** — see
-[below](#they-used-to-be-submodules). Nothing is published to Packagist or npm
-yet, so there is currently no way to install any of this except from here.
+Nothing is published to Packagist or npm yet, so there is no way to install any
+of this except from here.
 
 `hub/` is in this repository like the packages, and needs `npm install` inside it
 before it will run or check anything. It is the only part of a server that is not PHP,
@@ -204,24 +202,6 @@ What follows from that:
 - Shipping a package change is one commit, in the same place as the change to
   the application that uses it.
 
-### They used to be submodules
-
-Until they came in-tree, each package lived in its own repository and was
-mounted here as a git submodule. Two things are worth keeping from that.
-
-**The history came with them**, so `git blame` on a package file answers with
-the commit that wrote it, under the path it had at the time. `git log` on the
-new path does not reach back, because the files moved; the old heads are tagged
-so you can get at them anyway:
-
-```bash
-git log pre-monorepo/laravel-venue -- src/Chat/Chat.php
-```
-
-**The repositories they came from still exist** and still hold that history.
-They are no longer where the work happens — a change made there does not reach
-this server, and nothing here will tell you so.
-
 ### What a package puts on the page
 
 A package declares its browser assets in its own `composer.json`, and
@@ -243,11 +223,10 @@ built as entry points. Two generated files carry the result to the tools that
 need it — Vite reads imports and Tailwind reads `@source` lines, and neither can
 be handed a list. Both are gitignored and rewritten whenever Vite starts.
 
-This replaced a pair of globs over `packages/*`. Those found every package we
-ship and nothing installed anywhere else, so an experience arriving from a
-registry into `vendor/` had its components silently not register and its markup
-silently render unstyled. Declared paths are checked, and naming something you
-do not ship fails the build instead.
+Because it reads what Composer installed rather than a path, a package works the
+same wherever it sits — `packages/` here, or `vendor/` when somebody installs an
+experience of their own. **Declaring a path you do not ship fails the build**,
+naming the package and the claim.
 
 Symlinks are resolved before anything is written, because Tailwind will not
 follow one: a `@source` naming `vendor/streetmesh/*` scans nothing and strips
