@@ -115,6 +115,14 @@ jobs:
           cache: npm
           cache-dependency-path: hub/package-lock.json
 
+      # Something under Colyseus depends on uWebSockets.js over git+ssh, and a
+      # runner has no key, so npm ci fails on a public repository with a
+      # permission error. Anonymous https reaches the same objects. This only
+      # ever bit when the npm cache was cold, which is the worst way for it to
+      # be wrong: green until the day it is not, for no reason anybody changed.
+      - name: Fetch git dependencies anonymously
+        run: git config --global url."https://github.com/".insteadOf ssh://git@github.com/
+
       - name: Install
         working-directory: hub
         run: npm ci
