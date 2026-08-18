@@ -141,22 +141,38 @@ class CommsTest extends TestCase
     {
         $panel = $this->as($this->visitor(), 'panel')->assertOk();
 
-        $panel->assertSee('Speak')->assertSee('Show');
+        /*
+         * The words are the accessible name now rather than a label, because
+         * the buttons are icons — so they are asserted where they actually
+         * live, which is also the only place anything but a pair of eyes will
+         * find them.
+         */
+        $panel->assertSee('aria-label="Speak"', escape: false);
+        $panel->assertSee('aria-label="Show"', escape: false);
         $panel->assertSee('streetmesh.panel.speak', escape: false);
         $panel->assertSee('streetmesh.panel.show', escape: false);
     }
 
     /**
-     * And on whichever tab is open, because they belong to neither.
+     * And nowhere at all at a venue that offers no parties.
+     *
+     * They used to be on both tabs, which put a microphone under a text
+     * conversation and offered a camera at a venue with nobody to point it at:
+     * media is carried between the people in a party, so with no parties on
+     * offer these switch on a preview of yourself and nothing else.
+     *
+     * Still reachable before a party exists — they follow the party *tab*,
+     * which is there whenever parties are, rather than a party, which is not.
      */
-    public function test_the_switches_are_not_on_one_tab_only(): void
+    public function test_the_switches_are_not_offered_where_parties_are_not(): void
     {
         config(['streetmesh.venue.parties.enabled' => false]);
 
         $this->as($this->visitor(), 'panel')
             ->assertOk()
             ->assertDontSee('Start a party')
-            ->assertSee('streetmesh.panel.speak', escape: false);
+            ->assertDontSee('streetmesh.panel.speak', escape: false)
+            ->assertDontSee('streetmesh.panel.show', escape: false);
     }
 
     /**

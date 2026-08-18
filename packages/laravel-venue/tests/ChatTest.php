@@ -2,6 +2,7 @@
 
 namespace StreetMesh\Venue\Tests;
 
+use Livewire\Livewire;
 use RuntimeException;
 use StreetMesh\Protocol\Laravel\Permissions\Delegation;
 use StreetMesh\Protocol\P256;
@@ -156,6 +157,34 @@ class ChatTest extends TestCase
     public function test_an_ordinary_space_is_readable(): void
     {
         $this->assertTrue($this->chat()->readableBy('/lobby', null));
+    }
+
+    /**
+     * The newest line is announced to whoever is holding the badge.
+     *
+     * A conversation carries on whether or not anybody has the panel open —
+     * it is hidden rather than unloaded, so it polls either way. This is how
+     * the document that *can* tell whether anybody is looking hears that
+     * there is something to look at.
+     *
+     * Keyed on the message, so the element is re-made when a new line lands
+     * and left alone when a poll finds nothing.
+     */
+    public function test_the_newest_line_is_announced_to_the_badge(): void
+    {
+        $alice = $this->visitor();
+
+        $this->chat()->say('/lobby', $alice, 'anybody about?');
+
+        $newest = Message::recentlyIn('/lobby')->last();
+
+        $panel = Livewire::test('venue::chat', ['space' => '/lobby']);
+        $panel->assertOk();
+
+        $said = $panel->html();
+
+        $this->assertStringContainsString('streetmesh.chat.said', $said);
+        $this->assertStringContainsString('said-'.$newest->id, $said);
     }
 
     /**

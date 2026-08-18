@@ -94,7 +94,7 @@ new class extends Component
 
         unset($this->messages);
     }
-};?>
+}; ?>
 
 {{--
     Padded here rather than by whatever holds it.
@@ -106,6 +106,30 @@ new class extends Component
     from it.
 --}}
 <div class="flex h-full flex-col" wire:poll.2s>
+    {{--
+        The newest thing said here, announced to the document that holds the
+        badge.
+
+        Keyed on the message rather than watched, because this element is
+        re-made whenever the key changes and left alone when it does not — so
+        `x-init` runs exactly once per new line, and the two-second poll that
+        found nothing says nothing.
+
+        What it means is decided upstairs: this frame does not know whether
+        anybody is looking at it, and the document that does is the one holding
+        the badge.
+    --}}
+    @if ($this->messages->isNotEmpty())
+        <div
+            wire:key="said-{{ $this->messages->last()->id }}"
+            x-init="window.parent.postMessage({
+                method: 'streetmesh.chat.said',
+                params: { space: @js($space), said: @js($this->messages->last()->id) },
+            }, window.location.origin)"
+            hidden
+        ></div>
+    @endif
+
     {{--
         Opened at the end, and kept there.
 

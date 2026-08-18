@@ -382,7 +382,7 @@ import mesh from './mesh.js'
      */
     const announce = (unreachable) => {
         const names = unreachable.map((one) => one.name).filter(Boolean)
-        const now = names.join(' ')
+        const now = names.join('\0')
 
         if (now === announced) {
             return
@@ -518,6 +518,60 @@ import mesh from './mesh.js'
         open = next
         panel.style.display = open ? 'block' : 'none'
         toAll('streetmesh.widget.toggle', { open })
+
+        /* Opening it is reading it. Whatever arrived while it was shut has now
+           been offered to somebody, which is all the badge was claiming. */
+        if (open) {
+            markRead()
+        }
+    }
+
+    /**
+     * Whether anything has been said that nobody has had the chance to read.
+     *
+     * The panel polls whether or not it is showing — it is hidden rather than
+     * unloaded — so it hears every line either way and says so. What it cannot
+     * know is whether anybody is looking at it, and this document can, which is
+     * why the judgement is here and not there.
+     *
+     * The newest line in each space is remembered rather than a count, because
+     * a count has to be reconciled and a high-water mark does not: a line is
+     * either newer than the last one seen or it is not.
+     */
+    const seen = new Map()
+
+    let unread = false
+
+    const markRead = () => {
+        if (!unread) {
+            return
+        }
+
+        unread = false
+        toAll('streetmesh.panel.waiting', { waiting: unread })
+    }
+
+    const said = (space, id) => {
+        if (typeof space !== 'string' || !id) {
+            return
+        }
+
+        const before = seen.get(space)
+
+        seen.set(space, id)
+
+        /*
+         * The first thing heard about a space is a baseline, not news. A panel
+         * that has just loaded reports whatever is already on screen, and
+         * treating that as unread would light the badge on arrival for a
+         * conversation that happened last week.
+         */
+        if (before === undefined || id <= before || open || unread) {
+            return
+        }
+
+        unread = true
+        toAll('streetmesh.panel.waiting', { waiting: unread })
     }
 
     /**
@@ -596,9 +650,12 @@ import mesh from './mesh.js'
              */
             config.party = params?.party ?? null
             reconcileParty()
+        } else if (method === 'streetmesh.chat.said') {
+            said(params?.space, params?.said)
         } else if (method === 'streetmesh.surface.ready') {
             sendContext()
             toAll('streetmesh.stage.media', { speaking, showing })
+            toAll('streetmesh.panel.waiting', { waiting: unread })
         } else {
             /* One surface talking to the others, carried without being read. */
             toAll(method, params)

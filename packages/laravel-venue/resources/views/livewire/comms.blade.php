@@ -465,15 +465,24 @@ new class extends Component
     @endif
 
     {{--
-        Being heard and seen, on both tabs and whether or not there is a party.
+        Being heard and seen.
 
-        Not inside the party branch, which is where these started and where they
-        were useless: your own circle only appears once something is turned on,
-        so with no party and nothing on there was no switch anywhere on screen —
-        no way in at all. A camera is yours rather than the party's.
+        Shown with the party tab rather than with a party. These began inside
+        the party branch and were useless there: your own circle only appears
+        once something is turned on, so before a party existed there was no
+        switch anywhere on screen and no way in at all. The tab is present
+        whenever parties are offered, so keying on it keeps them reachable
+        while still not putting a microphone under a text conversation.
+
+        Icons alone. The state is the variant — lit when live — and the word
+        underneath was saying a second time what the colour already said, in a
+        strip only wide enough for two buttons.
     --}}
+    @if ($this->offered)
     <div
         class="flex shrink-0 gap-2 border-t border-zinc-200 p-3 dark:border-zinc-700"
+        x-show="tab === 'party'"
+        x-cloak
         x-data="{ speaking: false, showing: false }"
         x-on:message.window="
             if ($event.data?.method === 'streetmesh.stage.media') {
@@ -482,24 +491,32 @@ new class extends Component
             }
         "
     >
+        {{--
+            No label, so the name has to be said to anything that is not a pair
+            of eyes — and said in the present tense, because the button reports
+            a state as much as it offers an action.
+        --}}
         <flux:button
-            size="sm"
             icon="microphone"
-            class="flex-1"
+            class="flex-1 [&_svg]:size-6"
             x-on:click="window.parent.postMessage({ method: 'streetmesh.panel.speak', params: {} }, window.location.origin)"
             ::variant="speaking ? 'primary' : 'filled'"
-        >
-            <span x-text="speaking ? '{{ __('Speaking') }}' : '{{ __('Speak') }}'"></span>
-        </flux:button>
+            aria-label="{{ __('Speak') }}"
+            ::aria-label="speaking ? '{{ __('Speaking') }}' : '{{ __('Speak') }}'"
+            ::title="speaking ? '{{ __('Speaking') }}' : '{{ __('Speak') }}'"
+            ::aria-pressed="speaking"
+        />
 
         <flux:button
-            size="sm"
             icon="video-camera"
-            class="flex-1"
+            class="flex-1 [&_svg]:size-6"
             x-on:click="window.parent.postMessage({ method: 'streetmesh.panel.show', params: {} }, window.location.origin)"
             ::variant="showing ? 'primary' : 'filled'"
-        >
-            <span x-text="showing ? '{{ __('Showing') }}' : '{{ __('Show') }}'"></span>
-        </flux:button>
+            aria-label="{{ __('Show') }}"
+            ::aria-label="showing ? '{{ __('Showing') }}' : '{{ __('Show') }}'"
+            ::title="showing ? '{{ __('Showing') }}' : '{{ __('Show') }}'"
+            ::aria-pressed="showing"
+        />
     </div>
+    @endif
 </div>
