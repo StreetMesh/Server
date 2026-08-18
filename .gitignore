@@ -8,6 +8,11 @@
 /storage/pail
 /vendor
 
+# Laravel Cloud API tokens. This repository is public and `composer split`
+# publishes it to six more, so a credential landing here is a credential
+# published six times.
+/.cloud
+
 # Written by vite/streetmesh.js from what Composer has installed, on every dev
 # server start and every build. Committing them would be committing a copy of
 # the installed set, which is the thing they are derived from.

@@ -164,6 +164,55 @@ class DelegationTest extends TestCase
     }
 
     /**
+     * Somebody signs in to their server as themselves, having asked to arrive
+     * here as somebody else.
+     *
+     * A domicile authenticates whoever is signed in to it and `login_hint` is
+     * advisory, so this is reachable without anybody lying: an autofilled login
+     * form is enough. Left unchecked, this venue would carry the name it asked
+     * for and the identity it was handed, in the same row — showing one person
+     * to everybody here while signing records on behalf of another.
+     */
+    public function test_a_server_answering_for_somebody_else_is_refused(): void
+    {
+        $delegation = $this->begun();
+
+        Http::fake([
+            self::THEIR_SERVER.'/oauth/token' => Http::response([
+                'access_token' => 'a-live-token',
+                'refresh_token' => 'a-refresh-token',
+                'token_type' => 'DPoP',
+                'expires_in' => 900,
+                'scope' => 'atproto',
+                'sub' => 'did:web:bob.home.test',
+            ]),
+        ]);
+
+        try {
+            $this->delegations()->complete(
+                (string) $delegation->state,
+                'a-code',
+                'https://games.test/connect/callback',
+            );
+
+            $this->fail('a token issued for somebody else should not have been kept');
+        } catch (RuntimeException $refused) {
+            $this->assertStringContainsString('did:web:bob.home.test', $refused->getMessage());
+            $this->assertStringContainsString('alice.home.test', $refused->getMessage());
+        }
+
+        /*
+         * And nothing was written. A refusal that still stored the token would
+         * leave the venue holding permission it had just called invalid.
+         */
+        $delegation->refresh();
+
+        $this->assertSame('did:web:alice.home.test', $delegation->did);
+        $this->assertNull($delegation->access_token);
+        $this->assertNotNull($delegation->state, 'a refused callback is not a spent one');
+    }
+
+    /**
      * A callback carrying a state nobody issued is somebody else's business,
      * and this is the only thing standing between that and a token request.
      */
