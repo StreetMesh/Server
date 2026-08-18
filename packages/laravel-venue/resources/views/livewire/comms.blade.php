@@ -5,6 +5,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use StreetMesh\Protocol\Laravel\Permissions\Delegation;
+use StreetMesh\Venue\Comms;
 use StreetMesh\Venue\Parties\Invitation;
 use StreetMesh\Venue\Parties\Parties;
 use StreetMesh\Venue\Parties\Party;
@@ -66,22 +67,6 @@ new class extends Component
          * particular", which is what nowhere-yet looks like.
          */
         $this->tab = $this->parties()->enabled() ? 'party' : 'room';
-    }
-
-    /**
-     * Remember that the reader picked a tab, so the page stops picking for them.
-     *
-     * Which tab is *showing* is not decided here — that is held in the browser,
-     * because a tab is UI state and making it a round trip put every click
-     * behind whatever poll happened to be in flight. On Safari that read as a
-     * long pause, or as nothing happening at all.
-     *
-     * This is told afterwards and nothing waits for it.
-     */
-    public function choose(string $tab): void
-    {
-        $this->tab = $tab;
-        $this->chosen = true;
     }
 
     #[On('comms-context')]
@@ -257,10 +242,10 @@ new class extends Component
          * host would go on holding connections to a party somebody has left,
          * or none to the one they just joined.
          */
-        $this->dispatch('party-changed', party: app(\StreetMesh\Venue\Comms::class)
+        $this->dispatch('party-changed', party: app(Comms::class)
             ->forHost(request())['party']);
     }
-};?>
+}; ?>
 
 <div
     class="flex h-full flex-col bg-white dark:bg-zinc-900"
@@ -331,6 +316,27 @@ new class extends Component
         },
 
         /**
+         * Tell the server, without asking it for anything.
+         *
+         * The third argument is what matters: set the property and do not
+         * re-render. A render here replaces the class attribute on the tab
+         * that was just tapped with the one the server drew, which has none of
+         * the classes saying it is the chosen one — and Alpine does not put
+         * them back, because from where it stands nothing changed. So the pane
+         * switched at once and the tab above it stayed grey until the next
+         * poll re-made the element, five seconds later.
+         *
+         * Nothing waits for this and nothing needs to. The browser already
+         * holds which tab is showing and whether somebody chose it; the server
+         * only wants to know so it stops suggesting, and it finds out with the
+         * next poll either way.
+         */
+        remember (which) {
+            this.$wire.$set('tab', which, false)
+            this.$wire.$set('chosen', true, false)
+        },
+
+        /**
          * The page's idea of where to start, which a choice outranks.
          *
          * Walking into a room moves the panel to that room's conversation, and
@@ -368,7 +374,7 @@ new class extends Component
     <div class="flex shrink-0 border-b border-zinc-200 dark:border-zinc-700">
         <button
             type="button"
-            x-on:click="show('room'); $wire.choose('room')"
+            x-on:click="show('room'); remember('room')"
             class="flex-1 px-4 py-3 text-sm"
             x-bind:class="tab === 'room'
                 ? 'border-b-2 border-[var(--sm-accent)] font-semibold text-zinc-900 dark:text-[var(--sm-accent)]'
@@ -378,7 +384,7 @@ new class extends Component
         @if ($this->offered)
             <button
                 type="button"
-                x-on:click="show('party'); $wire.choose('party')"
+                x-on:click="show('party'); remember('party')"
                 class="flex-1 px-4 py-3 text-sm"
                 x-bind:class="tab === 'party'
                     ? 'border-b-2 border-[var(--sm-accent)] font-semibold text-zinc-900 dark:text-[var(--sm-accent)]'

@@ -57,8 +57,15 @@ class PanelTest extends TestCase
     {
         $this->withSession([Visitors::SESSION_KEY => $this->visitor('alice')->id]);
 
+        /*
+         * Set rather than called, because that is what the tab strip does: it
+         * hands the server the two properties without asking for a render,
+         * since a render would write over the classes Alpine had just put on
+         * the tab that was tapped.
+         */
         Livewire::test('venue::comms')
-            ->call('choose', 'room')
+            ->set('tab', 'room')
+            ->set('chosen', true)
             ->call('context', 'chess/table/1', 'Table 1')
             ->assertNotDispatched('comms-tab')
             ->assertSet('tab', 'room');
