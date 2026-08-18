@@ -108,3 +108,34 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+/*
+    Nothing zooms when somebody taps into it.
+
+    Safari on iOS zooms the page in whenever a control it is focusing renders
+    below 16px, and it does not zoom back out afterwards — so tapping the chat
+    box magnifies the venue and leaves it magnified, with the board or the
+    roster hanging off the side of the screen. `text-sm` is 14px, which is the
+    size a chat box wants to be and two pixels under the threshold.
+
+    The other way to stop it is `maximum-scale=1` on the viewport, and that is
+    the wrong repair: it stops the page zooming when somebody *asks* it to,
+    which is how a person who needs larger text reads anything at all. Trading
+    their eyesight against our layout is not a trade worth making.
+
+    So the control is given the size that does not trigger it, and only where
+    the behaviour exists. A coarse pointer is the condition rather than a
+    screen width, because what decides this is being a touchscreen and not
+    being narrow — a phone in landscape is wider than some windows.
+
+    Unlayered on purpose. Tailwind's utilities are inside a cascade layer and
+    anything outside one beats them, which is what lets this override
+    `text-sm` on the element itself without `!important`.
+*/
+@media (pointer: coarse) {
+    input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='file']),
+    textarea,
+    select {
+        font-size: 16px;
+    }
+}
