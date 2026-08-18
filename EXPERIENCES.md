@@ -309,6 +309,26 @@ And per package: `composer test` (pint, phpstan, phpunit).
 Ordered by how much time each one costs. **Symptom first**, because that is what
 you will have.
 
+### Two people share a party, a seat, or a name
+
+Not a bug in whichever of those you noticed. Two visitors are holding the same
+identity, and everything that keys on one is faithfully treating them as one
+person.
+
+It happens when somebody arrives at the door as one handle and signs in to their
+own server as another — an autofilled login form is enough, and no screen
+disagrees afterwards, because a venue displays the handle it was given and acts
+on the identity it was handed.
+
+A venue refuses this now, naming both. If you meet it on an older checkout, look
+at the delegations rather than at whatever surfaced it:
+
+```sh
+php artisan tinker --execute="\StreetMesh\Protocol\Laravel\Permissions\Delegation::get(['id','did','handle'])->each(fn(\$d) => print(\"{\$d->id} {\$d->did} {\$d->handle}\n\"));"
+```
+
+Two rows with different handles and the same identifier is the whole story.
+
 ### Every ticket is refused, for reasons that have nothing to do with tickets
 The hub was started directly with `node`. Node does **not** read the macOS
 keychain, so fetching the venue's DID document over TLS fails. `./hub-serve`
