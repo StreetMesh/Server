@@ -392,10 +392,19 @@ new class extends Component
         @endif
 
         {{--
-            A circle rather than a bare glyph, and at the size of the words
-            beside it. The tabs are the thing being chosen between; this is one
-            control sitting next to them, and a cross floating at whatever size
-            the document happened to be reads as debris rather than a button.
+            A circle rather than a bare glyph. The tabs are the thing being
+            chosen between; this is one control sitting next to them, and a
+            cross floating at whatever size the document happened to be reads
+            as debris rather than a button.
+
+            Sized to the row, which is also the smallest target a thumb can be
+            asked to find: it was 28px, and on a phone that is a button you
+            miss and then miss again. The tabs either side are 44px tall for
+            the same reason, so matching them costs no height — the circle
+            fills the strip it already sat in the middle of.
+
+            The glyph grows with it. A cross at the old size inside a circle
+            this size reads as a mistake rather than as a bigger button.
 
             Its own centred cell, so the circle lines up with the middle of the
             strip rather than the top of the text.
@@ -403,7 +412,7 @@ new class extends Component
         <div class="flex shrink-0 items-center pe-2">
             <button
                 type="button"
-                class="flex size-7 items-center justify-center rounded-full text-sm leading-none text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
+                class="flex size-11 items-center justify-center rounded-full text-xl leading-none text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
                 x-on:click="window.parent.postMessage({ method: 'streetmesh.panel.close', params: {} }, window.location.origin)"
                 aria-label="{{ __('Close') }}"
             >&times;</button>
