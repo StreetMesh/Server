@@ -14,7 +14,7 @@ servers.
 
 ## What you get
 
-- **Modular Experiences.** Distributed as [Composer](https://getcomposer.org) packages: create your own, mix and match others', build a virtual destination.
+- **Modular experiences.** Distributed as [Composer](https://getcomposer.org) packages: create your own, mix and match others', build a virtual destination.
 - **Portable identity.** Visitors arrive from their preferred StreetMesh servers, called *domiciles*; their data and identity belongs to their server, not yours.
 - **Authoritative multiplayer rooms.** Powered by [Colyseus](https://colyseus.io), running on Node: your server's *Hub* enforces the rules of the experiences you host, and syncs the data the players share.
 - **Voice and video.** Peer-to-peer parties between visitors, with no service in the middle.
