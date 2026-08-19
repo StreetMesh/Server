@@ -141,7 +141,45 @@ export default function peer({ ice, polite, name, send, onTrack, onStatus }) {
                 const sender = senders.get(kind);
 
                 if (track && sender) {
-                    void sender.replaceTrack(track);
+                    /*
+                     * Already sending this exact track. The common case, because
+                     * turning the camera on re-asks for everything and hands
+                     * back a whole new set — so the audio sender meets a new
+                     * audio track whenever the video changes, and sometimes the
+                     * very same one.
+                     */
+                    if (sender.track === track) {
+                        continue;
+                    }
+
+                    /*
+                     * Awaited, and complained about when it fails.
+                     *
+                     * A rejection here leaves the sender holding the track that
+                     * was just stopped, which is somebody speaking into a
+                     * connection that carries nothing while their button stays
+                     * lit — the failure this file's own history is about. It
+                     * was unawaited and uncaught, so it could not be seen even
+                     * by somebody looking for it.
+                     *
+                     * Reported rather than repaired. Removing the sender and
+                     * adding it again would force a renegotiation on a
+                     * connection that has just said it is unwell, and there is
+                     * no evidence yet about how often this happens. This is how
+                     * that evidence gets collected.
+                     */
+                    sender
+                        .replaceTrack(track)
+                        .then(() => {
+                            for (const stale of outgoing.getTracks()) {
+                                if (stale.kind === kind) {
+                                    outgoing.removeTrack(stale);
+                                }
+                            }
+
+                            outgoing.addTrack(track);
+                        })
+                        .catch((refused) => trouble(`${name}: could not swap their ${kind}`, refused));
 
                     continue;
                 }
