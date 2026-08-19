@@ -5,6 +5,7 @@ namespace StreetMesh\Venue\Http;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use StreetMesh\Venue\Media\Mailbox;
+use StreetMesh\Venue\Media\Presence;
 use StreetMesh\Venue\Parties\Parties;
 use StreetMesh\Venue\Parties\Party;
 use StreetMesh\Venue\Visitors;
@@ -21,6 +22,11 @@ use StreetMesh\Venue\Visitors;
  * A party is private by construction, so anybody who is not in one has no
  * business either reading what is waiting in it or leaving anything there.
  *
+ * It carries who is here as well, on the same request. That is not thrift for
+ * its own sake: presence and notes arriving together is what stops a note ever
+ * being early — there is no moment when an offer has landed from somebody this
+ * browser has not been told about yet.
+ *
  * Polled rather than pushed, which is what it should stop being. The server this
  * runs on has Reverb configured, and the cost of asking grows with the number of
  * people in the party — see the note in `decisions/parties.md`.
@@ -31,9 +37,21 @@ final class SignalController
         private readonly Parties $parties,
         private readonly Visitors $visitors,
         private readonly Mailbox $mailbox,
+        private readonly Presence $presence,
     ) {}
 
-    /** Take everything waiting for this connection. */
+    /**
+     * Take everything waiting for this connection, and hear who else is here.
+     *
+     * Asking is also how a browser says it is still here — there is nothing to
+     * keep alive beyond the poll that was already running. A browser that stops
+     * asking stops being mentioned, which is the whole of leaving by accident.
+     *
+     * The name is the venue's word, read from whoever is making the request
+     * rather than from anything they sent. A browser names its own connection,
+     * because that is a tab and nobody else can know it; it does not get to name
+     * the person, because the person was settled at the door.
+     */
     public function collect(Request $request, string $key): JsonResponse
     {
         $party = $this->partyFor($request, $key);
@@ -42,9 +60,20 @@ final class SignalController
             return $this->refuse();
         }
 
-        return response()->json([
-            'signals' => $this->mailbox->drain($party->room(), (string) $request->string('as')),
-        ]);
+        $as = (string) $request->string('as');
+
+        $answer = ['signals' => $this->mailbox->drain($party->room(), $as)];
+
+        if ($as !== '') {
+            $answer += $this->presence->seen(
+                $party->room(),
+                $as,
+                (string) $this->visitors->current($request)?->handle,
+                (string) $request->string('at'),
+            );
+        }
+
+        return response()->json($answer);
     }
 
     /**
@@ -61,6 +90,17 @@ final class SignalController
 
         if ($party === null) {
             return $this->refuse();
+        }
+
+        /*
+         * Going, said out loud. Answered before anything about notes, because a
+         * departure names nobody to be for and would otherwise be refused for
+         * lacking one.
+         */
+        if ($request->boolean('gone')) {
+            $this->presence->gone($party->room(), (string) $request->string('from'));
+
+            return response()->json(['left' => true]);
         }
 
         $to = (string) $request->string('to');
