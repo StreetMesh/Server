@@ -309,6 +309,24 @@ And per package: `composer test` (pint, phpstan, phpunit).
 Ordered by how much time each one costs. **Symptom first**, because that is what
 you will have.
 
+### Your microphone is off on screen and the room can still hear you
+
+The capture and the intention had drifted apart. `wanted` is what somebody asked
+for and the capture is what the machine is giving; anything live in the capture
+whose kind is no longer wanted is a microphone transmitting with the button
+dark.
+
+Reachable three ways, and one is deterministic on WebKit: asking for a camera
+while holding a microphone ends the microphone's track, and the handler for that
+used to discard the *intention* rather than the dead track. The other two are
+pressing a switch twice before the prompt is answered, and an acquisition that
+fails after another has already succeeded.
+
+Fixed by one thing making the hardware match the intention, on a queue, and by
+nothing else touching a device. If you are adding to `devices.js`, that is the
+rule: record what is wanted and ask for a settle. Never stop or acquire from a
+handler.
+
 ### Two people share a party, a seat, or a name
 
 Not a bug in whichever of those you noticed. Two visitors are holding the same
