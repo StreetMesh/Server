@@ -15,7 +15,7 @@ never hold their account.
 ## What you get
 
 - **Portable identity.** Visitors arrive from their preferred StreetMesh servers, called *domiciles*; their data and identity belongs to their server, not yours.
-- **Authoritative multiplayer rooms.** A Node hub decides what is actually true; a browser can claim what it likes and be refused.
+- **Authoritative multiplayer rooms.** Powered by [Colyseus](https://colyseus.io), running on Node: your server's *Hub* enforces the rules of the experiences you host, and syncs the data the players share.
 - **Voice and video.** Peer-to-peer parties between visitors, with no service in the middle.
 - **Text chat**, venue-wide, over Laravel Reverb.
 - **Signed records.** What happened is written into the visitor's own store, and still verifies after your venue is gone and after you have rotated your keys.
