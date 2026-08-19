@@ -5,6 +5,10 @@ namespace StreetMesh\Venue\Tests;
 use Livewire\Livewire;
 use StreetMesh\Protocol\Laravel\Permissions\Delegation;
 use StreetMesh\Protocol\P256;
+use StreetMesh\Venue\Experiences\Audience;
+use StreetMesh\Venue\Experiences\Experience;
+use StreetMesh\Venue\Experiences\Experiences;
+use StreetMesh\Venue\Gatherings\Gathering;
 use StreetMesh\Venue\Parties\Parties;
 use StreetMesh\Venue\Visitors;
 
@@ -69,6 +73,37 @@ class PanelTest extends TestCase
             ->call('context', 'chess/table/1', 'Table 1')
             ->assertNotDispatched('comms-tab')
             ->assertSet('tab', 'room');
+    }
+
+    /**
+     * The room tab is named for the experience, not for the screen.
+     *
+     * A page knows it is a lobby or a table and is right to; a tab saying
+     * "Lobby" and then "Table" reads as the conversation having changed, when
+     * it is the same room and the same people. What distinguishes this tab from
+     * the other one is whose conversation it is.
+     */
+    public function test_the_room_tab_is_named_for_the_experience(): void
+    {
+        $this->withSession([Visitors::SESSION_KEY => $this->visitor('alice')->id]);
+
+        app(Experiences::class)->register(new NamedExperience);
+
+        Livewire::test('venue::comms')
+            ->call('context', 'com.example.game/lobby', 'Lobby')
+            ->assertSet('spaceLabel', 'Draughts')
+            ->call('context', 'com.example.game/01JQTABLE', 'Table')
+            ->assertSet('spaceLabel', 'Draughts');
+    }
+
+    /** And anywhere that is not an experience keeps the word the page gave. */
+    public function test_somewhere_that_is_not_an_experience_keeps_its_own_name(): void
+    {
+        $this->withSession([Visitors::SESSION_KEY => $this->visitor('alice')->id]);
+
+        Livewire::test('venue::comms')
+            ->call('context', 'somewhere/else', 'Somewhere else')
+            ->assertSet('spaceLabel', 'Somewhere else');
     }
 
     /** Until they have, it follows the page — which is what makes the above worth having. */
@@ -215,5 +250,64 @@ class PanelTest extends TestCase
         $parties->disband($party);
 
         $panel->call('$refresh')->assertOk();
+    }
+}
+
+/**
+ * Something installed, so the venue has a name to answer with.
+ *
+ * The venue package ships no experiences — chess is somebody else's package —
+ * so a test about naming one has to bring one.
+ */
+final class NamedExperience implements Experience
+{
+    public function name(): string
+    {
+        return 'com.example.game';
+    }
+
+    public function title(): string
+    {
+        return 'Draughts';
+    }
+
+    public function description(): string
+    {
+        return 'A game of draughts.';
+    }
+
+    public function icon(): string
+    {
+        return 'puzzle-piece';
+    }
+
+    public function route(): string
+    {
+        return '/draughts';
+    }
+
+    public function action(): ?string
+    {
+        return null;
+    }
+
+    public function scopes(): array
+    {
+        return [];
+    }
+
+    public function room(): ?string
+    {
+        return null;
+    }
+
+    public function watching(): ?array
+    {
+        return null;
+    }
+
+    public function audience(Gathering $gathering): Audience
+    {
+        return Audience::Players;
     }
 }

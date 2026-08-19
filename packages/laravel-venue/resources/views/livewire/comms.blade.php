@@ -6,6 +6,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use StreetMesh\Protocol\Laravel\Permissions\Delegation;
 use StreetMesh\Venue\Comms;
+use StreetMesh\Venue\Experiences\Experiences;
 use StreetMesh\Venue\Parties\Invitation;
 use StreetMesh\Venue\Parties\Parties;
 use StreetMesh\Venue\Parties\Party;
@@ -31,6 +32,16 @@ new class extends Component
     public string $space = '';
 
     public string $spaceLabel = '';
+
+    /**
+     * Whether somebody is waiting to be let into a party.
+     *
+     * A property rather than the computed beside it, because the tab strip is
+     * `wire:ignore`d and the only way into an ignored subtree is `$wire` — and
+     * `$wire` carries properties, not computeds. Kept current by `rendering`,
+     * which runs whenever anything else here does.
+     */
+    public bool $invited = false;
 
     public string $joining = '';
 
@@ -60,7 +71,25 @@ new class extends Component
     public function context(string $space = '', string $label = ''): void
     {
         $this->space = $space;
-        $this->spaceLabel = $label;
+
+        /*
+         * Named for the experience, not for the screen.
+         *
+         * A page says where it is — a lobby, a table — and that is the right
+         * thing for it to know and the wrong thing to put on a tab. The tab is
+         * one of two conversations and what distinguishes it is *whose* it is:
+         * the people at the chess, as against the people you arrived with. A
+         * tab that says "Lobby" one moment and "Table" the next reads as the
+         * conversation having changed, when it is the same room and the same
+         * people.
+         *
+         * So the venue answers it, from the name the space already carries.
+         * Every experience gets this without having to remember, and two of
+         * them cannot disagree about what to call the same one.
+         *
+         * The page's own word is kept for anywhere that is not an experience.
+         */
+        $this->spaceLabel = app(Experiences::class)->get(strtok($space, '/') ?: '')?->title() ?? $label;
 
         if (! $this->chosen) {
             $this->tab = $space !== '' ? 'room' : ($this->parties()->enabled() ? 'party' : 'room');
@@ -71,6 +100,11 @@ new class extends Component
         }
 
         unset($this->roster, $this->invitations, $this->here);
+    }
+
+    public function rendering(): void
+    {
+        $this->invited = $this->invitations->isNotEmpty();
     }
 
     private function parties(): Parties
@@ -390,7 +424,28 @@ new class extends Component
         choosing a default once somebody has chosen for themselves, and nothing
         waits for that to land.
     --}}
-    <div class="flex shrink-0 border-b border-zinc-200 dark:border-zinc-700">
+    {{--
+        `wire:ignore`, because Alpine owns what this looks like and Livewire
+        must not write over it.
+
+        Which tab is lit is held in the browser — that is the whole point of the
+        arrangement, and it is why the panes switch the instant they are tapped.
+        But the classes saying so are put on by `x-bind`, and a re-render
+        replaces the class attribute with the one the server drew, which has
+        none of them. Alpine does not put them back, because from its side
+        nothing changed: `tab` is still what it just set.
+
+        Not tapping is no defence. This element polls, so the strip went grey on
+        its own every five seconds whether anybody had touched it or not — and a
+        tab that is lit, then is not, then is again is worse than one that was
+        never lit at all, because it looks like the panel disagreeing with
+        itself about where you are.
+
+        So Livewire is told to leave it alone, and the two things in here that do
+        change come through `$wire`, which reaches into an ignored subtree
+        because it is not the document it is watching.
+    --}}
+    <div class="flex shrink-0 border-b border-zinc-200 dark:border-zinc-700" wire:ignore>
         <button
             type="button"
             x-on:click="show('room'); remember('room')"
@@ -398,6 +453,7 @@ new class extends Component
             x-bind:class="tab === 'room'
                 ? 'border-b-2 border-[var(--sm-accent)] font-semibold text-zinc-900 dark:text-[var(--sm-accent)]'
                 : 'font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'"
+            x-text="$wire.spaceLabel || @js(__('Room'))"
         >{{ $spaceLabel !== '' ? $spaceLabel : __('Room') }}</button>
 
         @if ($this->offered)
@@ -410,9 +466,11 @@ new class extends Component
                     : 'font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'"
             >
                 {{ __('Party') }}
-                @if ($this->invitations->isNotEmpty())
-                    <span class="ml-1 inline-block size-2 rounded-full bg-red-500 align-middle"></span>
-                @endif
+                <span
+                    class="ml-1 inline-block size-2 rounded-full bg-red-500 align-middle"
+                    x-show="$wire.invited"
+                    x-cloak
+                ></span>
             </button>
         @endif
 
