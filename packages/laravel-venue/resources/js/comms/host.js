@@ -171,9 +171,32 @@ import mesh from './mesh.js'
             return
         }
 
+        const wasInOne = partyKey !== null
+
         party?.leave()
         party = null
         partyKey = next?.key ?? null
+
+        /*
+         * Put the camera and the microphone down on the way out.
+         *
+         * They were turned on to talk to somebody. Leaving is the moment that
+         * stops being true, and a light still burning over a conversation that
+         * has ended is the kind of thing somebody discovers an hour later.
+         *
+         * Only on the way out of one, never on the way in to another: joining
+         * a second party while already speaking is somebody carrying on, and
+         * shutting them off mid-sentence to be tidy would be worse than the
+         * light.
+         *
+         * Here rather than in the mesh, which does not own these — it is handed
+         * what to send and has no business deciding whether there is anything
+         * to send at all.
+         */
+        if (wasInOne && next === null) {
+            capture.drop('audio')
+            capture.drop('video')
+        }
 
         if (next) {
             party = mesh({
