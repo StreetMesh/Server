@@ -18,7 +18,6 @@ never hold their account.
 - **Authoritative multiplayer rooms.** Powered by [Colyseus](https://colyseus.io), running on Node: your server's *Hub* enforces the rules of the experiences you host, and syncs the data the players share.
 - **Voice and video.** Peer-to-peer parties between visitors, with no service in the middle.
 - **Text chat**, venue-wide, over Laravel Reverb.
-- **Signed records.** What happened is written into the visitor's own store, and still verifies after your venue is gone and after you have rotated your keys.
 - **Permission a visitor controls.** They agree once at the door, and can take it back — after which your venue is refused.
 - **Experiences as Composer packages.** Install one, and it brings its own screens, rules and records with it.
 
