@@ -245,9 +245,12 @@ export default function mesh({ ticketUrl, signalsUrl, csrf, tracks, onPeople, on
     }
 
     const regard = (present) => {
+        let moved = false
+
         for (const { id, name } of present) {
             if (!connections.has(id)) {
                 connect(id, name)
+                moved = true
             }
         }
 
@@ -256,10 +259,23 @@ export default function mesh({ ticketUrl, signalsUrl, csrf, tracks, onPeople, on
                 connections.get(id).close()
                 connections.delete(id)
                 rerouted.delete(id)
+                moved = true
             }
         }
 
-        changed()
+        /*
+         * Only when somebody actually did.
+         *
+         * This is asked once a second now, where the room told it only when
+         * something had happened — so saying "the party changed" every time
+         * would be saying it to a browser that has to redraw a row of video to
+         * find out it did not. Everything else that changes about a person —
+         * their connection settling, a camera coming on — announces itself from
+         * where it happens.
+         */
+        if (moved) {
+            changed()
+        }
     }
 
     const api = {

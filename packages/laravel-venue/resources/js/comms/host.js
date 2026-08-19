@@ -511,14 +511,14 @@ import mesh from './mesh.js'
         /* Every measurement in that document is expressed against this. */
         doc.documentElement.style.setProperty('--face', face + 'px')
 
-        strip.replaceChildren()
-
         /* Furthest from the badge first: the group, then you. */
+        const row = []
+
         for (const person of others) {
             const el = circle(doc, person.session)
 
             paint(el, { ...person, self: false })
-            strip.appendChild(el)
+            row.push(el)
         }
 
         if (mine) {
@@ -532,7 +532,28 @@ import mesh from './mesh.js'
                 self: true,
             })
 
-            strip.appendChild(el)
+            row.push(el)
+        }
+
+        /*
+         * Rearranged only when the arrangement is actually wrong.
+         *
+         * This used to empty the row and put everybody back into it every time
+         * it ran. Taking a `<video>` out of the document and returning it is not
+         * free: WebKit tears the playback down and starts it again, which is a
+         * flicker — and once presence started arriving on a poll rather than on
+         * a change, it ran every second whether anybody had moved or not.
+         *
+         * So the common case touches no DOM at all. When somebody does arrive
+         * or leave, the row is rebuilt and everybody blinks once, which is a
+         * moment when something visibly happened anyway.
+         */
+        const already = [...strip.children]
+        const settled = already.length === row.length
+            && row.every((el, at) => already[at] === el)
+
+        if (!settled) {
+            strip.replaceChildren(...row)
         }
     }
 
