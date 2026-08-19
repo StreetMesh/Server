@@ -202,32 +202,26 @@ class CommsTest extends TestCase
      *
      * Colour alone asks somebody to remember what the other state looked like,
      * and lit-versus-unlit is exactly the distinction a person glancing at
-     * their own microphone cannot afford to get wrong.
+     * their own microphone cannot afford to get wrong. So off is the outlined
+     * weight and on is the filled one.
+     *
+     * Asserted on what is drawn rather than on what asks for it: `variant` is a
+     * prop, consumed by the component, and never reaches the page — an earlier
+     * version of this test looked for it, passed, and proved nothing.
      */
-    public function test_the_switches_are_struck_through_when_they_are_off(): void
+    public function test_a_switch_that_is_off_is_drawn_differently(): void
     {
         $panel = $this->as($this->visitor(), 'panel')->assertOk();
 
-        /* One microphone, always drawn, with the line over it coming and
-           going — there is no struck-through microphone in the set to swap
-           to, and swapping is not possible anyway from a state the browser
-           is holding. */
-        $panel->assertSee('x-show="! speaking"', escape: false);
-        $panel->assertSee('x-show="! showing"', escape: false);
-
-        /*
-         * And solid, which is what `flux:button` draws for its own icon and
-         * therefore what these looked like before they had to become slot
-         * content in order to carry a line. An icon component left to itself
-         * draws the outlined one — a difference nobody reports and everybody
-         * sees.
-         *
-         * Asserted on the drawing rather than on the attribute that asks for
-         * it: `variant` is a prop and is consumed by the component, so it never
-         * reaches the page. The path is what actually differs.
-         */
+        /* Both weights are on the page and one is hidden, because a Blade prop
+           cannot follow a state the browser is holding. */
         $panel->assertSee('M8.25 4.5a3.75 3.75 0 1 1 7.5 0v8.25', escape: false);
-        $panel->assertDontSee('M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5', escape: false);
+        $panel->assertSee('M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5', escape: false);
+
+        $panel->assertSee('x-show="! speaking"', escape: false);
+        $panel->assertSee('x-show="speaking"', escape: false);
+        $panel->assertSee('x-show="! showing"', escape: false);
+        $panel->assertSee('x-show="showing"', escape: false);
     }
 
     /**

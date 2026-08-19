@@ -523,21 +523,18 @@ new class extends Component
             a state as much as it offers an action.
         --}}
         {{--
-            Struck through when it is off.
+            Filled when it is on, outlined when it is off.
 
             The colour said it already and was not enough: a button that is
             merely *not* lit says nothing to somebody who has not just watched
             it change, and lit-versus-unlit is exactly the distinction a person
             glancing at their own microphone cannot afford to get wrong.
 
-            Drawn as a line laid over the icon rather than as a second icon.
-            `flux:button`'s own `icon` is resolved when the page is built and
-            cannot follow a state the browser is holding, and there is no
-            struck-through microphone in the set to swap to — so one microphone
-            is drawn, always, and the line comes and goes over it. The camera is
-            built the same way even though a struck-through one does exist,
-            because two buttons side by side that are struck through
-            differently look like two different kinds of off.
+            Both weights are drawn and one is hidden, the same way the party
+            drawer's caret is — `flux:button`'s own `icon` is resolved when the
+            page is built and cannot follow a state the browser is holding. The
+            outlined one carries no `x-cloak` because off is where these start,
+            so it is the one that must be right before Alpine has said anything.
         --}}
         <flux:button
             class="w-full"
@@ -548,10 +545,8 @@ new class extends Component
             ::title="speaking ? '{{ __('Speaking') }}' : '{{ __('Speak') }}'"
             ::aria-pressed="speaking"
         >
-            <span class="relative inline-flex size-6">
-                <flux:icon.microphone variant="solid" class="size-6" />
-                <flux:icon.slash variant="solid" class="absolute inset-0 size-6" x-show="! speaking" />
-            </span>
+            <flux:icon.microphone variant="outline" class="size-6" x-show="! speaking" />
+            <flux:icon.microphone variant="solid" class="size-6" x-show="speaking" x-cloak />
         </flux:button>
 
         <flux:button
@@ -563,10 +558,8 @@ new class extends Component
             ::title="showing ? '{{ __('Showing') }}' : '{{ __('Show') }}'"
             ::aria-pressed="showing"
         >
-            <span class="relative inline-flex size-6">
-                <flux:icon.video-camera variant="solid" class="size-6" />
-                <flux:icon.slash variant="solid" class="absolute inset-0 size-6" x-show="! showing" />
-            </span>
+            <flux:icon.video-camera variant="outline" class="size-6" x-show="! showing" />
+            <flux:icon.video-camera variant="solid" class="size-6" x-show="showing" x-cloak />
         </flux:button>
 
         {{--
