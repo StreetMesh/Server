@@ -417,30 +417,32 @@ class PartyTest extends TestCase
     }
 
     /**
-     * A way into the party's own room, which is a second room.
+     * A party will say whether somebody belongs at it, and nothing else.
      *
-     * Somebody in a party is in two at once: the table they are at, and the
-     * people they arrived with.
+     * There is no ticket any more, because there is no room to be let into: a
+     * party is a space where notes are left and a conversation is kept, not
+     * something anybody joins. What survives is the refusal, which is the only
+     * place a party can say no in words a person reads.
      */
-    public function test_a_member_can_be_let_into_the_party_room(): void
+    public function test_a_member_is_vouched_for(): void
     {
         $alice = $this->visitor();
         $party = $this->parties()->open($alice);
 
-        $claims = $this->claimsOf($this->parties()->admit($party, $alice));
+        $this->expectNotToPerformAssertions();
 
-        $this->assertSame($party->room(), $claims['room']);
-        $this->assertSame('', $claims['seat'], 'a party has no seats');
+        /* Saying nothing is how this says yes. */
+        $this->parties()->vouchFor($party, $alice);
     }
 
-    public function test_somebody_outside_a_party_is_not_let_into_its_room(): void
+    public function test_somebody_outside_a_party_is_not_vouched_for(): void
     {
         $party = $this->parties()->open($this->visitor());
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('not in that party');
 
-        $this->parties()->admit($party, $this->visitor('mallory'));
+        $this->parties()->vouchFor($party, $this->visitor('mallory'));
     }
 
     /**

@@ -1,4 +1,3 @@
-import { Client } from 'colyseus.js'
 import peer from '../media/peer.js'
 import signals from '../media/signals.js'
 import { say, trouble } from '../media/log.js'
@@ -6,11 +5,16 @@ import { say, trouble } from '../media/log.js'
 /**
  * Everybody in a party, connected to everybody else.
  *
- * The party's room in the hub says who is here — presence is the realtime
- * half's job and always has been. The venue carries the handshake over ordinary
- * HTTP, because it is a few messages that stop for good once two browsers have
- * found each other, and because the room's transport caps a message at about
- * half of what a video offer needs.
+ * The venue says who is here and carries the handshake, both on the same poll.
+ * A party is people talking, which is the host's business — the realtime half
+ * is for the rules of an experience and the state a room has to agree on, and a
+ * party has neither. It used to answer this, and issuing an identity of its own
+ * meant a moment of bad signal read to everybody else as one person leaving and
+ * a stranger arriving.
+ *
+ * So this browser names its own connection. Nothing is issued to it, so nothing
+ * can be withdrawn; going quiet stops it being mentioned, and coming back is
+ * saying the same name again.
  *
  * Framework-free, and that is deliberate rather than austere. This holds a
  * microphone and a set of peer connections that have to outlive every re-render
@@ -70,11 +74,27 @@ export default function mesh({ ticketUrl, signalsUrl, csrf, tracks, onPeople, on
      */
     const rerouted = new Set()
 
-    let room = null
     let post = null
-    let session = ''
     let ice = []
     let stopped = false
+    let where = ''
+
+    /**
+     * What this browser calls itself for as long as this document lives.
+     *
+     * Minted here rather than kept anywhere, and that is deliberate. A note
+     * carries no mark saying which attempt it belongs to, so an answer to an
+     * offer from a connection that has since been thrown away would be applied
+     * to its replacement — which puts that connection into a state it never
+     * recovers from. A name that changes when the page reloads is what makes
+     * yesterday's notes addressed to nobody.
+     *
+     * Which is exactly what the room's own identifier did, and the only part of
+     * it worth keeping.
+     */
+    const session = crypto.randomUUID?.() ?? [...crypto.getRandomValues(new Uint8Array(16))]
+        .map((byte) => byte.toString(16).padStart(2, '0'))
+        .join('')
 
     /**
      * Getting back in, when the room goes away.
@@ -224,23 +244,15 @@ export default function mesh({ ticketUrl, signalsUrl, csrf, tracks, onPeople, on
         say(`mesh: opened a line to ${name}`)
     }
 
-    const regard = (state) => {
-        const present = []
-
-        state.occupants?.forEach((who, id) => {
-            if (id !== session) {
-                present.push({ session: id, name: who.name })
-            }
-        })
-
-        for (const { session: id, name } of present) {
+    const regard = (present) => {
+        for (const { id, name } of present) {
             if (!connections.has(id)) {
                 connect(id, name)
             }
         }
 
         for (const id of [...connections.keys()]) {
-            if (!present.some((person) => person.session === id)) {
+            if (!present.some((person) => person.id === id)) {
                 connections.get(id).close()
                 connections.delete(id)
                 rerouted.delete(id)
@@ -256,8 +268,7 @@ export default function mesh({ ticketUrl, signalsUrl, csrf, tracks, onPeople, on
                 return false
             }
 
-            /* Whatever the last attempt left behind. Session identifiers do not
-               survive a reconnection, so none of those peers exist any more. */
+            /* Whatever the last attempt left behind. */
             post?.stop()
             forgetEveryone()
 
@@ -284,26 +295,32 @@ export default function mesh({ ticketUrl, signalsUrl, csrf, tracks, onPeople, on
 
             ice = admitted.ice ?? []
 
-            try {
-                room = await new Client(admitted.hub).joinOrCreate(
-                    admitted.type.replaceAll('.', '_'),
-                    { ticket: admitted.ticket, room: admitted.room },
-                )
-            } catch (refused) {
-                trouble('could not join the party room', refused)
-                onTrouble('Could not reach the party’s room.')
-                tryAgain()
-
-                return false
-            }
-
-            session = room.sessionId
-
             post = signals({
                 url: signalsUrl,
                 session,
                 csrf,
-                onNotes: async (notes) => {
+                where: () => where,
+                onAnswer: async ({ signals: notes = [], present = [], resumed = false }) => {
+                    /*
+                     * Away long enough to have been forgotten. Everybody else
+                     * has already torn down the connection they had to this
+                     * browser, so there is nothing here worth keeping either —
+                     * and rebuilding is cheaper than finding out one failed
+                     * handshake at a time.
+                     */
+                    if (resumed && connections.size) {
+                        say('mesh: we were away long enough to be forgotten, starting again')
+                        forgetEveryone()
+                    }
+
+                    /*
+                     * Who is here before what they said, always. They arrive on
+                     * one response for exactly this reason: a note can never be
+                     * early, because the presence explaining it is in the same
+                     * answer.
+                     */
+                    regard(present)
+
                     if (notes.length) {
                         say(`collected ${notes.length} note(s)`)
                     }
@@ -328,43 +345,34 @@ export default function mesh({ ticketUrl, signalsUrl, csrf, tracks, onPeople, on
             })
 
             post.start()
-            room.onStateChange(regard)
-
-            /*
-             * And notice when it goes. A sleeping laptop closes the socket, and
-             * without this the party is simply over — media still running,
-             * nobody left to send it to, and nothing on screen saying so.
-             */
-            const joined = room
-
-            room.onLeave((code) => {
-                /*
-                 * Only for the connection we are actually on. Replacing a room
-                 * closes the old one, and its farewell arrives afterwards —
-                 * acted on, that is a reconnection triggering another
-                 * reconnection for as long as anybody is watching.
-                 */
-                if (stopped || room !== joined) {
-                    return
-                }
-
-                say(`mesh: the party room closed (${code})`)
-
-                post?.stop()
-                forgetEveryone()
-
-                tryAgain()
-            })
 
             attempts = 0
-            say('mesh: in the party room')
+            say(`mesh: at the party as ${session}`)
 
             return true
         },
 
-        /** Tell the party where this browser is, for a roster that shows it. */
+        /**
+         * Tell the party where this browser is.
+         *
+         * Kept rather than sent, because the poll is going anyway and this is
+         * not worth a request of its own. Nothing draws it yet; it is here
+         * because a party that knows where its members are can offer to take
+         * somebody to one of them, and adding it later would be a retrofit.
+         */
         here(space) {
-            room?.send('here', { space: space ?? '' })
+            where = space ?? ''
+        },
+
+        /**
+         * Say we are going, without waiting to be missed.
+         *
+         * Separate from `leave` because closing a tab is not leaving the party
+         * — the membership is in the venue's database and outlives the page.
+         * This only takes the browser off the list of who is looking.
+         */
+        depart() {
+            post?.gone()
         },
 
         /** Send every peer exactly what is being captured now. */
@@ -391,7 +399,7 @@ export default function mesh({ ticketUrl, signalsUrl, csrf, tracks, onPeople, on
 
             connections.clear()
 
-            void room?.leave()
+            post?.gone()
         },
     }
 

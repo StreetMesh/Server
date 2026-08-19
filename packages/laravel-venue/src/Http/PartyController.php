@@ -56,26 +56,25 @@ final class PartyController
             return response()->json(['error' => 'There is no party by that name.'], 404);
         }
 
-        return $this->attempt(fn (): array => [
-            'ticket' => $this->parties->admit($party, $this->visitor($request)),
-            'room' => $party->room(),
+        return $this->attempt(function () use ($party, $request): array {
+            $this->parties->vouchFor($party, $this->visitor($request));
 
-            /*
-             * The kind of room, sent rather than assembled in the browser. It
-             * has to match what the hub registered exactly, and two places
-             * building one name is one of them going stale.
-             */
-            'type' => Party::ROOM,
+            return [
+                /*
+                 * The party's name, which is where its notes are left and where
+                 * its conversation is kept. Nothing joins anything by it any
+                 * more; it is a space rather than a room.
+                 */
+                'room' => $party->room(),
 
-            'hub' => config('streetmesh.venue.hub'),
-
-            /*
-             * How a browser gets through its own router. A property of
-             * peer-to-peer rather than an operator's decision, so it is sent
-             * rather than configured — see `Media\Peer`.
-             */
-            'ice' => Peer::ice(),
-        ]);
+                /*
+                 * How a browser gets through its own router. A property of
+                 * peer-to-peer rather than an operator's decision, so it is
+                 * sent rather than configured — see `Media\Peer`.
+                 */
+                'ice' => Peer::ice(),
+            ];
+        });
     }
 
     /**

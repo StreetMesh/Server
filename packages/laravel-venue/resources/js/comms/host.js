@@ -688,6 +688,15 @@ import mesh from './mesh.js'
      * the inline script that says which party this visitor is in. The frames
      * are reloaded; the media is not.
      */
+    /*
+     * Take this browser off the list on the way out.
+     *
+     * The beacon only, never `leave()` — `pagehide` also fires when a page goes
+     * into the back-forward cache, and a mesh stopped there would never start
+     * again when it came back. The poll re-registers by itself if it does.
+     */
+    window.addEventListener('pagehide', () => party?.depart())
+
     document.addEventListener('livewire:navigated', () => {
         context = readContext()
         reconcileParty()

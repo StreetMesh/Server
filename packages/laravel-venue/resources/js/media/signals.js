@@ -15,7 +15,7 @@ import { say, trouble } from './log.js'
  * watch grows with the size of the party, and the server this runs on has a
  * broadcast channel already configured.
  */
-export default function signals({ url, session, csrf, onNotes, pace }) {
+export default function signals({ url, session, csrf, where = () => '', onAnswer, pace }) {
     let waiting = null
     let stopped = false
     let complaining = false
@@ -43,8 +43,21 @@ export default function signals({ url, session, csrf, onNotes, pace }) {
         }
     }
 
+    /**
+     * Ask for what is waiting, and hear who else is here.
+     *
+     * One request for both, because asking is also how this browser says it is
+     * still looking — there is nothing to keep alive beyond the poll that was
+     * already running. It also means a note can never arrive before the
+     * presence that explains who sent it.
+     */
     async function collect() {
-        const response = await fetch(`${url}?as=${encodeURIComponent(session)}`, {
+        const asking = new URL(url, window.location.origin)
+
+        asking.searchParams.set('as', session)
+        asking.searchParams.set('at', where())
+
+        const response = await fetch(asking, {
             headers: { Accept: 'application/json' },
         })
 
@@ -52,18 +65,18 @@ export default function signals({ url, session, csrf, onNotes, pace }) {
             throw new Error(`the venue answered ${response.status}`)
         }
 
-        return (await response.json()).signals ?? []
+        return response.json()
     }
 
     async function look() {
         clearTimeout(waiting)
 
         try {
-            const notes = await collect()
+            const answer = await collect()
 
             complaining = false
 
-            await onNotes(notes)
+            await onAnswer(answer)
         } catch (error) {
             report('could not collect what was left for us', error)
         }
@@ -126,6 +139,36 @@ export default function signals({ url, session, csrf, onNotes, pace }) {
             if (!stopped) {
                 void look()
             }
+        },
+
+        /**
+         * Say this browser has gone, on the way out.
+         *
+         * A beacon, because the page may be closing and an ordinary `fetch`
+         * would be cancelled with it. The token rides in the body rather than a
+         * header for the same reason — a beacon carries no headers of its own.
+         *
+         * Everything else about being gone is a timeout, and a timeout is what
+         * you fall back on when nobody said goodbye.
+         */
+        gone() {
+            const goodbye = JSON.stringify({ from: session, gone: true, _token: csrf })
+
+            try {
+                if (navigator.sendBeacon?.(url, new Blob([goodbye], { type: 'application/json' }))) {
+                    return
+                }
+            } catch {
+                /* Refused for a reason nobody can act on. The fallback is the
+                   same message by a slower road. */
+            }
+
+            void fetch(url, {
+                method: 'POST',
+                keepalive: true,
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+                body: goodbye,
+            }).catch(() => {})
         },
 
         stop() {

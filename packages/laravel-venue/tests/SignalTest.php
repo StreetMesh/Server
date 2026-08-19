@@ -194,10 +194,14 @@ class SignalTest extends TestCase
     }
 
     /**
-     * The way into the party's own room, which is what the browser needs before
-     * it can see who else is there to connect to.
+     * What a browser needs before it can start looking for anybody.
+     *
+     * The party's name, so it knows which box its notes go in, and how to get
+     * through its own router. Nothing signed, because there is nothing to join:
+     * a party is a space where notes are left and a conversation is kept, and
+     * being allowed at one is a question the venue answers here in words.
      */
-    public function test_a_member_is_given_what_it_takes_to_join_the_room(): void
+    public function test_a_member_is_given_what_it_takes_to_start_looking(): void
     {
         [$party, $alice] = $this->partyOfTwo();
 
@@ -207,8 +211,10 @@ class SignalTest extends TestCase
             ->json();
 
         $this->assertSame($party->room(), $admitted['room']);
-        $this->assertSame(Party::ROOM, $admitted['type']);
-        $this->assertNotEmpty($admitted['ticket']);
+
+        $this->assertArrayNotHasKey('ticket', $admitted, 'nothing is joined, so nothing is signed');
+        $this->assertArrayNotHasKey('type', $admitted);
+        $this->assertArrayNotHasKey('hub', $admitted, 'a party needs no hub at all now');
 
         /*
          * How a browser gets through its own router. A property of

@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 use RuntimeException;
 use StreetMesh\Protocol\Laravel\Permissions\Delegation;
-use StreetMesh\Protocol\Laravel\Permissions\Tickets;
 
 /**
  * Starting a party, asking somebody into it, and keeping it the size it can be.
@@ -28,10 +27,6 @@ use StreetMesh\Protocol\Laravel\Permissions\Tickets;
  */
 final class Parties
 {
-    public function __construct(
-        private readonly Tickets $tickets,
-    ) {}
-
     /**
      * How many people can be in one party before the media stops working.
      *
@@ -362,19 +357,15 @@ final class Parties
     }
 
     /**
-     * A way into the party's own room.
+     * Confirm somebody may be at this party, and hand back nothing.
      *
-     * The same shape as being admitted to a gathering, and deliberately so: the
-     * hub checks one kind of ticket and does not need to learn that some rooms
-     * are parties. What differs is only who may have one — a party has no
-     * audience, no watchers and no public setting to consult, because the only
-     * way to be in it at all is to have been asked.
-     *
-     * No seat, because there are none. Everybody in a party is in it the same
-     * way, which is the difference between people who came together and people
-     * who happen to be at the same table.
+     * There is no ticket any more: a party is not a room anybody joins, so
+     * nothing needs a signed way in. What is left is the refusal — the two
+     * sentences a person may need to read — and the round trip that carries
+     * them. The poll that follows says nothing anybody can act on when it
+     * fails, so this is the only place a party can say no out loud.
      */
-    public function admit(Party $party, Delegation $visitor): string
+    public function vouchFor(Party $party, Delegation $visitor): void
     {
         $this->refuseUnlessOffered();
 
@@ -385,8 +376,6 @@ final class Parties
         if ($this->memberOf($party, $visitor) === null) {
             throw new RuntimeException('You are not in that party.');
         }
-
-        return $this->tickets->mint($visitor, $party->room(), '', [], $party->room());
     }
 
     /**
