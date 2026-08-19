@@ -14,7 +14,7 @@ never hold their account.
 
 ## What you get
 
-- **Portable identity.** Visitors arrive with a username issued anywhere. It lives on their server, not yours, and follows them when they rename themselves or move.
+- **Portable identity.** Visitors arrive from their preferred StreetMesh servers, called *domiciles*; their data and identity belongs to their server, not yours.
 - **Authoritative multiplayer rooms.** A Node hub decides what is actually true; a browser can claim what it likes and be refused.
 - **Voice and video.** Peer-to-peer parties between visitors, with no service in the middle.
 - **Text chat**, venue-wide, over Laravel Reverb.
