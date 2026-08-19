@@ -49,8 +49,7 @@ STREETMESH_HUB=wss://your.hub
 STREETMESH_REALTIME_SECRET=   # the same value wherever the hub runs
 ```
 
-A server offers whatever it has installed. Say more only if you want to run two
-different servers from one codebase:
+A server offers whatever it has installed:
 
 ```dotenv
 STREETMESH_VENUE=false      # a place people live, and nothing else
