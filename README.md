@@ -5,7 +5,7 @@
 
 # StreetMesh Server
 
-**Build multiplayer experiences on a server you own — where people sign in with a username that belongs to them, not to you.**
+**Design and deploy multiplayer experiences on a server you manage — where people sign in with an identity that belongs to them, not you.**
 
 StreetMesh Server is a Laravel application. Install it and you have somewhere
 people can visit and do things together: games, shops, screening rooms. They
