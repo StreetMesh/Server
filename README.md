@@ -12,9 +12,6 @@ people can visit and do things together: games, shops, screening rooms. They
 arrive with a username issued by a server you have never heard of, and you
 never hold their account.
 
-**You can have one running locally in under an hour.** No Docker, no cloud
-account, no third party. PHP, Node, and a browser.
-
 ## What you get
 
 - **Portable identity.** Visitors arrive with a username issued anywhere. It lives on their server, not yours, and follows them when they rename themselves or move.
