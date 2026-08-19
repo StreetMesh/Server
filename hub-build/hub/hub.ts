@@ -21,7 +21,6 @@ import { LocalDriver, LocalPresence } from '@colyseus/core'
 import type { ConfigOptions } from '@colyseus/tools'
 import { install, type Experience } from './install.ts'
 import { routes } from './answers.ts'
-import party from './party.ts'
 
 /**
  * Anything the operator wants on top of what a hub always does.
@@ -67,19 +66,16 @@ export function hub(experiences: Experience[], also: HubOptions = {}): ConfigOpt
 
     initializeGameServer: (server) => {
       /*
-       * The party goes in first, and it goes in always.
+       * Only what a venue installed.
        *
-       * Every other room here arrives because a venue installed the experience
-       * that ships it. A party belongs to no experience — it spans all of them —
-       * so there is nobody to install it and it is part of what a hub *is*.
-       *
-       * Defined even where the venue has parties switched off, which costs
-       * nothing and needs no configuration to reach this process: a hub cannot
-       * be joined without a ticket, and a venue that does not do parties never
-       * mints one for this room. The door is there and nobody can ever be
-       * holding a key to it.
+       * A party used to be defined here too, on the reasoning that it belongs
+       * to no experience and is therefore part of what a hub is. It is not:
+       * nothing about a party is state a room has to agree on or a rule a room
+       * has to enforce, which is all this process is for. It was here to answer
+       * who was present, and the venue answers that now on the poll that
+       * carries the handshake.
        */
-      install(server, [party, ...experiences])
+      install(server, experiences)
       initializeGameServer?.(server)
     },
 

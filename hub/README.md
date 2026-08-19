@@ -88,7 +88,7 @@ choosing for them and being wrong most of the time.
 ./check-ticket    # does a ticket PHP signed verify here?
 ./check-join      # does it open a door, and does nothing else?
 ./check-blip      # does an announcement over the shared secret land?
-./check-party     # do two people find each other well enough to connect?
+./check-party     # can a table see that somebody is in a party?
 ```
 
 The second matters because the first can pass while the room admits everybody
