@@ -12,11 +12,6 @@ people can visit and do things together: games, shops, screening rooms. They
 arrive with a username issued by a server you have never heard of, and you
 never hold their account.
 
-Two of them are running right now — a place people live at
-[stme.sh](https://stme.sh), a place people gather at
-[tabletop.streetmesh.com](https://tabletop.streetmesh.com). Same repository,
-same commit, different settings.
-
 **You can have one running locally in under an hour.** No Docker, no cloud
 account, no third party. PHP, Node, and a browser.
 
