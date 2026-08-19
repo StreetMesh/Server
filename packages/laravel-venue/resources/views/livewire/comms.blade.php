@@ -46,19 +46,6 @@ new class extends Component
      */
     public bool $chosen = false;
 
-    /**
-     * Whether the party strip should be open when it first appears.
-     *
-     * Somebody who has just started one has a party of themselves and needs the
-     * word that lets anybody else in — which lives in the drawer. Leaving it
-     * shut means the first thing they do is hunt for the thing they obviously
-     * came for.
-     *
-     * Read once, when the strip is drawn for the first time. Shutting it
-     * afterwards is the browser's business and nothing here overrides that.
-     */
-    public bool $detailsOpen = false;
-
     public function mount(): void
     {
         /*
@@ -143,8 +130,16 @@ new class extends Component
     {
         $this->run(fn (Delegation $me) => $this->parties()->open($me));
 
-        /* A party of one, and the code is what changes that. */
-        $this->detailsOpen = true;
+        /*
+         * A party of one, and the code is what changes that — so the drawer
+         * holding it opens itself.
+         *
+         * Announced rather than remembered. A property that says "open" goes on
+         * saying it: every poll renders it again, Alpine reads it again, and a
+         * drawer somebody has just shut opens by itself five seconds later.
+         * An event happens once, which is what this is.
+         */
+        $this->dispatch('comms-drawer');
     }
 
     public function join(): void
@@ -276,7 +271,7 @@ new class extends Component
          * conversation. One value both can see is the whole of what makes that
          * work.
          */
-        drawer: @js($detailsOpen),
+        drawer: sessionStorage.getItem('smCommsDrawer') === '1',
 
         /**
          * Whether the reader has picked for themselves.
@@ -362,6 +357,18 @@ new class extends Component
             this.reveal(which)
         },
 
+        /**
+         * Open or shut the party's drawer, and write down which.
+         *
+         * Written down because this element is re-made on every poll: anything
+         * held only in memory is held until the next re-render and no longer,
+         * which is a drawer that shuts and then opens again by itself.
+         */
+        fold (open) {
+            this.drawer = open
+            sessionStorage.setItem('smCommsDrawer', open ? '1' : '0')
+        },
+
         reveal (which) {
             this.tab = which
 
@@ -369,6 +376,7 @@ new class extends Component
         },
     }"
     x-on:comms-tab.window="suggest($event.detail.tab)"
+    x-on:comms-drawer.window="fold(true)"
     x-on:comms-unreachable.window="unreachable = $event.detail.names"
     x-on:comms-party-trouble.window="partyTrouble = $event.detail.why"
 >
@@ -579,7 +587,7 @@ new class extends Component
                 icon="user-group"
                 icon:variant="solid"
                 class="w-full [&_svg]:size-6"
-                x-on:click="drawer = ! drawer"
+                x-on:click="fold(! drawer)"
                 ::variant="drawer ? 'primary' : 'filled'"
                 ::aria-expanded="drawer"
                 aria-label="{{ __('Who is here') }}"

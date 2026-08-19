@@ -5,6 +5,7 @@ namespace StreetMesh\Venue\Tests;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\View;
 use Illuminate\Testing\TestResponse;
+use Livewire\Livewire;
 use StreetMesh\Protocol\Laravel\Capabilities\Capabilities;
 use StreetMesh\Protocol\Laravel\Permissions\Delegation;
 use StreetMesh\Protocol\P256;
@@ -227,9 +228,7 @@ class CommsTest extends TestCase
     /**
      * And a way to open it, beside the microphone and the camera.
      *
-     * The three things this panel does, in one row. The count is on it because
-     * how many of you there are is the one thing about a party worth reading
-     * without opening anything.
+     * The three things this panel does, in one row.
      */
     public function test_the_party_drawer_has_a_switch_of_its_own(): void
     {
@@ -239,7 +238,27 @@ class CommsTest extends TestCase
         $panel = $this->as($alice, 'panel')->assertOk();
 
         $panel->assertSee('aria-label="Who is here"', escape: false);
-        $panel->assertSee('drawer = ! drawer', escape: false);
+        $panel->assertSee('fold(! drawer)', escape: false);
+    }
+
+    /**
+     * A drawer that opens itself can still be shut.
+     *
+     * Starting a party opens it, because the word that lets anybody else in is
+     * what somebody obviously came for. That used to be a property saying
+     * "open", and a property goes on saying it: every poll rendered it again,
+     * so a drawer somebody had just shut opened by itself a few seconds later.
+     *
+     * It is an event now, which happens once, and whether it is open is the
+     * browser's to remember.
+     */
+    public function test_opening_the_drawer_is_said_once_rather_than_kept(): void
+    {
+        $this->withSession([Visitors::SESSION_KEY => $this->visitor()->id]);
+
+        Livewire::test('venue::comms')
+            ->call('start')
+            ->assertDispatched('comms-drawer');
     }
 
     /** And no switch where there is no party to look into. */
@@ -251,12 +270,12 @@ class CommsTest extends TestCase
     }
 
     /**
-     * The strip says how many people are in it without being opened.
+     * The drawer says how many people are in the party.
      *
-     * That is the whole question most of the time, and answering it in the one
-     * row that is always visible means the drawer stays shut.
+     * Beside the way out, because "who is here" and "I am going" are the two
+     * things somebody opens this to settle.
      */
-    public function test_the_party_strip_says_how_many_are_in_it(): void
+    public function test_the_drawer_says_how_many_are_in_the_party(): void
     {
         $alice = $this->visitor();
         $bob = $this->visitor('bob');

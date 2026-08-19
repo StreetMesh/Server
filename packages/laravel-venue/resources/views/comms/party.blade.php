@@ -64,7 +64,10 @@
         Text layers where voice supersedes: somebody cut off from the room's
         chat would miss whatever everybody around them is reacting to.
     --}}
-    <div class="flex min-h-0 flex-1 flex-col">
+    <div
+        class="flex min-h-0 flex-1 flex-col transition-opacity"
+        x-bind:class="drawer ? 'pointer-events-none opacity-40' : ''"
+    >
         @livewire('venue::chat', [
             'space' => $this->party->room(),
             'placeholder' => __('Say something to your party'),
@@ -199,19 +202,50 @@
             to say so, a second to mean it. Clicking away is a change of mind
             rather than a commitment.
         --}}
-        <div class="flex items-center justify-between gap-2" x-data="{ asking: false }" @click.outside="asking = false">
+        <div class="flex items-center justify-between gap-2">
             <flux:text size="sm">
                 {{ trans_choice('Party of :count|Party of :count', $this->roster->count(), ['count' => $this->roster->count()]) }}
             </flux:text>
 
-            <flux:button
-                size="xs"
-                variant="subtle"
-                @click="asking ? (asking = false, $wire.leave()) : asking = true"
-                x-bind:class="asking ? 'text-rose-600 dark:text-rose-400' : ''"
-            >
-                <span x-text="asking ? '{{ __('Really leave?') }}' : '{{ __('Leave party') }}'"></span>
-            </flux:button>
+            <div class="flex items-center gap-2">
+                {{--
+                    A button that looks like one. It was styled as text, which
+                    reads as a label somebody has coloured in rather than
+                    something to press — and the one thing in here that ends
+                    something should not be the one thing that looks inert.
+
+                    Asks before it acts, the same way resigning a game does —
+                    one press to say so, a second to mean it. Clicking away is a
+                    change of mind rather than a commitment, and the colour
+                    changes so the second press is visibly not the first.
+                --}}
+                <span x-data="{ asking: false }" @click.outside="asking = false">
+                    <flux:button
+                        size="sm"
+                        ::variant="asking ? 'danger' : 'filled'"
+                        @click="asking ? (asking = false, $wire.leave()) : asking = true"
+                    >
+                        <span x-text="asking ? '{{ __('Really leave?') }}' : '{{ __('Leave party') }}'"></span>
+                    </flux:button>
+                </span>
+
+                {{--
+                    And the way to put the drawer back, beside the thing it is
+                    most likely to be sitting under.
+
+                    It points the way the drawer will move. Opening it is done
+                    from the row of buttons below; shutting it can be done from
+                    either, because the hand is already here.
+                --}}
+                <flux:button
+                    size="sm"
+                    variant="subtle"
+                    icon="chevron-down"
+                    icon:variant="micro"
+                    x-on:click="fold(false)"
+                    aria-label="{{ __('Hide who is here') }}"
+                />
+            </div>
         </div>
     </div>
 @endif
