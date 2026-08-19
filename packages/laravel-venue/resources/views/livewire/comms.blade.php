@@ -506,7 +506,7 @@ new class extends Component
     --}}
     @if ($this->offered)
     <div
-        class="flex shrink-0 gap-2 border-t border-zinc-200 p-3 dark:border-zinc-700"
+        class="grid shrink-0 grid-flow-col auto-cols-fr gap-2 border-t border-zinc-200 p-3 dark:border-zinc-700"
         x-show="tab === 'party'"
         x-cloak
         x-data="{ speaking: false, showing: false }"
@@ -540,7 +540,7 @@ new class extends Component
             differently look like two different kinds of off.
         --}}
         <flux:button
-            class="flex-1"
+            class="w-full"
             x-on:click="window.parent.postMessage({ method: 'streetmesh.panel.speak', params: {} }, window.location.origin)"
             ::variant="speaking ? 'primary' : 'filled'"
             aria-label="{{ __('Speak') }}"
@@ -549,13 +549,13 @@ new class extends Component
             ::aria-pressed="speaking"
         >
             <span class="relative inline-flex size-6">
-                <flux:icon.microphone class="size-6" />
-                <flux:icon.slash class="absolute inset-0 size-6" x-show="! speaking" />
+                <flux:icon.microphone variant="solid" class="size-6" />
+                <flux:icon.slash variant="solid" class="absolute inset-0 size-6" x-show="! speaking" />
             </span>
         </flux:button>
 
         <flux:button
-            class="flex-1"
+            class="w-full"
             x-on:click="window.parent.postMessage({ method: 'streetmesh.panel.show', params: {} }, window.location.origin)"
             ::variant="showing ? 'primary' : 'filled'"
             aria-label="{{ __('Show') }}"
@@ -564,8 +564,8 @@ new class extends Component
             ::aria-pressed="showing"
         >
             <span class="relative inline-flex size-6">
-                <flux:icon.video-camera class="size-6" />
-                <flux:icon.slash class="absolute inset-0 size-6" x-show="! showing" />
+                <flux:icon.video-camera variant="solid" class="size-6" />
+                <flux:icon.slash variant="solid" class="absolute inset-0 size-6" x-show="! showing" />
             </span>
         </flux:button>
 
@@ -584,7 +584,8 @@ new class extends Component
         @if ($this->party !== null)
             <flux:button
                 icon="user-group"
-                class="flex-1 [&_svg]:size-6"
+                icon:variant="solid"
+                class="w-full [&_svg]:size-6"
                 x-on:click="drawer = ! drawer"
                 ::variant="drawer ? 'primary' : 'filled'"
                 ::aria-expanded="drawer"

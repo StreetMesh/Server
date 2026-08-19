@@ -214,6 +214,20 @@ class CommsTest extends TestCase
            is holding. */
         $panel->assertSee('x-show="! speaking"', escape: false);
         $panel->assertSee('x-show="! showing"', escape: false);
+
+        /*
+         * And solid, which is what `flux:button` draws for its own icon and
+         * therefore what these looked like before they had to become slot
+         * content in order to carry a line. An icon component left to itself
+         * draws the outlined one — a difference nobody reports and everybody
+         * sees.
+         *
+         * Asserted on the drawing rather than on the attribute that asks for
+         * it: `variant` is a prop and is consumed by the component, so it never
+         * reaches the page. The path is what actually differs.
+         */
+        $panel->assertSee('M8.25 4.5a3.75 3.75 0 1 1 7.5 0v8.25', escape: false);
+        $panel->assertDontSee('M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5', escape: false);
     }
 
     /**
