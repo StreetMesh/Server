@@ -56,17 +56,21 @@
         'placeholder' => __('Say something to your party'),
     ], key('party-'.$this->party->key))
 
+    {{--
+        The drawer, which opens upward over the conversation. Shut by default:
+        this is reference rather than reading.
+
+        Opened from the row of comms buttons rather than from a caret of its
+        own, so the party's switch sits beside the microphone and the camera —
+        the three things this panel does — instead of in a strip of its own
+        under the conversation. `drawer` is held on the panel for that reason;
+        see the note where it is declared.
+    --}}
     <div
-        class="shrink-0 border-t border-zinc-200 dark:border-zinc-700"
-        x-data="{ open: @js($detailsOpen) }"
+        x-show="drawer"
+        x-cloak
+        class="flex max-h-56 shrink-0 flex-col gap-3 overflow-y-auto border-t border-zinc-200 p-3 dark:border-zinc-700"
     >
-        {{-- The drawer, which opens upward over the conversation. Shut by
-             default: this is reference rather than reading. --}}
-        <div
-            x-show="open"
-            x-cloak
-            class="flex max-h-56 flex-col gap-3 overflow-y-auto border-b border-zinc-200 p-3 dark:border-zinc-700"
-        >
             @error('party')
                 <flux:text class="text-red-600 dark:text-red-400">{{ $message }}</flux:text>
             @enderror
@@ -168,49 +172,30 @@
                     @endif
                 </div>
             @endif
-        </div>
 
-        {{-- And the strip itself, which is what you see when it is shut. --}}
-        <div class="flex items-center gap-2 px-3 py-2">
-            <flux:text class="flex-1" size="sm">
+        <flux:separator />
+
+        {{--
+            The way out, kept in here with everything else about the party
+            rather than on show. Leaving is rare and irreversible-ish; the
+            things beside it are the ones somebody opened this to do.
+
+            Asks before it acts, the same way resigning a game does — one press
+            to say so, a second to mean it. Clicking away is a change of mind
+            rather than a commitment.
+        --}}
+        <div class="flex items-center justify-between gap-2" x-data="{ asking: false }" @click.outside="asking = false">
+            <flux:text size="sm">
                 {{ trans_choice('Party of :count|Party of :count', $this->roster->count(), ['count' => $this->roster->count()]) }}
             </flux:text>
 
-            {{--
-                Asks before it acts, the same way resigning a game does — one
-                press to say so, a second to mean it. Clicking away is a change
-                of mind rather than a commitment.
-            --}}
-            <span x-data="{ asking: false }" @click.outside="asking = false">
-                <flux:button
-                    size="xs"
-                    variant="subtle"
-                    @click="asking ? (asking = false, $wire.leave()) : asking = true"
-                    x-bind:class="asking ? 'text-rose-600 dark:text-rose-400' : ''"
-                >
-                    <span x-text="asking ? '{{ __('Really leave?') }}' : '{{ __('Leave party') }}'"></span>
-                </flux:button>
-            </span>
-
-            {{--
-                A caret rather than a gear, because this is not settings — it is
-                the rest of the strip, folded away. It points the way the drawer
-                will move: up to open, since it opens upward over the
-                conversation, and down to put it back.
-
-                Both are drawn and one is hidden, because `flux:button`'s own
-                `icon` is resolved when the page is built and cannot follow a
-                state the browser is holding.
-            --}}
             <flux:button
                 size="xs"
                 variant="subtle"
-                x-on:click="open = ! open"
-                x-bind:aria-expanded="open"
-                x-bind:aria-label="open ? '{{ __('Hide party details') }}' : '{{ __('Show party details') }}'"
+                @click="asking ? (asking = false, $wire.leave()) : asking = true"
+                x-bind:class="asking ? 'text-rose-600 dark:text-rose-400' : ''"
             >
-                <flux:icon.chevron-up class="size-4" x-show="! open" />
-                <flux:icon.chevron-down class="size-4" x-show="open" x-cloak />
+                <span x-text="asking ? '{{ __('Really leave?') }}' : '{{ __('Leave party') }}'"></span>
             </flux:button>
         </div>
     </div>

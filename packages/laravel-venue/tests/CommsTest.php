@@ -181,7 +181,8 @@ class CommsTest extends TestCase
      *
      * It lives in the drawer, which is drawn shut rather than not drawn — the
      * conversation is what the pane is for, and this is reference you read
-     * once.
+     * once. So is the way out: leaving is rare, and putting it on show under
+     * the conversation cost the room a strip that was mostly empty.
      */
     public function test_a_party_shows_the_word_that_lets_somebody_in(): void
     {
@@ -191,10 +192,35 @@ class CommsTest extends TestCase
         $this->as($alice, 'panel')
             ->assertOk()
             ->assertSee($party->code)
-            ->assertSee('Show party details')
             ->assertSee('Copy')
             ->assertSee('Really leave?')
             ->assertSee('Leave party');
+    }
+
+    /**
+     * And a way to open it, beside the microphone and the camera.
+     *
+     * The three things this panel does, in one row. The count is on it because
+     * how many of you there are is the one thing about a party worth reading
+     * without opening anything.
+     */
+    public function test_the_party_drawer_has_a_switch_of_its_own(): void
+    {
+        $alice = $this->visitor();
+        $this->parties()->open($alice);
+
+        $panel = $this->as($alice, 'panel')->assertOk();
+
+        $panel->assertSee('aria-label="Who is here"', escape: false);
+        $panel->assertSee('drawer = ! drawer', escape: false);
+    }
+
+    /** And no switch where there is no party to look into. */
+    public function test_there_is_no_switch_before_there_is_a_party(): void
+    {
+        $this->as($this->visitor(), 'panel')
+            ->assertOk()
+            ->assertDontSee('aria-label="Who is here"', escape: false);
     }
 
     /**

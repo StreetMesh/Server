@@ -268,6 +268,17 @@ new class extends Component
         tab: sessionStorage.getItem('smCommsTab') || @js($tab),
 
         /**
+         * Whether the party's details are folded out.
+         *
+         * Held here rather than where it is drawn, because the thing that opens
+         * it and the thing it opens are now in different files: the switch sits
+         * in the row of comms buttons and the drawer slides up over the party's
+         * conversation. One value both can see is the whole of what makes that
+         * work.
+         */
+        drawer: @js($detailsOpen),
+
+        /**
          * Whether the reader has picked for themselves.
          *
          * The server keeps its own answer to this and is the reason the panel
@@ -532,6 +543,39 @@ new class extends Component
             ::title="showing ? '{{ __('Showing') }}' : '{{ __('Show') }}'"
             ::aria-pressed="showing"
         />
+
+        {{--
+            Who you are here with, and the way to everything about them.
+
+            Beside the microphone and the camera because it belongs to the same
+            question — what this party is doing — and because the drawer it
+            opens covers the conversation, which is a thing you want to put back
+            from the same place you moved it.
+
+            Only where there is a party. Before there is one the tab is a way to
+            start or join one and fills the pane by itself, so there would be
+            nothing behind this to fold out.
+        --}}
+        @if ($this->party !== null)
+            <flux:button
+                icon="user-group"
+                class="flex-1 [&_svg]:size-6"
+                x-on:click="drawer = ! drawer"
+                ::variant="drawer ? 'primary' : 'filled'"
+                ::aria-expanded="drawer"
+                aria-label="{{ __('Who is here') }}"
+                ::aria-label="drawer ? '{{ __('Hide who is here') }}' : '{{ __('Who is here') }}'"
+                ::title="drawer ? '{{ __('Hide who is here') }}' : '{{ __('Who is here') }}'"
+            >
+                {{--
+                    How many of you there are, which is the one thing about a
+                    party worth reading without opening anything.
+                --}}
+                <span class="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-black px-1.5 py-0.5 text-xs font-semibold leading-none text-white">
+                    {{ $this->roster->count() }}
+                </span>
+            </flux:button>
+        @endif
     </div>
     @endif
 </div>
