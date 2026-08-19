@@ -9,8 +9,8 @@
 
 StreetMesh Servers are Laravel applications. Install one and you have somewhere
 people can visit and do things together: games, shops, screening rooms. They
-arrive with a username issued by a server you have never heard of, and you
-never hold their account.
+arrive and log into your server using the *address* of their own separate
+servers.
 
 ## What you get
 
