@@ -131,6 +131,27 @@ import mesh from './mesh.js'
             /* So the panel's switches show what is actually happening. */
             toAll('streetmesh.stage.media', { speaking, showing })
         },
+
+        /**
+         * A device we had, tried to get back, and could not.
+         *
+         * Said out loud because until now it was said to nobody: the console
+         * carried it and the console is off unless somebody turned it on. The
+         * consequence of the silence is a person talking to a room that cannot
+         * hear them, which is the one thing here worth interrupting somebody
+         * about.
+         *
+         * Only after the attempt to recover has failed. A device that is
+         * unplugged and comes straight back says nothing at all, which is why
+         * this cannot cry wolf.
+         */
+        onLost (kind) {
+            toAll('streetmesh.stage.trouble', {
+                why: kind === 'audio'
+                    ? 'Your microphone stopped, and would not start again.'
+                    : 'Your camera stopped, and would not start again.',
+            })
+        },
     })
 
     let party = null

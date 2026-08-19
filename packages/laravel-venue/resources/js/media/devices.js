@@ -12,10 +12,38 @@ import { say, trouble } from './log.js';
  * Dropping a kind is the opposite: stop that track and leave the rest alone,
  * which costs no second permission prompt and disturbs nothing.
  */
-export default function devices({ onChange }) {
+export default function devices({ onChange, onLost = () => {} }) {
     const wanted = new Set();
 
     let capture = new MediaStream();
+
+    /**
+     * Kinds this machine has actually given us at some point.
+     *
+     * The difference between "would not give us the microphone" and "your
+     * microphone stopped and would not start again", which are different
+     * sentences because they are different events: one is a prompt being
+     * declined, the other is something being taken away from somebody already
+     * using it. Only the second is worth interrupting anybody about.
+     */
+    const established = new Set();
+
+    /**
+     * When we last went looking for a kind that had ended.
+     *
+     * The pass count inside `settle` stops it spinning on one call; this stops
+     * it spinning across calls. A device that grants a track and ends it
+     * immediately — a virtual camera being reconfigured, a headset arguing with
+     * a dock — would otherwise be asked again the moment it failed, forever,
+     * and on some browsers each ask is a prompt.
+     *
+     * Long enough that a real event never trips it: unplugging a microphone,
+     * waking a laptop, changing the default input are all isolated. Something
+     * doing it twice in five seconds is not a person.
+     */
+    const soughtAt = new Map();
+
+    const CALM_MS = 5000;
 
     /**
      * These listeners live exactly as long as the capture they came from.
@@ -50,11 +78,35 @@ export default function devices({ onChange }) {
                     return;
                 }
 
-                say(`devices: ${track.kind} ended on its own`);
+                /*
+                 * Note it and ask for it back. Nothing else — and in particular
+                 * not `wanted.delete`, which is what used to happen and is what
+                 * turned an unplugged microphone into a decision to stop
+                 * speaking that nobody made and nothing announced.
+                 */
+                const last = soughtAt.get(track.kind) ?? 0;
 
-                wanted.delete(track.kind);
-                capture.removeTrack(track);
-                onChange();
+                if (Date.now() - last < CALM_MS) {
+                    trouble(`devices: ${track.kind} keeps ending, so leaving it alone`, {
+                        kind: track.kind,
+                    });
+
+                    wanted.delete(track.kind);
+
+                    if (established.delete(track.kind)) {
+                        onLost(track.kind);
+                    }
+
+                    void queue();
+
+                    return;
+                }
+
+                soughtAt.set(track.kind, Date.now());
+
+                say(`devices: ${track.kind} ended on its own, asking for it back`);
+
+                void queue();
             },
             { signal: generation.signal },
         );
@@ -81,6 +133,104 @@ export default function devices({ onChange }) {
         const constraints = Object.fromEntries([...kinds].map((kind) => [kind, true]));
 
         return navigator.mediaDevices.getUserMedia(constraints);
+    }
+
+    /**
+     * Make the hardware match what was asked for.
+     *
+     * The only thing here that touches a device. `wanted` is what the person
+     * asked for and `capture` is what the machine is currently giving; they are
+     * genuinely two things, and collapsing them would make a microphone dying
+     * into the decision to stop speaking. What was missing was not one variable
+     * but somebody whose job is to close the gap.
+     *
+     * Every path in — a button, a track ending, a recovery — now records intent
+     * and asks for this. None of them touches a device themselves, which is
+     * what makes the two impossible to leave disagreeing.
+     */
+    async function settle() {
+        /*
+         * Bounded rather than `while (true)`. `wanted` can change while we are
+         * awaiting a prompt, and asking for a camera can end a microphone, so
+         * one pass is not always enough — but a device that grants a track and
+         * ends it immediately would spin here forever.
+         */
+        for (let pass = 0; pass < 3; pass++) {
+            /*
+             * Anything unwanted or dead, stopped and dropped. This is the whole
+             * of putting a kind down: no second prompt, nothing else disturbed.
+             */
+            for (const track of capture.getTracks()) {
+                if (!wanted.has(track.kind) || track.readyState !== 'live') {
+                    track.stop();
+                    capture.removeTrack(track);
+                }
+            }
+
+            const live = new Set(
+                capture.getTracks().filter((track) => track.readyState === 'live').map((track) => track.kind),
+            );
+
+            const missing = [...wanted].filter((kind) => !live.has(kind));
+
+            for (const kind of live) {
+                established.add(kind);
+            }
+
+            if (missing.length === 0) {
+                return;
+            }
+
+            try {
+                /* One capture, always — see the note at the top of this file. */
+                replaceCapture(await acquire(wanted));
+            } catch (error) {
+                trouble(`devices: could not get ${missing.join(', ')}`, error);
+
+                /*
+                 * Only what is still unobtainable is given up. A camera that was
+                 * refused must not take a working microphone with it, which is
+                 * what asking for everything and failing used to do.
+                 */
+                for (const kind of missing) {
+                    wanted.delete(kind);
+
+                    if (established.delete(kind)) {
+                        onLost(kind);
+                    }
+                }
+
+                return;
+            }
+        }
+
+        trouble('devices: gave up trying to match what was asked for', {
+            wanted: [...wanted],
+            holding: capture.getTracks().map((track) => `${track.kind}:${track.readyState}`),
+        });
+    }
+
+    /**
+     * One at a time, and a failure does not poison the rest.
+     *
+     * A chain rather than a lock, the same shape the signal sender uses: two
+     * requests for a device overlapping is how a button pressed twice ends with
+     * the microphone open and the light off. Both handlers are passed to
+     * `then` deliberately — a rejection that broke the chain would freeze every
+     * control on the widget for the life of the page, which is a worse bug than
+     * any of the ones being fixed here.
+     */
+    let work = Promise.resolve();
+
+    function queue() {
+        const job = () => settle().then(onChange, (error) => {
+            trouble('devices: settling failed', error);
+            onChange();
+        });
+
+        work = work.then(job, job);
+
+        return work;
     }
 
     return {
@@ -126,59 +276,36 @@ export default function devices({ onChange }) {
          *
          * Reports whether it got it, rather than throwing: a person declining a
          * camera prompt is an ordinary answer, not an exceptional one.
+         *
+         * The intent is recorded at once, before anything is awaited, so the
+         * button lights the moment it is pressed rather than when the prompt is
+         * answered. Everything after that is the reconciler's, on the queue.
          */
         async add(kind) {
-            const before = new Set(wanted);
-
             wanted.add(kind);
 
-            try {
-                replaceCapture(await acquire(wanted));
-            } catch (error) {
-                trouble(`devices: could not get ${kind}`, error);
+            await queue();
 
-                /*
-                 * The failed request may have taken what we already held with
-                 * it, so what is left is worth asking for again.
-                 */
-                if (before.size) {
-                    try {
-                        replaceCapture(await acquire(before));
-                    } catch (second) {
-                        trouble('devices: lost what we already had', second);
-                        wanted.clear();
-                    }
-                }
-
-                wanted.delete(kind);
-                onChange();
-
-                return false;
-            }
-
-            say(`devices: holding ${[...wanted].join(', ')}`);
-            onChange();
-
-            return true;
+            return capture
+                .getTracks()
+                .some((track) => track.kind === kind && track.readyState === 'live');
         },
 
+        /**
+         * Put one down.
+         *
+         * Not awaited by anybody, and it does not need to be: the button reads
+         * `holds`, which reads the intent, and the intent is already correct by
+         * the time this returns.
+         */
         drop(kind) {
             wanted.delete(kind);
 
-            for (const track of capture.getTracks()) {
-                if (track.kind === kind) {
-                    track.stop();
-                    capture.removeTrack(track);
-                }
-            }
+            /* Put down on purpose, so its coming back later is a fresh start
+               rather than a recovery, and its refusal is not a loss. */
+            established.delete(kind);
 
-            say(`devices: holding ${[...wanted].join(', ') || 'nothing'}`);
-            onChange();
-        },
-
-        releaseAll() {
-            wanted.clear();
-            replaceCapture(new MediaStream());
+            void queue();
         },
     };
 }
