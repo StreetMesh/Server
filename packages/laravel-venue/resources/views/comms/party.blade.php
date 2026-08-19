@@ -48,13 +48,28 @@
         </form>
     </div>
 @else
-    {{-- The conversation, filling everything the strip below does not take.
-         Text layers where voice supersedes: somebody cut off from the room's
-         chat would miss whatever everybody around them is reacting to. --}}
-    @livewire('venue::chat', [
-        'space' => $this->party->room(),
-        'placeholder' => __('Say something to your party'),
-    ], key('party-'.$this->party->key))
+    {{--
+        The conversation, filling everything the drawer does not take.
+
+        Boxed, and the box is what makes the drawer possible. The chat component
+        asks for the whole height of whatever holds it — which is right on the
+        room tab, where it is the only thing there, and wrong here, where it
+        would take every pixel and leave the drawer to hang off the bottom of
+        the panel. It did: the drawer was drawn under the row of buttons and
+        painted over by it, which reads as a drawer that opens behind them.
+
+        So the conversation gets a box that yields, and the drawer gets one that
+        does not.
+
+        Text layers where voice supersedes: somebody cut off from the room's
+        chat would miss whatever everybody around them is reacting to.
+    --}}
+    <div class="flex min-h-0 flex-1 flex-col">
+        @livewire('venue::chat', [
+            'space' => $this->party->room(),
+            'placeholder' => __('Say something to your party'),
+        ], key('party-'.$this->party->key))
+    </div>
 
     {{--
         The drawer, which opens upward over the conversation. Shut by default:
