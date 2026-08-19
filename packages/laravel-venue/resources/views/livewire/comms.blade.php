@@ -522,27 +522,52 @@ new class extends Component
             of eyes — and said in the present tense, because the button reports
             a state as much as it offers an action.
         --}}
+        {{--
+            Struck through when it is off.
+
+            The colour said it already and was not enough: a button that is
+            merely *not* lit says nothing to somebody who has not just watched
+            it change, and lit-versus-unlit is exactly the distinction a person
+            glancing at their own microphone cannot afford to get wrong.
+
+            Drawn as a line laid over the icon rather than as a second icon.
+            `flux:button`'s own `icon` is resolved when the page is built and
+            cannot follow a state the browser is holding, and there is no
+            struck-through microphone in the set to swap to — so one microphone
+            is drawn, always, and the line comes and goes over it. The camera is
+            built the same way even though a struck-through one does exist,
+            because two buttons side by side that are struck through
+            differently look like two different kinds of off.
+        --}}
         <flux:button
-            icon="microphone"
-            class="flex-1 [&_svg]:size-6"
+            class="flex-1"
             x-on:click="window.parent.postMessage({ method: 'streetmesh.panel.speak', params: {} }, window.location.origin)"
             ::variant="speaking ? 'primary' : 'filled'"
             aria-label="{{ __('Speak') }}"
             ::aria-label="speaking ? '{{ __('Speaking') }}' : '{{ __('Speak') }}'"
             ::title="speaking ? '{{ __('Speaking') }}' : '{{ __('Speak') }}'"
             ::aria-pressed="speaking"
-        />
+        >
+            <span class="relative inline-flex size-6">
+                <flux:icon.microphone class="size-6" />
+                <flux:icon.slash class="absolute inset-0 size-6" x-show="! speaking" />
+            </span>
+        </flux:button>
 
         <flux:button
-            icon="video-camera"
-            class="flex-1 [&_svg]:size-6"
+            class="flex-1"
             x-on:click="window.parent.postMessage({ method: 'streetmesh.panel.show', params: {} }, window.location.origin)"
             ::variant="showing ? 'primary' : 'filled'"
             aria-label="{{ __('Show') }}"
             ::aria-label="showing ? '{{ __('Showing') }}' : '{{ __('Show') }}'"
             ::title="showing ? '{{ __('Showing') }}' : '{{ __('Show') }}'"
             ::aria-pressed="showing"
-        />
+        >
+            <span class="relative inline-flex size-6">
+                <flux:icon.video-camera class="size-6" />
+                <flux:icon.slash class="absolute inset-0 size-6" x-show="! showing" />
+            </span>
+        </flux:button>
 
         {{--
             Who you are here with, and the way to everything about them.
@@ -566,15 +591,7 @@ new class extends Component
                 aria-label="{{ __('Who is here') }}"
                 ::aria-label="drawer ? '{{ __('Hide who is here') }}' : '{{ __('Who is here') }}'"
                 ::title="drawer ? '{{ __('Hide who is here') }}' : '{{ __('Who is here') }}'"
-            >
-                {{--
-                    How many of you there are, which is the one thing about a
-                    party worth reading without opening anything.
-                --}}
-                <span class="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-black px-1.5 py-0.5 text-xs font-semibold leading-none text-white">
-                    {{ $this->roster->count() }}
-                </span>
-            </flux:button>
+            />
         @endif
     </div>
     @endif

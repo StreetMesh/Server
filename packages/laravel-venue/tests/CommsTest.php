@@ -198,6 +198,25 @@ class CommsTest extends TestCase
     }
 
     /**
+     * A switch that is off says so, rather than merely failing to say it is on.
+     *
+     * Colour alone asks somebody to remember what the other state looked like,
+     * and lit-versus-unlit is exactly the distinction a person glancing at
+     * their own microphone cannot afford to get wrong.
+     */
+    public function test_the_switches_are_struck_through_when_they_are_off(): void
+    {
+        $panel = $this->as($this->visitor(), 'panel')->assertOk();
+
+        /* One microphone, always drawn, with the line over it coming and
+           going — there is no struck-through microphone in the set to swap
+           to, and swapping is not possible anyway from a state the browser
+           is holding. */
+        $panel->assertSee('x-show="! speaking"', escape: false);
+        $panel->assertSee('x-show="! showing"', escape: false);
+    }
+
+    /**
      * And a way to open it, beside the microphone and the camera.
      *
      * The three things this panel does, in one row. The count is on it because
