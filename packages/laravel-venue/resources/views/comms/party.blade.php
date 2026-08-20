@@ -61,12 +61,20 @@
         So the conversation gets a box that yields, and the drawer gets one that
         does not.
 
+        It steps back while the drawer is open, and no further than that. It was
+        also made deaf to the mouse, which is the wrong thing to do to something
+        still sitting in plain view: the drawer pushes the conversation up
+        rather than covering it, so most of it is still on screen — and a
+        message box you can see, and tap, and get nothing from reads as broken
+        rather than as backgrounded. Dimming says which one is being talked to;
+        switching it off says something nobody meant.
+
         Text layers where voice supersedes: somebody cut off from the room's
         chat would miss whatever everybody around them is reacting to.
     --}}
     <div
         class="flex min-h-0 flex-1 flex-col transition-opacity"
-        x-bind:class="drawer ? 'pointer-events-none opacity-40' : ''"
+        x-bind:class="drawer ? 'opacity-50' : ''"
     >
         @livewire('venue::chat', [
             'space' => $this->party->room(),

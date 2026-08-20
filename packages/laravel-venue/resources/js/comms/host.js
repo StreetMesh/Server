@@ -289,7 +289,16 @@ import mesh from './mesh.js'
          * makes it look again, and it is cheap because it only happens when the
          * count actually changes.
          */
-        const carrying = stream ? String(stream.getTracks().length) : '0'
+        /*
+         * Which tracks, not how many.
+         *
+         * A count cannot see a swap: somebody turning their camera off and on
+         * sends a different track on a new line, and the stream goes from one
+         * video to one video. Counting them, this decides nothing has changed
+         * and leaves the element pointed at a stream whose first video track is
+         * the one that stopped.
+         */
+        const carrying = stream ? stream.getTracks().map((track) => track.id).join() : ''
 
         if (stream && (picture.srcObject !== stream || picture.dataset.carrying !== carrying)) {
             picture.srcObject = stream

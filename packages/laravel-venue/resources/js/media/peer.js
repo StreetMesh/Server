@@ -84,6 +84,31 @@ export default function peer({ ice, polite, name, send, onTrack, onStatus }) {
     pc.addEventListener('track', ({ track, streams }) => {
         say(`${name}: ${track.kind} line open`);
 
+        /*
+         * One of each kind, because that is what they are sending.
+         *
+         * A track this side never ends on its own. Somebody turning their
+         * camera off calls `removeTrack`, and what arrives here is `mute` —
+         * ending is reserved for a transceiver being stopped or the connection
+         * going away. So the dead one stays.
+         *
+         * Turning it back on cannot reuse the line it was sent on: a
+         * transceiver that has already sent is not a candidate for `addTrack`,
+         * so a fresh one is negotiated and a second `track` event arrives here
+         * for the same kind. Left alone, this stream ends up holding both.
+         *
+         * A media element plays the first audio track and draws the first video
+         * track, and the first is the one that stopped — so the picture never
+         * came back and the sound never returned, until a reload built the
+         * stream again from nothing. Which is exactly what it looked like.
+         */
+        for (const stale of arriving.getTracks()) {
+            if (stale.kind === track.kind && stale !== track) {
+                say(`${name}: replacing the ${track.kind} they were sending`);
+                arriving.removeTrack(stale);
+            }
+        }
+
         arriving.addTrack(track);
         onTrack(track.kind, !track.muted);
 

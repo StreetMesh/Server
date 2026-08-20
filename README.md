@@ -7,23 +7,29 @@
 
 **Design and deploy multiplayer experiences on a server you control — where people sign in with an identity that belongs to them, not you.**
 
-StreetMesh Servers are Laravel applications. Install one and you have somewhere
-people can visit and do things together: games, shops, screening rooms. They
-arrive and log into your server using the *address* of their own separate
-servers.
+StreetMesh Servers are Laravel applications supported by Node processes. Set one up and you will have created somewhere people can visit from multiple modalities—mobile, XR, and IRL—and do things together: game, shop, learn, and generally be entertained. 
 
-## What you get
+## What is StreetMesh?
 
-- **Modular experiences.** Distributed as [Composer](https://getcomposer.org) packages: create your own, mix and match others', build a virtual destination.
-- **Portable identity.** Visitors arrive from their preferred StreetMesh servers, called *domiciles*; their data and identity belongs to their server, not yours.
-- **Authoritative multiplayer rooms.** Powered by [Colyseus](https://colyseus.io), running on Node: your server's *Hub* enforces the rules of the experiences you host, and syncs the data the players share.
-- **Voice and video.** Peer-to-peer parties between visitors, with no service in the middle.
-- **Text chat**, venue-wide, over Laravel Reverb.
+[StreetMesh](https://streetmesh.com) is a collection of MIT-licensed open source software projects aimed squarely at an important problem: How do we keep the Internet open, federated, and decentralized as it transitions (slowly but surely) from hyperlinks to the [metaverse](https://en.wikipedia.org/wiki/Metaverse)?
 
-## Get it running
+## What's does a StreetMesh Server do?
 
-You need PHP 8.3, Node 22, and a web server pointing at `public/`.
-[Herd](https://herd.laravel.com) is what this is developed against.
+- **Hosts portable identities.** StreetMesh users rent or own *domiciles* in other StreetMesh servers; the *address* of their domicile, like `username.stme.sh` or even `me.mydomain.com`, functions as their username, like in [AT Protocol](https://atproto.com/articles/atproto-ethos#identity-based-authority), and their server stores their data
+- **Hosts multiplayer venues.** StreetMesh servers can be *domiciles* or they can host *experiences*, or they can do both; when a server hosts experiences, it is called a *venue*
+- **Orchestrates modular experiences.** StreetMesh experiences are distributed as [Composer](https://getcomposer.org) packages: create your own, mix and match others', curate the perfect venue for your audience
+- **Syncs and adjudicates experience state.** Powered by [Colyseus](https://colyseus.io), running on Node: your server's *Hub* enforces the rules of the experiences you host, and syncs the data the players share
+- **Coordinates text, audio, and video chat.** Your server can facilitate peer-to-peer connections for up to four players in *parties*; experiences host spatialized audio chat using [LiveKit](https://livekit.com/)
+
+## Requirements
+
+To run a server, you need PHP 8.3, Node 22, and a web server,
+usually nginx running php-fpm. Running the Laravel server app locally for dev work, we like [Herd](https://herd.laravel.com). In the cloud, we like [Laravel Cloud](https://cloud.laravel.com). For the Node processes, you'll
+just run a node script locally. In the cloud, you can use [Colyseus Cloud](https://colyseus.io/cloud-managed-hosting/). We'll be adding features to this project soon that allow you to start a Colyseus server in Laravel Forge on your preferred hosting platform (AWS, DigitalOcean, etc.).
+
+## Getting Started
+
+Checkout the Server project and run setup:
 
 ```bash
 git clone git@github.com:StreetMesh/Server.git
@@ -31,64 +37,48 @@ cd Server
 composer setup
 ```
 
-That installs everything, writes a `.env`, generates a key, migrates, and
-builds the front end.
+The composer script installs everything, writes an `.env` file, generates keys, migrates your database scripts, and builds the front end.
 
-Tell it the name strangers will reach it by. This becomes the server's own
-identifier, so use the real one rather than a local alias:
+Next, give the server an address. In StreetMesh, the server's address is also its identifier, so use the real one rather than a local alias:
 
 ```dotenv
 STREETMESH_HOST=your.domain
 ```
 
-A venue needs somewhere to gather and a secret to recognise it by, and will not
-start without both:
+A server offers whatever it has installed:
+
+```dotenv
+# set at least one of these to true
+STREETMESH_VENUE=false      # a place people live, and nothing else
+STREETMESH_DOMICILE=false   # a place people gather, and nothing else
+```
+
+If you're running a venue server, you're going to need a *Hub*, which is
+the part of the architecture that runs on Node. The node processes and
+your Laravel server authenticate using a shared secret. When you run
 
 ```dotenv
 STREETMESH_HUB=wss://your.hub
 STREETMESH_REALTIME_SECRET=   # the same value wherever the hub runs
 ```
 
-A server offers whatever it has installed:
-
-```dotenv
-STREETMESH_VENUE=false      # a place people live, and nothing else
-STREETMESH_DOMICILE=false   # a place people gather, and nothing else
-```
-
-### Three processes
-
-**None of them starts the others**, and the usual cause of "nothing happens" is
-that one is missing.
+Run everything for development:
 
 ```bash
-./hub-serve     # the rooms      → wss://hub.test
-npm run dev     # the assets     → :5173
-                # the PHP is Herd, always on
+./hub-serve        # the hub, if you're running a venue
+php artisan serve  # use Herd, the laravel local server, or whatever
+npm run dev        # monitor your assets for changes and rebuild
 ```
 
-Now open the venue, sign in, and play a game of chess against yourself in a
-second browser. You have just exercised the whole stack — federated sign-in, an
-authoritative room, and a signed record at the end of the game.
-
-### Check it from the outside
+Test the stack:
 
 ```bash
-php artisan streetmesh:check
-```
-
-```
+> php artisan streetmesh:check
   ✓ the name resolves to this identity
   ✓ the document is reachable and claims the name
   ✓ a stranger finds the key we signed with
   ✓ and can verify what we signed
 ```
-
-This signs something, then comes back over the network as an ordinary client
-and verifies it — so it tests your deployment, not your code. DNS, TLS,
-routing, and whether the host you configured is the one people can actually
-reach. Everything else can pass while this fails, and the first sign would
-otherwise be another server rejecting your records.
 
 Ready to put one on the internet? [`DEPLOYING.md`](DEPLOYING.md) covers the
 venue, the hub, and the order they have to be released in.
@@ -102,23 +92,10 @@ Chess is the worked example — copy its shape.
 **[EXPERIENCES.md](EXPERIENCES.md)** is the guide, and it leads with the traps,
 because every one of them cost this project hours.
 
-## Where things stand
-
-v0 is a game of chess played between two people on different servers, each
-ending up with their own verifiable record of it. Everything above works today.
-What is left is the part it exists to prove: that game played across the open
-network rather than between two identities on one machine.
-
-Not yet in v0, each for a stated reason: a full Personal Data Server, messaging
-between domiciles, commerce, and a spatial interface. The
-[roadmap](https://github.com/StreetMesh/Protocol/blob/main/ROADMAP.md) says why.
-
 ## Learning StreetMesh
 
-The [Protocol](https://github.com/StreetMesh/Protocol) repository is the
-authority on what StreetMesh is: guides, decisions, and the conformance vectors
-that settle any argument about the wire. It publishes at
-[protocol.streetmesh.com](https://protocol.streetmesh.com).
+The [Protocol](https://protocol.streetmesh.com) repository is the
+authority on what StreetMesh is: guides, decisions, and the conformance vectors.
 
 The [glossary](https://github.com/StreetMesh/Protocol/blob/main/GLOSSARY.md)
 defines every term in plain language and says which are ours and which we
@@ -138,20 +115,6 @@ the Node hub.
 | [`packages/laravel-venue`](packages/laravel-venue) | A place people gather |
 | [`packages/laravel-chess`](packages/laravel-chess) | An experience, and the example of one |
 | [`hub/`](hub) | The multiplayer host. Not PHP. |
-
-`vendor/streetmesh/*` are symlinks into `packages/*`, so an edit is live on the
-next request and one commit ships a change with the code that uses it.
-
-```bash
-composer test                                  # the application
-cd packages/laravel-venue && composer test     # one package
-cd hub && npm run types:check                  # the hub
-```
-
-CI runs exactly these, one job per package, so a failure names the package
-rather than the repository. Publishing is `composer split`, which releases each
-package to a repository of its own — nothing is on Packagist or npm yet, so for
-now the only way to get this is from here.
 
 ## License
 
