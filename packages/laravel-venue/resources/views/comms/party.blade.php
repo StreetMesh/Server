@@ -101,10 +101,36 @@
                 <flux:text class="text-red-600 dark:text-red-400">{{ $message }}</flux:text>
             @enderror
 
+            {{--
+                Faces beside names, fetched from each person's own server.
+
+                Flux draws initials when there is no `src`, which is the same
+                fallback the row of circles makes and for the same reason: most
+                domiciles publish nothing, and a party where three people are
+                letters and one is a picture is the ordinary case rather than a
+                half-finished one.
+
+                `initials:single` because a handle is not a name. Flux reads a
+                string with no spaces in it as one word and takes two letters
+                from it — `alice.home.test` becomes "Al" — which is right for a
+                person called Alice Smith and wrong for an address. One letter
+                is what everything else placeholding for a picture does, and it
+                is what the circles beside this already draw.
+            --}}
             <div class="flex flex-col gap-1">
                 @foreach ($this->roster as $member)
-                    <div class="flex items-center justify-between" wire:key="with-{{ $member->did }}">
-                        <flux:text>{{ $member->handle }}</flux:text>
+                    <div class="flex items-center justify-between gap-2" wire:key="with-{{ $member->did }}">
+                        <div class="flex min-w-0 items-center gap-2">
+                            <flux:avatar
+                                size="xs"
+                                circle
+                                :src="\StreetMesh\Protocol\PublishedAvatar::iconAt($member->handle)"
+                                :name="$member->handle"
+                                initials:single
+                            />
+
+                            <flux:text class="truncate">{{ $member->handle }}</flux:text>
+                        </div>
                     </div>
                 @endforeach
             </div>

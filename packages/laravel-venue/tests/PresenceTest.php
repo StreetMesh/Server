@@ -191,6 +191,44 @@ class PresenceTest extends TestCase
         $this->assertSame(200, mb_strlen($this->poll($bob, $party, 'bob-tab')['present'][0]['space']));
     }
 
+    /**
+     * Where to fetch somebody's picture rides along, worked out by the venue.
+     *
+     * A handle is a hostname, so the address follows from the name — but the
+     * venue does the following, not the browser. Turning a name that arrived
+     * over the wire into an address a browser is sent to has one correct
+     * implementation, and a second one in JavaScript would be a second
+     * definition of a rule that has to hold.
+     */
+    public function test_each_person_arrives_with_the_address_of_their_own_face(): void
+    {
+        [$party, $alice, $bob] = $this->partyOfTwo();
+
+        $this->poll($alice, $party, 'alice-tab');
+
+        $this->assertSame(
+            'https://alice.home.test/avatar/icon',
+            $this->poll($bob, $party, 'bob-tab')['present'][0]['icon'],
+        );
+    }
+
+    /**
+     * And a name that is not a hostname carries no address at all.
+     *
+     * Null is drawn as the letter it always was. What must never happen is a
+     * browser being sent somewhere on the strength of a string.
+     */
+    public function test_a_name_that_could_not_be_a_host_carries_no_address(): void
+    {
+        [$party, $alice, $bob] = $this->partyOfTwo();
+
+        $alice->update(['handle' => 'localhost']);
+
+        $this->poll($alice, $party, 'alice-tab');
+
+        $this->assertNull($this->poll($bob, $party, 'bob-tab')['present'][0]['icon']);
+    }
+
     public function test_somebody_outside_the_party_never_appears_in_it(): void
     {
         [$party, $alice, $bob] = $this->partyOfTwo();

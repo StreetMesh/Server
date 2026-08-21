@@ -74,6 +74,20 @@ export default function mesh({ ticketUrl, signalsUrl, csrf, tracks, onPeople, on
      */
     const rerouted = new Set()
 
+    /**
+     * Where to fetch each person's picture, by connection.
+     *
+     * The venue says this rather than the browser working it out from a name.
+     * A handle is a hostname, so the address does follow from the name — but
+     * turning a string that arrived over the wire into an address a browser is
+     * sent to has one correct implementation and it is in PHP, and a second one
+     * written here would be a second definition of a rule that has to hold.
+     *
+     * Null for somebody whose server publishes nothing, which is most people,
+     * and which draws as the letter it always did.
+     */
+    const faces = new Map()
+
     let post = null
     let ice = []
     let stopped = false
@@ -159,6 +173,7 @@ export default function mesh({ ticketUrl, signalsUrl, csrf, tracks, onPeople, on
             return {
                 session: id,
                 name: connections.get(id).name,
+                icon: faces.get(id) ?? null,
                 status: connections.get(id).status(),
 
                 /*
@@ -247,7 +262,15 @@ export default function mesh({ ticketUrl, signalsUrl, csrf, tracks, onPeople, on
     const regard = (present) => {
         let moved = false
 
-        for (const { id, name } of present) {
+        for (const { id, name, icon } of present) {
+            /*
+             * Kept beside the connection rather than inside it. A peer is a
+             * negotiation; what somebody looks like has nothing to do with one,
+             * and threading it through `peer()` would put a cosmetic field in
+             * the middle of the only code here that has to be exactly right.
+             */
+            faces.set(id, icon ?? null)
+
             if (!connections.has(id)) {
                 connect(id, name)
                 moved = true
@@ -259,6 +282,7 @@ export default function mesh({ ticketUrl, signalsUrl, csrf, tracks, onPeople, on
                 connections.get(id).close()
                 connections.delete(id)
                 rerouted.delete(id)
+                faces.delete(id)
                 moved = true
             }
         }

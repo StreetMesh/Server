@@ -4,6 +4,7 @@ namespace StreetMesh\Venue;
 
 use Illuminate\Http\Request;
 use StreetMesh\Protocol\Laravel\Capabilities\Capabilities;
+use StreetMesh\Protocol\PublishedAvatar;
 use StreetMesh\Venue\Parties\Parties;
 
 /**
@@ -101,6 +102,15 @@ final class Comms
         return [
             'here' => $visitor !== null,
             'me' => $visitor?->handle,
+
+            /*
+             * Your own face, at your own address — fetched from your domicile
+             * exactly as everybody else's is, rather than from anything this
+             * venue happens to be holding. So a picture that is broken for the
+             * party is broken here too, which is the only way anybody would
+             * find out.
+             */
+            'myIcon' => PublishedAvatar::iconAt($visitor?->handle),
 
             'party' => $party === null ? null : [
                 'key' => $party->key,

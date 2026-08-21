@@ -105,6 +105,21 @@ final class VenueCapability implements Capability
     }
 
     /**
+     * Nothing, and that is not an oversight.
+     *
+     * A venue holds no accounts, so a visitor has nothing here to configure —
+     * what they look like and who they are belong to the server they came from,
+     * and are settings there rather than settings here. See `whoever`, which
+     * makes the same distinction about the person.
+     *
+     * @return array<int, array{label: string, route: string, icon?: string}>
+     */
+    public function settings(): array
+    {
+        return [];
+    }
+
+    /**
      * What this venue is called, in pictures.
      *
      * The venue is the half of a server strangers meet, and the half most

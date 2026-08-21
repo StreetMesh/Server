@@ -2,6 +2,7 @@
 
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use StreetMesh\Domicile\Avatars\Avatars;
 use StreetMesh\Protocol\Laravel\Identity\Identities;
 use StreetMesh\Protocol\Laravel\Identity\Identity;
 
@@ -26,6 +27,36 @@ new class extends Component
         $identity = app(Identities::class)->byHandle($this->handle);
 
         return $identity?->is_server ? null : $identity;
+    }
+
+    /**
+     * Where their picture is, if they have published one.
+     *
+     * Their address rather than a path here, because that is the address
+     * everybody else fetches from — a profile showing a copy this server had
+     * lying around would be vouching for something rather than pointing at it.
+     */
+    public function face(): ?string
+    {
+        $resident = $this->resident();
+
+        if ($resident === null) {
+            return null;
+        }
+
+        /*
+         * Always, for somebody who lives here. The address answers for every
+         * resident — with their picture if they have one and their letter if
+         * they have not — so there is no case where this page has to decide
+         * what to draw. It points, and their server draws.
+         *
+         * The content's name rides along when there is one, so a browser
+         * holding the previous face does not show it back after a change.
+         */
+        $avatar = app(Avatars::class)->defaultFor((string) $resident->did);
+
+        return 'https://'.$resident->handle.'/avatar/icon'
+            .($avatar === null ? '' : '?'.$avatar->icon_cid);
     }
 
     public function title(): string
@@ -57,7 +88,26 @@ new class extends Component
             </x-slot>
         </flux:callout>
     @else
-        <flux:heading size="xl">{{ $resident->handle }}</flux:heading>
+        {{--
+            The face, beside the name.
+
+            This is the other half of what serving an avatar from a resident's
+            own address buys: somebody who has met "collegeman" somewhere else
+            can come here and see whether that is what collegeman looks like.
+            A picture anybody could have set on any server would prove nothing;
+            this one is served by the only server that answers for the name.
+        --}}
+        <div class="flex items-center gap-4">
+            <flux:avatar
+                size="xl"
+                circle
+                :src="$this->face()"
+                :name="$resident->handle"
+                initials:single
+            />
+
+            <flux:heading size="xl" class="break-all">{{ $resident->handle }}</flux:heading>
+        </div>
 
         {{--
             The name and the identifier, together, because they are two

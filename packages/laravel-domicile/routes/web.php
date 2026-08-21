@@ -18,3 +18,24 @@ Route::livewire('directory', 'domicile::directory')->name('domicile.directory');
  * anything while you are already here.
  */
 Route::livewire('profile/{handle}', 'domicile::profile')->name('domicile.profile');
+
+/*
+ * Choosing what you look like.
+ *
+ * Behind a login, because this is somebody deciding about their own records —
+ * and at this server's own name rather than at theirs, because their hostname
+ * is where the answer is published and not where it is decided.
+ *
+ * Under `settings/` because that is where a person looks for something about
+ * themselves, and the capability says so in `DomicileCapability::settings` so
+ * that the application can put it in the same list as its own.
+ *
+ * Not at `avatar`, which is taken: that is the published path on a resident's
+ * hostname, registered in `published.php`, which is loaded after this file.
+ * Laravel replaces a route sharing a path rather than complaining about it, so
+ * the two named the same thing left this screen answering 404 and said nothing
+ * anywhere about why.
+ */
+Route::middleware('auth')->group(function (): void {
+    Route::livewire('settings/avatar', 'domicile::avatar')->name('domicile.avatar');
+});

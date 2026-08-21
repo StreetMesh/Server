@@ -252,4 +252,17 @@ final class Capabilities
             array_values($this->registered),
         ) ?: [[]]);
     }
+
+    /**
+     * And everything they want on the settings screen, likewise.
+     *
+     * @return array<int, array{label: string, route: string, icon?: string}>
+     */
+    public function settings(): array
+    {
+        return array_merge(...array_map(
+            fn (Capability $capability): array => $capability->settings(),
+            array_values($this->registered),
+        ) ?: [[]]);
+    }
 }

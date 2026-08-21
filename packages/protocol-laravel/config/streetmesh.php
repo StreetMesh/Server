@@ -176,4 +176,44 @@ return [
         'cache_seconds' => 300,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Bytes that are not records
+    |--------------------------------------------------------------------------
+    |
+    | A picture or a model, kept for a resident. The rows live in this server's
+    | database and the bytes live on a disk, so that an operator can point a
+    | bucket and a CDN at them without this package knowing.
+    |
+    | `limits` is the whole of what may be stored: a type not named here is
+    | refused. That is the opposite of the choice made for record collections,
+    | where anything undeclared is private rather than refused, and the reason
+    | is that the two fail in opposite directions. An undeclared record is
+    | private and therefore harmless. An undeclared blob would be a file of a
+    | stranger's choosing served back from a resident's own hostname — the same
+    | origin their identity documents are answered from.
+    |
+    | PNG alone, for now, because it is the only thing anything here produces:
+    | an uploaded icon is re-encoded before it is stored, so whatever somebody
+    | had is not what is kept. Models join this list when models are built.
+    |
+    */
+
+    'blobs' => [
+        /*
+         | Follows the application's own disk unless told otherwise, rather
+         | than naming one. Hard-coding `local` here meant an operator who had
+         | pointed their whole application at a bucket still had blobs written
+         | to the container's filesystem — which on most hosts is thrown away at
+         | the next deploy, so every resident's picture would quietly vanish and
+         | the setting that looked like it governed this would have had no
+         | effect on it.
+         */
+        'disk' => env('STREETMESH_BLOB_DISK', env('FILESYSTEM_DISK', 'local')),
+
+        'limits' => [
+            'image/png' => 512 * 1024,
+        ],
+    ],
+
 ];

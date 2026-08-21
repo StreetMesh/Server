@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use StreetMesh\Protocol\Laravel\Http\BlobController;
 use StreetMesh\Protocol\Laravel\Http\ClientController;
 use StreetMesh\Protocol\Laravel\Http\ConsentController;
 use StreetMesh\Protocol\Laravel\Http\IdentityController;
@@ -72,6 +73,19 @@ Route::middleware('streetmesh')->group(function (): void {
      */
     Route::post('xrpc/com.atproto.repo.createRecord', [RepoController::class, 'create'])
         ->name('streetmesh.repo.create');
+
+    /*
+     * And the bytes a record refers to, when it refers to any.
+     *
+     * Read-only and unauthenticated, which is safe only because a blob carries
+     * the visibility of whatever it was kept for: this serves what this server
+     * publishes and nothing else. There is deliberately no upload endpoint
+     * beside it — writing a blob from somewhere else needs a `blob:` scope,
+     * and `Scope::parse` does not read one yet, so the permission would be
+     * unenforceable here and invisible on the consent screen.
+     */
+    Route::get('xrpc/com.atproto.sync.getBlob', [BlobController::class, 'get'])
+        ->name('streetmesh.blob.get');
 
     /*
      * A PLC directory, when this server keeps one.

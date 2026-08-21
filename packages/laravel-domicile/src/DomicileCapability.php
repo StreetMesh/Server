@@ -85,6 +85,22 @@ final class DomicileCapability implements Capability
     }
 
     /**
+     * The first thing a resident of this server gets to decide about themselves.
+     *
+     * In settings rather than on the home page, because that is where a person
+     * looks for something about themselves rather than something to do — and
+     * because the home page is a summary, not somewhere things happen.
+     *
+     * @return array<int, array{label: string, route: string, icon?: string}>
+     */
+    public function settings(): array
+    {
+        return [
+            ['label' => 'Avatars', 'route' => 'domicile.avatar', 'icon' => 'user-circle'],
+        ];
+    }
+
+    /**
      * What this domicile is called, in pictures.
      *
      * Separately settable from the venue's and rarely set. A domicile is the

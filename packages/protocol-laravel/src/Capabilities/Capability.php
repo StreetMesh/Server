@@ -93,6 +93,23 @@ interface Capability
     public function navigation(): array;
 
     /**
+     * And what it contributes to the settings shell, which is a different one.
+     *
+     * Separate from `navigation` because the two answer different questions.
+     * Navigation is where somebody goes to do something here. Settings is where
+     * they go to change something about themselves — and a capability that adds
+     * nothing to the first may well add to the second, which is exactly the
+     * case for a domicile once a resident has anything to decide.
+     *
+     * Offered rather than placed, like widgets: there is one settings screen
+     * however many capabilities are installed, and only the application can say
+     * what order they come in.
+     *
+     * @return array<int, array{label: string, route: string, icon?: string}>
+     */
+    public function settings(): array;
+
+    /**
      * The mark this capability wears.
      *
      * Its own rather than the application's, because a server can be a domicile

@@ -92,7 +92,7 @@
         }
 
         .face video,
-        .face .avatar {
+        .face .icon {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -118,16 +118,26 @@
             contradict each other sitting on one circle at the same time.
         */
         .face video[hidden],
-        .face .avatar[hidden],
+        .face .icon[hidden],
         .face .lost[hidden],
         .face .quiet[hidden] { display: none; }
 
-        .face .avatar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: {{ $palette['paper'] }};
-            font: 600 calc(var(--face) * 0.38)/1 ui-sans-serif, system-ui, sans-serif;
+        /*
+            Somebody's own picture, fetched from their own server.
+
+            The only thing drawn for a face with no video on it. There was a
+            letter under this until a domicile started answering for every one
+            of its residents — with a picture if they have chosen one and their
+            initial if they have not — at which point the letter here was a
+            second answer to a question that already had one, in a different
+            style, from the party with less to go on.
+
+            The ground stays because a picture with transparency in it is drawn
+            over whatever is behind, and behind is now nothing.
+        */
+        .face .icon {
+            position: absolute;
+            inset: 0;
             background: linear-gradient(160deg, #3f3f46, {{ $palette['ink'] }});
         }
 
@@ -181,7 +191,7 @@
             what is underneath is what makes the whole circle say "not here",
             which is the thing being reported.
         */
-        .face.lost .avatar { opacity: .4; }
+        .face.lost .icon { opacity: .4; }
 
     </style>
 </head>

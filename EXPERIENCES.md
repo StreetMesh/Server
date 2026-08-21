@@ -424,6 +424,26 @@ Resident handles are subdomains (`alice.server.test`), so `.well-known`
 documents must be answered **per hostname**. `*.test` resolves locally through
 dnsmasq, so this works on your machine without configuration.
 
+### A route works at `server.test/x` and silently redirects at `alice.server.test/x`
+`SendResidentsHome` sits in the `web` middleware group and **permanently**
+redirects every browser route on a resident's hostname to their profile. That is
+right for screens and fatal for anything a machine fetches — and because the
+redirect is a 301, browsers and proxies keep the wrong answer afterwards.
+
+Anything served from a resident's hostname goes in the `streetmesh` group beside
+`.well-known/*` and `xrpc/*`, which is throttled and nothing else. See
+`packages/laravel-domicile/routes/published.php`.
+
+### Two routes share a path and one of them wins, quietly
+Laravel replaces a route sharing a path rather than complaining, and the winner
+is whichever file was loaded last. A screen registered at `avatar` and a
+permalink registered at `avatar` in a second file left the screen answering 404
+with nothing anywhere saying why. Every test of the permalink passed.
+
+Grep the package's route files for a path before adding one. The same hazard is
+why nothing may claim the root — see the note at the bottom of
+`packages/protocol-laravel/src/Http/routes.php`.
+
 ---
 
 ## Deliberately not solved yet

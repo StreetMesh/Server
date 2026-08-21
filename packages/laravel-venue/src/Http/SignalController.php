@@ -4,6 +4,7 @@ namespace StreetMesh\Venue\Http;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use StreetMesh\Protocol\PublishedAvatar;
 use StreetMesh\Venue\Media\Mailbox;
 use StreetMesh\Venue\Media\Presence;
 use StreetMesh\Venue\Parties\Parties;
@@ -71,9 +72,37 @@ final class SignalController
                 (string) $this->visitors->current($request)?->handle,
                 (string) $request->string('at'),
             );
+
+            $answer['present'] = array_map($this->withFace(...), $answer['present']);
         }
 
         return response()->json($answer);
+    }
+
+    /**
+     * Where to fetch somebody's picture, worked out here rather than in a
+     * browser.
+     *
+     * A handle is a hostname, so the address follows from the name and nothing
+     * has to be sent by the person it belongs to — which is the point, and is
+     * why `PublishedMark` refuses to read a venue's logo out of a document it
+     * was handed. But the *derivation* is not something to do twice. Turning a
+     * name that arrived over the wire into an address a browser is sent to has
+     * exactly one correct implementation, and a second one written in
+     * JavaScript would be a second definition of a rule that has to hold.
+     *
+     * So the venue says it, from its own word for who somebody is — the same
+     * handle it already vouches for two lines above. The browser is handed an
+     * address and never builds one.
+     *
+     * Null for a name that is not a hostname, and null is drawn as a letter.
+     *
+     * @param  array{id: string, name: string, space: string}  $who
+     * @return array{id: string, name: string, space: string, icon: string|null}
+     */
+    private function withFace(array $who): array
+    {
+        return $who + ['icon' => PublishedAvatar::iconAt($who['name'])];
     }
 
     /**

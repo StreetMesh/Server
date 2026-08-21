@@ -318,7 +318,7 @@ class CommsTest extends TestCase
             ->assertOk()
             ->assertSee('.face .lost {', escape: false)
             ->assertSee('.face .lost[hidden]', escape: false)
-            ->assertSee('.face.lost .avatar', escape: false);
+            ->assertSee('.face.lost .icon', escape: false);
     }
 
     /**

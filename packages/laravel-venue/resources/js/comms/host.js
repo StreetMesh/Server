@@ -263,9 +263,21 @@ import mesh from './mesh.js'
         const el = doc.createElement('div')
 
         el.className = 'face'
+
+        /*
+         * No letter drawn here.
+         *
+         * There used to be one underneath, on the reasoning that a picture is
+         * fetched from somebody else's server and might not arrive. What that
+         * amounted to was a second, differently styled answer to "what does
+         * this person look like" — and a domicile answers that for every one of
+         * its residents now, with their picture or with their initial. Two
+         * answers can only disagree, and the one drawn here is the one with
+         * less to go on.
+         */
         el.innerHTML = `
             <video autoplay playsinline></video>
-            <div class="avatar"></div>
+            <img class="icon" alt="" decoding="async" hidden>
             <div class="quiet">${config.icons?.microphoneSlash ?? ''}</div>
             <div class="lost">${config.icons?.unreachable ?? ''}</div>
         `
@@ -275,9 +287,9 @@ import mesh from './mesh.js'
         return el
     }
 
-    const paint = (el, { name, stream, video, audio, self, lost }) => {
+    const paint = (el, { name, icon, stream, video, audio, self, lost }) => {
         const picture = el.querySelector('video')
-        const avatar = el.querySelector('.avatar')
+        const face = el.querySelector('.icon')
 
         /*
          * Pointed at the stream, and re-pointed when what is in it changes.
@@ -310,7 +322,6 @@ import mesh from './mesh.js'
         picture.muted = Boolean(self)
 
         picture.hidden = !video
-        avatar.hidden = Boolean(video)
 
         /*
          * And make sure it is actually playing.
@@ -333,7 +344,44 @@ import mesh from './mesh.js'
         if (video) {
             void picture.play().catch(() => {})
         }
-        avatar.textContent = (name || '?').replace(/^@/, '').charAt(0).toUpperCase()
+        /*
+         * Their own picture, from their own server — which is the only thing
+         * drawn for somebody who is not sending video.
+         *
+         * Assigned only when it actually changes. `draw` runs on every arrival,
+         * every camera toggle and every resize, and setting `src` to the value
+         * it already holds is a fresh fetch in some browsers — a party of four
+         * would quietly poll four domiciles for as long as anybody stayed.
+         *
+         * A server that answers with nothing leaves an empty circle, and that
+         * is the intended failure rather than an oversight: this venue has no
+         * opinion about what somebody looks like, so it draws none.
+         */
+        const wanted = icon || ''
+
+        if (face.dataset.wanted !== wanted) {
+            face.dataset.wanted = wanted
+            face.hidden = true
+
+            if (wanted) {
+                face.onload = () => { face.hidden = !picture.hidden }
+                face.onerror = () => { face.hidden = true }
+                face.src = wanted
+            } else {
+                face.removeAttribute('src')
+            }
+        }
+
+        /*
+         * And never over a live picture of them. A camera coming on has to take
+         * the circle back, and going off has to give it up again — neither of
+         * which changes the address, so neither goes through the branch above.
+         */
+        if (video) {
+            face.hidden = true
+        } else if (wanted && face.complete && face.naturalWidth > 0) {
+            face.hidden = false
+        }
 
         /*
          * Presence comes from the tracks rather than from a report of them.
@@ -392,9 +440,23 @@ import mesh from './mesh.js'
             /* Private browsing refuses to answer, which is the same as none. */
         }
 
+        /*
+         * Everybody wears your face, which is not a joke about the fake names
+         * it replaced.
+         *
+         * Those were bare words — `robin`, `sam` — and a bare word is not a
+         * handle, so nothing could ever fetch a picture for one. Once the
+         * circles stopped drawing a letter of their own, this drew a row of
+         * empty discs and stopped answering the question it exists for, which
+         * is how faces lay out at a real size on a narrow screen.
+         *
+         * Your own address is the one handle this page is certain resolves, so
+         * these borrow it: real fetches, real bytes, and obviously pretend.
+         */
         return Array.from({ length: Math.max(0, Math.min(many, 8)) }, (_, i) => ({
             session: `nobody-${i}`,
-            name: ['robin', 'sam', 'wren', 'ash', 'kit', 'juno', 'bex', 'nell'][i % 8],
+            name: config.me,
+            icon: config.myIcon,
             stream: null,
             audio: false,
             video: false,
@@ -535,6 +597,7 @@ import mesh from './mesh.js'
 
             paint(el, {
                 name: config.me,
+                icon: config.myIcon,
                 stream: capture.stream(),
                 video: showing,
                 audio: speaking,

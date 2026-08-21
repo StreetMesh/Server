@@ -114,6 +114,11 @@ final class CapabilitiesTest extends Plain
                 return [];
             }
 
+            public function settings(): array
+            {
+                return [];
+            }
+
             public function mark(): Mark
             {
                 return new Mark('brand/'.$this->name.'-mark');
@@ -129,6 +134,94 @@ final class CapabilitiesTest extends Plain
      * for both would tell somebody reading their own records that they were at
      * the games room.
      */
+    /**
+     * Settings is a shell no capability owns, so what lands there is offered
+     * rather than placed — in the order the capabilities were registered, and
+     * with the ones that offer nothing contributing nothing rather than a gap.
+     */
+    public function test_the_settings_screen_collects_what_capabilities_offer(): void
+    {
+        $capabilities = new Capabilities;
+
+        $capabilities->register($this->offering('domicile', [
+            ['label' => 'Avatars', 'route' => 'domicile.avatar'],
+        ]));
+        $capabilities->register($this->offering('venue', []));
+
+        $this->assertSame(
+            [['label' => 'Avatars', 'route' => 'domicile.avatar']],
+            $capabilities->settings(),
+        );
+    }
+
+    public function test_a_server_where_nobody_offers_anything_has_nothing_to_add(): void
+    {
+        $capabilities = new Capabilities;
+
+        $capabilities->register($this->offering('venue', []));
+
+        $this->assertSame([], $capabilities->settings());
+    }
+
+    /**
+     * @param  array<int, array{label: string, route: string, icon?: string}>  $offers
+     */
+    private function offering(string $name, array $offers): Capability
+    {
+        return new class($this->capability($name), $offers) implements Capability
+        {
+            /**
+             * @param  array<int, array{label: string, route: string, icon?: string}>  $offers
+             */
+            public function __construct(private Capability $inner, private array $offers) {}
+
+            public function settings(): array
+            {
+                return $this->offers;
+            }
+
+            public function name(): string
+            {
+                return $this->inner->name();
+            }
+
+            public function serviceType(): string
+            {
+                return $this->inner->serviceType();
+            }
+
+            public function frontPage(): ?string
+            {
+                return $this->inner->frontPage();
+            }
+
+            public function frontAction(): ?array
+            {
+                return $this->inner->frontAction();
+            }
+
+            public function whoever(): ?array
+            {
+                return $this->inner->whoever();
+            }
+
+            public function widgets(): array
+            {
+                return $this->inner->widgets();
+            }
+
+            public function navigation(): array
+            {
+                return $this->inner->navigation();
+            }
+
+            public function mark(): Mark
+            {
+                return $this->inner->mark();
+            }
+        };
+    }
+
     public function test_each_capability_answers_with_its_own_mark(): void
     {
         $capabilities = new Capabilities;

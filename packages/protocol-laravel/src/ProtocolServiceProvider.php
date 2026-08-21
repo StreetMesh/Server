@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 use StreetMesh\Protocol\Handle;
 use StreetMesh\Protocol\Laravel\Attestations\Attestations;
+use StreetMesh\Protocol\Laravel\Blobs\BlobStore;
 use StreetMesh\Protocol\Laravel\Capabilities\Capabilities;
 use StreetMesh\Protocol\Laravel\Console\CheckIdentity;
 use StreetMesh\Protocol\Laravel\Http\LaravelNetwork;
@@ -42,6 +43,7 @@ class ProtocolServiceProvider extends ServiceProvider
         ));
 
         $this->app->singleton(RecordStore::class);
+        $this->app->singleton(BlobStore::class);
 
         /*
          * The tree other people's software reads. A stranger holding the same

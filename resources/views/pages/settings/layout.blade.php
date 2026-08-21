@@ -4,6 +4,20 @@
             <flux:navlist.item :href="route('profile.edit')" wire:navigate>{{ __('Profile') }}</flux:navlist.item>
             <flux:navlist.item :href="route('security.edit')" wire:navigate>{{ __('Security') }}</flux:navlist.item>
             <flux:navlist.item :href="route('appearance.edit')" wire:navigate>{{ __('Appearance') }}</flux:navlist.item>
+
+            {{--
+                And whatever the installed capabilities want here.
+
+                After the application's own rather than mixed in with them: these
+                three are about the account, and what a capability adds is about
+                what this server is. A venue adds nothing, because a visitor has
+                no account here to configure.
+            --}}
+            @foreach (app(\StreetMesh\Protocol\Laravel\Capabilities\Capabilities::class)->settings() as $item)
+                <flux:navlist.item :href="route($item['route'])" wire:navigate>
+                    {{ __($item['label']) }}
+                </flux:navlist.item>
+            @endforeach
         </flux:navlist>
     </div>
 
