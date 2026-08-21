@@ -7,7 +7,7 @@
 
 **Design and deploy multiplayer experiences on a server you control — where people sign in with an identity that belongs to them, not you.**
 
-StreetMesh Servers are Laravel applications supported by Node processes. Set one up and you will have created somewhere people can visit from multiple modalities—mobile, XR, and IRL—and do things together: game, shop, learn, and generally be entertained. 
+StreetMesh Servers are Laravel applications supported by Node processes. Set one up and you will have created somewhere people can visit through multiple modalities—mobile, XR, and IRL—and do things together: game, shop, learn, and generally be entertained. 
 
 ## What is StreetMesh?
 
