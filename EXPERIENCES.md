@@ -434,6 +434,19 @@ Anything served from a resident's hostname goes in the `streetmesh` group beside
 `.well-known/*` and `xrpc/*`, which is throttled and nothing else. See
 `packages/laravel-domicile/routes/published.php`.
 
+### A file upload says the field is required, with the file's name beside the button
+Livewire reads the *driver* of whatever disk it keeps temporary uploads on. Point
+`FILESYSTEM_DISK` at a bucket and it silently changes strategy: the browser is
+handed a pre-signed URL and uploads straight to the bucket, never touching this
+server. That needs the bucket to allow cross-origin PUTs from this application's
+address, which a private bucket does not — so the upload fails in the browser,
+the component's property is never set, and validation reports the field missing.
+Nothing is logged, because nothing arrived.
+
+`config/livewire.php` keeps temporary uploads local for this reason. They are
+temporary by definition, so the durability that put blobs in a bucket does not
+apply to them. On more than one instance, route stickily or configure CORS.
+
 ### Two routes share a path and one of them wins, quietly
 Laravel replaces a route sharing a path rather than complaining, and the winner
 is whichever file was loaded last. A screen registered at `avatar` and a
