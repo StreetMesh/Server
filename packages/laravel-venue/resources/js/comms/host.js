@@ -277,7 +277,7 @@ import mesh from './mesh.js'
          */
         el.innerHTML = `
             <video autoplay playsinline></video>
-            <img class="icon" alt="" decoding="async" hidden>
+            <img class="portrait" alt="" decoding="async" hidden>
             <div class="quiet">${config.icons?.microphoneSlash ?? ''}</div>
             <div class="lost">${config.icons?.unreachable ?? ''}</div>
         `
@@ -289,7 +289,7 @@ import mesh from './mesh.js'
 
     const paint = (el, { name, icon, stream, video, audio, self, lost }) => {
         const picture = el.querySelector('video')
-        const face = el.querySelector('.icon')
+        const face = el.querySelector('.portrait')
 
         /*
          * Pointed at the stream, and re-pointed when what is in it changes.

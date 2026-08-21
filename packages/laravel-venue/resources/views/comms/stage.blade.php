@@ -92,7 +92,7 @@
         }
 
         .face video,
-        .face .icon {
+        .face .portrait {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -118,7 +118,7 @@
             contradict each other sitting on one circle at the same time.
         */
         .face video[hidden],
-        .face .icon[hidden],
+        .face .portrait[hidden],
         .face .lost[hidden],
         .face .quiet[hidden] { display: none; }
 
@@ -134,8 +134,15 @@
 
             The ground stays because a picture with transparency in it is drawn
             over whatever is behind, and behind is now nothing.
+
+            Called `portrait` and not `icon`, which it was for an afternoon. The
+            glyphs this widget draws with are rendered as `<svg class="icon">`,
+            so `.face .icon` matched the muted microphone sitting inside the
+            band as well — absolutely positioned it, pinned it to that band's
+            top-left corner, and painted a small gradient square behind it.
+            Nothing about the symptom pointed at a name collision.
         */
-        .face .icon {
+        .face .portrait {
             position: absolute;
             inset: 0;
             background: linear-gradient(160deg, #3f3f46, {{ $palette['ink'] }});
@@ -191,7 +198,7 @@
             what is underneath is what makes the whole circle say "not here",
             which is the thing being reported.
         */
-        .face.lost .icon { opacity: .4; }
+        .face.lost .portrait { opacity: .4; }
 
     </style>
 </head>

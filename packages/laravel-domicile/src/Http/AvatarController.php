@@ -75,13 +75,7 @@ class AvatarController
             return $this->letterFor((string) $resident->handle, $request);
         }
 
-        /*
-         * The tag is the picture's own name, and the clock is kept short on
-         * purpose. This path is stable while what is behind it changes, so a
-         * long life here would mean somebody's old face following them around;
-         * the tag means a browser that already has the current one is told so
-         * in a reply that carries no picture at all.
-         */
+        /* The tag is the picture's own name. See `picture` for the clock. */
         $answer = $this->picture($bytes, $blob->mime);
 
         $answer->setEtag($blob->cid);
@@ -154,7 +148,27 @@ class AvatarController
     {
         return response($bytes, 200, [
             'Content-Type' => $type,
-            'Cache-Control' => 'public, max-age=300',
+
+            /*
+             * Asked for every time, and almost never sent.
+             *
+             * This is a stable path over changing content, which is the one
+             * shape a lifetime cannot describe: any `max-age` at all is a
+             * window in which somebody has changed their face and nobody can
+             * see it. It was five minutes, and what that looked like was
+             * publishing a picture at home, walking back to the venue, and
+             * still being a letter — with nothing to do about it but wait.
+             *
+             * So every visit revalidates. It costs a conditional request per
+             * face per page, and the reply to almost all of them is 304 with no
+             * body, because the tag is the content's own name. The bytes cross
+             * the wire when they have actually changed and not otherwise.
+             *
+             * Content-addressed URLs are the opposite case and are cached hard
+             * — see `com.atproto.sync.getBlob`, where the name is in the
+             * address and the answer can never become wrong.
+             */
+            'Cache-Control' => 'public, no-cache',
             'X-Content-Type-Options' => 'nosniff',
             'Content-Security-Policy' => "default-src 'none'; sandbox",
         ]);

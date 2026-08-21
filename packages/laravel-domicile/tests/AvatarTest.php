@@ -218,6 +218,25 @@ class AvatarTest extends TestCase
         $this->askHost('alice.home.test', '/directory')->assertRedirect();
     }
 
+    /**
+     * A face is never served from a cache without asking first.
+     *
+     * The path is stable and what is behind it is not, so any lifetime at all
+     * is a window in which somebody has changed their face and nobody can see
+     * it. That window was five minutes, and what it looked like was publishing
+     * a picture at home, walking back to a venue, and still being a letter.
+     */
+    public function test_a_face_is_revalidated_rather_than_trusted(): void
+    {
+        $this->alice();
+
+        $this->askHost('alice.home.test')->assertHeader('Cache-Control', 'no-cache, public');
+
+        $this->avatars()->adopt($this->alice('bob'), $this->uploaded());
+
+        $this->askHost('bob.home.test')->assertHeader('Cache-Control', 'no-cache, public');
+    }
+
     /** A browser that already has this picture is told so, without the picture. */
     public function test_a_browser_holding_the_current_face_is_sent_no_bytes(): void
     {
