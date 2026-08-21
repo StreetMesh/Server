@@ -311,6 +311,47 @@ class CommsTest extends TestCase
     }
 
     /**
+     * The panel it slides over is drawn before there is anything to put in it.
+     *
+     * Alpine runs `x-show`'s first evaluation without a transition, so an
+     * element born already-shown is simply shown. While this was conditional on
+     * having a party, starting one created it with the switch already thrown
+     * and it appeared rather than slid — it only ever animated for a party that
+     * existed before the panel did.
+     */
+    public function test_the_settings_exist_before_the_party_does(): void
+    {
+        $panel = $this->as($this->visitor(), 'panel')->assertOk();
+
+        // The element and its header, with no party anywhere.
+        $panel->assertSee('x-transition:enter-start="translate-y-full"', escape: false);
+        $panel->assertSee('Party Settings');
+
+        // And nothing inside it that would need one.
+        $panel->assertDontSee('Anybody can join with this word');
+    }
+
+    /**
+     * Leaving puts them away.
+     *
+     * Whether they are open is the browser's to remember, and it remembers
+     * across reloads — so somebody who left from in here would otherwise carry
+     * "open" into the next party they joined and land in its settings rather
+     * than its conversation.
+     */
+    public function test_leaving_a_party_shuts_its_settings(): void
+    {
+        $alice = $this->visitor();
+        $this->parties()->open($alice);
+
+        $this->withSession([Visitors::SESSION_KEY => $alice->id]);
+
+        Livewire::test('venue::comms')
+            ->call('leave')
+            ->assertDispatched('comms-drawer-close');
+    }
+
+    /**
      * It slides, and it slides the way its caret points.
      *
      * Transformed rather than resized: animating a height reflows the

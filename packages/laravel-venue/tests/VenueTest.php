@@ -140,6 +140,53 @@ class VenueTest extends TestCase
     }
 
     /**
+     * But only somewhere a person was going.
+     *
+     * Everything guarded used to write down where it was heading, and the panel
+     * polls one of those once a second for as long as it is open — so revoking
+     * a permission left the last poll as "where you were heading", and signing
+     * back in delivered somebody to a JSON endpoint belonging to the party
+     * system. Nothing looks broken until the very end, which is what makes it
+     * worth a test rather than a fix.
+     */
+    public function test_a_script_asking_is_not_somewhere_to_be_returned_to(): void
+    {
+        config()->set('streetmesh.venue.gallery', 'visitors');
+
+        session([Visitors::INTENDED_KEY => url('/experiences/chess')]);
+
+        // The shape the comms panel's poll arrives in.
+        $this->withHeaders(['Accept' => 'application/json', 'Sec-Fetch-Dest' => 'empty'])
+            ->get('/experiences');
+
+        $this->assertSame(
+            url('/experiences/chess'),
+            session(Visitors::INTENDED_KEY),
+            'a poll overwrote where somebody was actually going',
+        );
+    }
+
+    /** Nor a frame, which is a part of a page rather than one. */
+    public function test_a_frame_loading_is_not_somewhere_to_be_returned_to(): void
+    {
+        config()->set('streetmesh.venue.gallery', 'visitors');
+
+        $this->withHeaders(['Sec-Fetch-Dest' => 'iframe'])->get('/experiences');
+
+        $this->assertNull(session(Visitors::INTENDED_KEY));
+    }
+
+    /** A browser that says nothing about what it wanted is still believed. */
+    public function test_a_browser_that_does_not_say_is_taken_at_its_word(): void
+    {
+        config()->set('streetmesh.venue.gallery', 'visitors');
+
+        $this->get('/experiences');
+
+        $this->assertSame(url('/experiences'), session(Visitors::INTENDED_KEY));
+    }
+
+    /**
      * Pressing Continue says so, and stops taking presses.
      *
      * What follows is not a page on this server — the venue goes off to find

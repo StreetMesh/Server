@@ -247,6 +247,17 @@ new class extends Component
         if ($party !== null) {
             $this->run(fn (Delegation $me) => $this->parties()->leave($party, $me));
         }
+
+        /*
+         * And put the settings away, because what they were about is gone.
+         *
+         * Whether they are open is the browser's to remember and it remembers
+         * across reloads, so without this somebody who left from in here would
+         * carry "open" into the next party they joined — and land in its
+         * settings rather than its conversation. Said once, like the event that
+         * opens them; see `start`.
+         */
+        $this->dispatch('comms-drawer-close');
     }
 
     /**
@@ -444,6 +455,7 @@ new class extends Component
     }"
     x-on:comms-tab.window="suggest($event.detail.tab)"
     x-on:comms-drawer.window="fold(true)"
+    x-on:comms-drawer-close.window="fold(false)"
     x-on:comms-unreachable.window="unreachable = $event.detail.names"
     x-on:comms-party-trouble.window="partyTrouble = $event.detail.why"
 >
@@ -613,9 +625,19 @@ new class extends Component
         @endif
         </div>
 
-        @if ($this->offered && $this->party !== null)
+        @if ($this->offered)
             {{--
                 And the settings, sliding up over all of it.
+
+                Drawn whether or not there is a party, and that is the whole of
+                what makes it animate. Alpine's `x-show` runs its first
+                evaluation without a transition — an element that is born
+                already-shown is simply shown — so while this was conditional on
+                having a party, starting one *created* it with the switch
+                already thrown and it appeared rather than slid. It only ever
+                animated for a party that existed before the panel did.
+
+                So the element is permanent and only its contents are not.
 
                 Up, because that is the direction the caret in its corner points
                 to send it back, and because it is the motion this had when it
@@ -676,7 +698,9 @@ new class extends Component
                 </div>
 
                 <div class="flex min-h-0 flex-1 flex-col">
-                    @include('venue::comms.party-settings')
+                    @if ($this->party !== null)
+                        @include('venue::comms.party-settings')
+                    @endif
                 </div>
             </div>
         @endif
