@@ -478,165 +478,209 @@ new class extends Component
         change come through `$wire`, which reaches into an ignored subtree
         because it is not the document it is watching.
     --}}
-    <div class="flex shrink-0 border-b border-zinc-200 dark:border-zinc-700" wire:ignore x-show="! settings()">
-        <button
-            type="button"
-            x-on:click="show('room'); remember('room')"
-            class="flex-1 px-4 py-3 text-sm"
-            x-bind:class="tab === 'room'
-                ? 'border-b-2 border-[var(--sm-accent)] font-semibold text-zinc-900 dark:text-[var(--sm-accent)]'
-                : 'font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'"
-            x-text="$wire.spaceLabel || @js(__('Room'))"
-        >{{ $spaceLabel !== '' ? $spaceLabel : __('Room') }}</button>
+    {{--
+        Everything above the row of buttons, and the one place a drawer can
+        slide without shoving anything else around.
 
-        @if ($this->offered)
+        `relative`, so the settings can be laid over this rather than beside it,
+        and `overflow-hidden` so the part of them that is still off the bottom
+        stays off it. Both headers and both conversations live in here; only the
+        row of comms buttons is outside, which is why that row does not move
+        when the settings arrive.
+    --}}
+    <div class="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+        {{--
+            The conversation half, made unreachable rather than merely hidden
+            while the settings are over it.
+
+            `inert` and not `x-show`: something covered is still in the document,
+            still focusable and still read aloud, and a tab strip you can reach
+            with a keyboard but not see is exactly the confusion this whole
+            arrangement exists to end. It also settles the older mistake — the
+            faded conversation that was still live — for the same reason and in
+            one attribute.
+        --}}
+        <div class="flex min-h-0 flex-1 flex-col" x-bind:inert="settings()">
+        <div class="flex shrink-0 border-b border-zinc-200 dark:border-zinc-700" wire:ignore>
             <button
                 type="button"
-                x-on:click="show('party'); remember('party')"
+                x-on:click="show('room'); remember('room')"
                 class="flex-1 px-4 py-3 text-sm"
-                x-bind:class="tab === 'party'
+                x-bind:class="tab === 'room'
                     ? 'border-b-2 border-[var(--sm-accent)] font-semibold text-zinc-900 dark:text-[var(--sm-accent)]'
                     : 'font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'"
-            >
-                {{ __('Party') }}
-                <span
-                    class="ml-1 inline-block size-2 rounded-full bg-red-500 align-middle"
-                    x-show="$wire.invited"
-                    x-cloak
-                ></span>
-            </button>
-        @endif
+                x-text="$wire.spaceLabel || @js(__('Room'))"
+            >{{ $spaceLabel !== '' ? $spaceLabel : __('Room') }}</button>
 
-        {{--
-            A circle rather than a bare glyph. The tabs are the thing being
-            chosen between; this is one control sitting next to them, and a
-            cross floating at whatever size the document happened to be reads
-            as debris rather than a button.
+            @if ($this->offered)
+                <button
+                    type="button"
+                    x-on:click="show('party'); remember('party')"
+                    class="flex-1 px-4 py-3 text-sm"
+                    x-bind:class="tab === 'party'
+                        ? 'border-b-2 border-[var(--sm-accent)] font-semibold text-zinc-900 dark:text-[var(--sm-accent)]'
+                        : 'font-medium text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'"
+                >
+                    {{ __('Party') }}
+                    <span
+                        class="ml-1 inline-block size-2 rounded-full bg-red-500 align-middle"
+                        x-show="$wire.invited"
+                        x-cloak
+                    ></span>
+                </button>
+            @endif
 
-            Sized to the row, which is also the smallest target a thumb can be
-            asked to find: it was 28px, and on a phone that is a button you
-            miss and then miss again. The tabs either side are 44px tall for
-            the same reason, so matching them costs no height — the circle
-            fills the strip it already sat in the middle of.
-
-            The glyph grows with it. A cross at the old size inside a circle
-            this size reads as a mistake rather than as a bigger button.
-
-            Its own centred cell, so the circle lines up with the middle of the
-            strip rather than the top of the text.
-        --}}
-        <div class="flex shrink-0 items-center pe-2">
-            <button
-                type="button"
-                class="flex size-11 items-center justify-center rounded-full text-xl leading-none text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
-                x-on:click="window.parent.postMessage({ method: 'streetmesh.panel.close', params: {} }, window.location.origin)"
-                aria-label="{{ __('Close') }}"
-            >&times;</button>
-        </div>
-    </div>
-
-    {{--
-        The other header, and the whole of what makes the drawer a mode.
-
-        It used to be a strip that rose over the bottom of the conversation:
-        tabs still lit, chat still there, and the only thing saying which one
-        you were talking to was that one of them was faded. That is a state
-        somebody has to work out rather than see, and the mistake it invited was
-        typing into a conversation that was not listening — so the fade was
-        removed, and then the thing behind was interactive, which was worse.
-
-        So the panel is either reading or arranging, and says which. The title
-        replaces the tabs and the caret takes the close button's place, at the
-        same size in the same cell — the control in that corner always means
-        "put this back", and what "this" is follows from what the header says.
-
-        Shutting the panel outright is still one press away, from the button
-        that opened this. Nothing is trapped in here.
-    --}}
-    <div
-        class="flex shrink-0 items-center border-b border-zinc-200 dark:border-zinc-700"
-        x-show="settings()"
-        x-cloak
-    >
-        <flux:heading class="flex-1 px-4 py-3" size="sm">{{ __('Party Settings') }}</flux:heading>
-
-        <div class="flex shrink-0 items-center pe-2">
-            <button
-                type="button"
-                class="flex size-11 items-center justify-center rounded-full text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
-                x-on:click="fold(false)"
-                aria-label="{{ __('Back to the conversation') }}"
-            >
-                <flux:icon.chevron-down variant="micro" class="size-5" />
-            </button>
-        </div>
-    </div>
-
-    {{--
-        Both panes are drawn and one is hidden, which is what lets the switch be
-        instant. It costs a second chat component polling in the background; a
-        tab that responds when it is pressed is worth more than the query.
-    --}}
-    <div class="flex min-h-0 flex-1 flex-col" x-show="tab === 'room' && ! settings()">
-        @if ($space === '')
-            {{-- Nowhere in particular. A venue has screens that are not places —
-                 a menu, a settings page — and pretending otherwise would put an
-                 unanswerable chat box on them. --}}
-            <div class="p-3">
-                <flux:text>{{ __('You are not anywhere people are talking. Go into an experience and this fills up.') }}</flux:text>
-            </div>
-        @else
-            @livewire('venue::chat', [
-                'space' => $space,
-                'placeholder' => __('Say something to the room'),
-            ], key('room-'.md5($space)))
-        @endif
-    </div>
-
-    @if ($this->offered)
-        <div class="flex min-h-0 flex-1 flex-col" x-show="tab === 'party' && ! settings()" x-cloak>
             {{--
-                Somebody in the party this browser could not reach.
+                A circle rather than a bare glyph. The tabs are the thing being
+                chosen between; this is one control sitting next to them, and a
+                cross floating at whatever size the document happened to be reads
+                as debris rather than a button.
 
-                A line rather than anything that interrupts, because nothing
-                here is actionable: two networks that cannot see each other are
-                a circumstance, and the party carries on around it — the text
-                still arrives, and everybody else is still connected.
+                Sized to the row, which is also the smallest target a thumb can be
+                asked to find: it was 28px, and on a phone that is a button you
+                miss and then miss again. The tabs either side are 44px tall for
+                the same reason, so matching them costs no height — the circle
+                fills the strip it already sat in the middle of.
 
-                What it is for is telling this apart from the several bugs it
-                impersonates. An empty circle that means "cannot reach them"
-                and an empty circle that means "not sharing yet" looked
-                identical, and the difference is a day of debugging.
+                The glyph grows with it. A cross at the old size inside a circle
+                this size reads as a mistake rather than as a bigger button.
+
+                Its own centred cell, so the circle lines up with the middle of the
+                strip rather than the top of the text.
             --}}
-            <p
-                x-show="partyTrouble"
-                x-text="partyTrouble"
-                x-cloak
-                class="shrink-0 px-3 pt-3 text-xs text-red-600 dark:text-red-400"
-            ></p>
-
-            <p
-                x-show="unreachable.length"
-                x-text="cannotReach()"
-                x-cloak
-                class="shrink-0 px-3 pt-3 text-xs text-amber-600 dark:text-amber-500"
-            ></p>
-
-            @include('venue::comms.party')
+            <div class="flex shrink-0 items-center pe-2">
+                <button
+                    type="button"
+                    class="flex size-11 items-center justify-center rounded-full text-xl leading-none text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
+                    x-on:click="window.parent.postMessage({ method: 'streetmesh.panel.close', params: {} }, window.location.origin)"
+                    aria-label="{{ __('Close') }}"
+                >&times;</button>
+            </div>
         </div>
 
         {{--
-            And the party itself, when somebody is arranging it rather than
-            talking. A sibling of the two conversations rather than something
-            inside one of them, because it replaces the panel instead of
-            sitting in a corner of it.
+            Both panes are drawn and one is hidden, which is what lets the switch be
+            instant. It costs a second chat component polling in the background; a
+            tab that responds when it is pressed is worth more than the query.
         --}}
-        @if ($this->party !== null)
-            <div class="flex min-h-0 flex-1 flex-col" x-show="settings()" x-cloak>
-                @include('venue::comms.party-settings')
+        <div class="flex min-h-0 flex-1 flex-col" x-show="tab === 'room'">
+            @if ($space === '')
+                {{-- Nowhere in particular. A venue has screens that are not places —
+                     a menu, a settings page — and pretending otherwise would put an
+                     unanswerable chat box on them. --}}
+                <div class="p-3">
+                    <flux:text>{{ __('You are not anywhere people are talking. Go into an experience and this fills up.') }}</flux:text>
+                </div>
+            @else
+                @livewire('venue::chat', [
+                    'space' => $space,
+                    'placeholder' => __('Say something to the room'),
+                ], key('room-'.md5($space)))
+            @endif
+        </div>
+
+        @if ($this->offered)
+            <div class="flex min-h-0 flex-1 flex-col" x-show="tab === 'party'" x-cloak>
+                {{--
+                    Somebody in the party this browser could not reach.
+
+                    A line rather than anything that interrupts, because nothing
+                    here is actionable: two networks that cannot see each other are
+                    a circumstance, and the party carries on around it — the text
+                    still arrives, and everybody else is still connected.
+
+                    What it is for is telling this apart from the several bugs it
+                    impersonates. An empty circle that means "cannot reach them"
+                    and an empty circle that means "not sharing yet" looked
+                    identical, and the difference is a day of debugging.
+                --}}
+                <p
+                    x-show="partyTrouble"
+                    x-text="partyTrouble"
+                    x-cloak
+                    class="shrink-0 px-3 pt-3 text-xs text-red-600 dark:text-red-400"
+                ></p>
+
+                <p
+                    x-show="unreachable.length"
+                    x-text="cannotReach()"
+                    x-cloak
+                    class="shrink-0 px-3 pt-3 text-xs text-amber-600 dark:text-amber-500"
+                ></p>
+
+                @include('venue::comms.party')
             </div>
         @endif
-    @endif
+        </div>
+
+        @if ($this->offered && $this->party !== null)
+            {{--
+                And the settings, sliding up over all of it.
+
+                Up, because that is the direction the caret in its corner points
+                to send it back, and because it is the motion this had when it
+                was a strip — the change is how far it comes, not what it does.
+
+                Transformed rather than resized: a height that animates makes
+                the conversation behind reflow the whole way, which on a chat
+                that is anchored to its foot reads as the text scrolling itself.
+
+                `motion-reduce` leaves it instant. Somebody who has asked their
+                machine not to move things has asked, and this is a panel that
+                opens and shuts all day.
+            --}}
+            <div
+                x-show="settings()"
+                x-cloak
+                x-transition:enter="transform transition ease-out duration-200 motion-reduce:transition-none"
+                x-transition:enter-start="translate-y-full"
+                x-transition:enter-end="translate-y-0"
+                x-transition:leave="transform transition ease-in duration-150 motion-reduce:transition-none"
+                x-transition:leave-start="translate-y-0"
+                x-transition:leave-end="translate-y-full"
+                class="absolute inset-0 flex flex-col bg-white dark:bg-zinc-900"
+            >
+                {{--
+                    The other header, and the whole of what makes the drawer a mode.
+
+                    It used to be a strip that rose over the bottom of the conversation:
+                    tabs still lit, chat still there, and the only thing saying which one
+                    you were talking to was that one of them was faded. That is a state
+                    somebody has to work out rather than see, and the mistake it invited was
+                    typing into a conversation that was not listening — so the fade was
+                    removed, and then the thing behind was interactive, which was worse.
+
+                    So the panel is either reading or arranging, and says which. The title
+                    replaces the tabs and the caret takes the close button's place, at the
+                    same size in the same cell — the control in that corner always means
+                    "put this back", and what "this" is follows from what the header says.
+
+                    Shutting the panel outright is still one press away, from the button
+                    that opened this. Nothing is trapped in here.
+                --}}
+                <div
+                    class="flex shrink-0 items-center border-b border-zinc-200 dark:border-zinc-700"
+                >
+                    <flux:heading class="flex-1 px-4 py-3" size="sm">{{ __('Party Settings') }}</flux:heading>
+
+                    <div class="flex shrink-0 items-center pe-2">
+                        <button
+                            type="button"
+                            class="flex size-11 items-center justify-center rounded-full text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
+                            x-on:click="fold(false)"
+                            aria-label="{{ __('Back to the conversation') }}"
+                        >
+                            <flux:icon.chevron-down variant="micro" class="size-5" />
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex min-h-0 flex-1 flex-col">
+                    @include('venue::comms.party-settings')
+                </div>
+            </div>
+        @endif
+    </div>
 
     {{--
         Being heard and seen.

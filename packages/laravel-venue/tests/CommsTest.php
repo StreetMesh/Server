@@ -275,8 +275,8 @@ class CommsTest extends TestCase
      * The settings used to rise over the bottom of the conversation with the
      * tabs still lit behind them, and the only thing distinguishing the two was
      * that one was faded — a state a reader has to work out rather than see.
-     * Both headers are drawn, and exactly one condition decides between them,
-     * so they cannot both be on screen and cannot both be off.
+     * They cover the panel now, and the half underneath is made unreachable
+     * rather than merely hidden.
      */
     public function test_the_panel_wears_one_header_or_the_other(): void
     {
@@ -287,13 +287,47 @@ class CommsTest extends TestCase
 
         $panel->assertSee('Party Settings');
 
-        // The tabs and the title are the same switch read both ways round.
-        $panel->assertSee('x-show="! settings()"', escape: false);
+        // Laid over the conversation rather than beside it, so it can slide.
+        $panel->assertSee('absolute inset-0 flex flex-col bg-white', escape: false);
         $panel->assertSee('x-show="settings()"', escape: false);
+    }
 
-        // And neither conversation is left underneath it.
-        $panel->assertSee("x-show=\"tab === 'room' && ! settings()\"", escape: false);
-        $panel->assertSee("x-show=\"tab === 'party' && ! settings()\"", escape: false);
+    /**
+     * What is covered is out of reach, not merely out of sight.
+     *
+     * Something hidden by an overlay is still in the document, still focusable
+     * and still read aloud — and a tab strip a keyboard can reach but an eye
+     * cannot is the confusion this arrangement exists to end. It settles the
+     * older mistake in the same attribute: the faded conversation that was
+     * still live.
+     */
+    public function test_what_the_settings_cover_cannot_be_reached(): void
+    {
+        $alice = $this->visitor();
+        $this->parties()->open($alice);
+
+        $this->as($alice, 'panel')->assertOk()
+            ->assertSee('x-bind:inert="settings()"', escape: false);
+    }
+
+    /**
+     * It slides, and it slides the way its caret points.
+     *
+     * Transformed rather than resized: animating a height reflows the
+     * conversation behind the whole way, which on a chat anchored to its foot
+     * reads as the text scrolling itself. And it stays instant for anybody who
+     * has asked their machine to stop moving things.
+     */
+    public function test_the_settings_slide_rather_than_appear(): void
+    {
+        $alice = $this->visitor();
+        $this->parties()->open($alice);
+
+        $panel = $this->as($alice, 'panel')->assertOk();
+
+        $panel->assertSee('x-transition:enter-start="translate-y-full"', escape: false);
+        $panel->assertSee('x-transition:leave-end="translate-y-full"', escape: false);
+        $panel->assertSee('motion-reduce:transition-none', escape: false);
     }
 
     /**
