@@ -270,12 +270,87 @@ class CommsTest extends TestCase
     }
 
     /**
-     * The drawer says how many people are in the party.
+     * Reading and arranging are two modes, and the panel says which it is in.
+     *
+     * The settings used to rise over the bottom of the conversation with the
+     * tabs still lit behind them, and the only thing distinguishing the two was
+     * that one was faded — a state a reader has to work out rather than see.
+     * Both headers are drawn, and exactly one condition decides between them,
+     * so they cannot both be on screen and cannot both be off.
+     */
+    public function test_the_panel_wears_one_header_or_the_other(): void
+    {
+        $alice = $this->visitor();
+        $this->parties()->open($alice);
+
+        $panel = $this->as($alice, 'panel')->assertOk();
+
+        $panel->assertSee('Party Settings');
+
+        // The tabs and the title are the same switch read both ways round.
+        $panel->assertSee('x-show="! settings()"', escape: false);
+        $panel->assertSee('x-show="settings()"', escape: false);
+
+        // And neither conversation is left underneath it.
+        $panel->assertSee("x-show=\"tab === 'room' && ! settings()\"", escape: false);
+        $panel->assertSee("x-show=\"tab === 'party' && ! settings()\"", escape: false);
+    }
+
+    /**
+     * The caret takes the close button's place rather than sitting beside it.
+     *
+     * One control in that corner, always meaning "put this back" — what "this"
+     * is follows from what the header says. Closing the panel outright is still
+     * one press away from the button that opened the settings.
+     */
+    public function test_the_way_back_is_where_the_way_out_was(): void
+    {
+        $alice = $this->visitor();
+        $this->parties()->open($alice);
+
+        $this->as($alice, 'panel')->assertOk()
+            ->assertSee('aria-label="Back to the conversation"', escape: false)
+            ->assertSee('x-on:click="fold(false)"', escape: false);
+    }
+
+    /**
+     * Session storage outlives the panel, so the mode cannot rest on it alone.
+     *
+     * A stale "open" plus a reload onto the room tab, or into a party somebody
+     * has since left, would otherwise put a settings header over a panel with
+     * nothing underneath it.
+     */
+    public function test_the_mode_needs_a_party_and_the_tab_to_match(): void
+    {
+        $alice = $this->visitor();
+        $this->parties()->open($alice);
+
+        $this->as($alice, 'panel')->assertOk()
+            ->assertSee("this.drawer && this.tab === 'party' && this.\$wire.inParty", escape: false);
+    }
+
+    /**
+     * The conversation is not dimmed, because it is not there.
+     *
+     * Fading it said "this is not what you are talking to" and was the reason
+     * the thing behind had to stay live, which was worse than the fade.
+     */
+    public function test_the_conversation_is_replaced_rather_than_faded(): void
+    {
+        $alice = $this->visitor();
+        $this->parties()->open($alice);
+
+        $this->as($alice, 'panel')->assertOk()
+            ->assertDontSee("drawer ? 'opacity-50' : ''", escape: false);
+    }
+
+    /**
+     * The settings say how many people are in the party.
      *
      * Beside the way out, because "who is here" and "I am going" are the two
      * things somebody opens this to settle.
      */
-    public function test_the_drawer_says_how_many_are_in_the_party(): void
+    public function test_the_settings_say_how_many_are_in_the_party(): void
     {
         $alice = $this->visitor();
         $bob = $this->visitor('bob');

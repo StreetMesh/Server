@@ -43,6 +43,18 @@ new class extends Component
      */
     public bool $invited = false;
 
+    /**
+     * Whether there is a party to have settings for.
+     *
+     * A property for the same reason as the one above: the browser decides
+     * which of the two headers this panel is wearing, and it cannot ask a
+     * computed. Without it a stale `drawer` in session storage would put
+     * "Party Settings" over a panel with no party in it.
+     *
+     * Kept current by `rendering`, which runs whenever anything else here does.
+     */
+    public bool $inParty = false;
+
     public string $joining = '';
 
     public string $inviting = '';
@@ -105,6 +117,7 @@ new class extends Component
     public function rendering(): void
     {
         $this->invited = $this->invitations->isNotEmpty();
+        $this->inParty = $this->party !== null;
     }
 
     private function parties(): Parties
@@ -308,6 +321,26 @@ new class extends Component
         drawer: sessionStorage.getItem('smCommsDrawer') === '1',
 
         /**
+         * Whether the panel is showing a party's settings rather than a
+         * conversation.
+         *
+         * Everything about the mode is decided here, once, so that the header,
+         * the panes and the settings pane cannot disagree about which of them
+         * should be on screen. They did: the drawer used to be a strip that
+         * opened over the conversation, leaving the tabs lit and the chat
+         * visible behind it, and the only way to tell which one you were
+         * talking to was that one of them was slightly faded.
+         *
+         * Both of the extra conditions have been the bug at some point.
+         * `drawer` outlives the panel in session storage, so without them a
+         * reload onto the room tab, or into a party somebody has since left,
+         * puts a settings header over a panel with nothing underneath it.
+         */
+        settings () {
+            return this.drawer && this.tab === 'party' && this.$wire.inParty
+        },
+
+        /**
          * Whether the reader has picked for themselves.
          *
          * The server keeps its own answer to this and is the reason the panel
@@ -445,7 +478,7 @@ new class extends Component
         change come through `$wire`, which reaches into an ignored subtree
         because it is not the document it is watching.
     --}}
-    <div class="flex shrink-0 border-b border-zinc-200 dark:border-zinc-700" wire:ignore>
+    <div class="flex shrink-0 border-b border-zinc-200 dark:border-zinc-700" wire:ignore x-show="! settings()">
         <button
             type="button"
             x-on:click="show('room'); remember('room')"
@@ -503,11 +536,48 @@ new class extends Component
     </div>
 
     {{--
+        The other header, and the whole of what makes the drawer a mode.
+
+        It used to be a strip that rose over the bottom of the conversation:
+        tabs still lit, chat still there, and the only thing saying which one
+        you were talking to was that one of them was faded. That is a state
+        somebody has to work out rather than see, and the mistake it invited was
+        typing into a conversation that was not listening — so the fade was
+        removed, and then the thing behind was interactive, which was worse.
+
+        So the panel is either reading or arranging, and says which. The title
+        replaces the tabs and the caret takes the close button's place, at the
+        same size in the same cell — the control in that corner always means
+        "put this back", and what "this" is follows from what the header says.
+
+        Shutting the panel outright is still one press away, from the button
+        that opened this. Nothing is trapped in here.
+    --}}
+    <div
+        class="flex shrink-0 items-center border-b border-zinc-200 dark:border-zinc-700"
+        x-show="settings()"
+        x-cloak
+    >
+        <flux:heading class="flex-1 px-4 py-3" size="sm">{{ __('Party Settings') }}</flux:heading>
+
+        <div class="flex shrink-0 items-center pe-2">
+            <button
+                type="button"
+                class="flex size-11 items-center justify-center rounded-full text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
+                x-on:click="fold(false)"
+                aria-label="{{ __('Back to the conversation') }}"
+            >
+                <flux:icon.chevron-down variant="micro" class="size-5" />
+            </button>
+        </div>
+    </div>
+
+    {{--
         Both panes are drawn and one is hidden, which is what lets the switch be
         instant. It costs a second chat component polling in the background; a
         tab that responds when it is pressed is worth more than the query.
     --}}
-    <div class="flex min-h-0 flex-1 flex-col" x-show="tab === 'room'">
+    <div class="flex min-h-0 flex-1 flex-col" x-show="tab === 'room' && ! settings()">
         @if ($space === '')
             {{-- Nowhere in particular. A venue has screens that are not places —
                  a menu, a settings page — and pretending otherwise would put an
@@ -524,7 +594,7 @@ new class extends Component
     </div>
 
     @if ($this->offered)
-        <div class="flex min-h-0 flex-1 flex-col" x-show="tab === 'party'" x-cloak>
+        <div class="flex min-h-0 flex-1 flex-col" x-show="tab === 'party' && ! settings()" x-cloak>
             {{--
                 Somebody in the party this browser could not reach.
 
@@ -554,6 +624,18 @@ new class extends Component
 
             @include('venue::comms.party')
         </div>
+
+        {{--
+            And the party itself, when somebody is arranging it rather than
+            talking. A sibling of the two conversations rather than something
+            inside one of them, because it replaces the panel instead of
+            sitting in a corner of it.
+        --}}
+        @if ($this->party !== null)
+            <div class="flex min-h-0 flex-1 flex-col" x-show="settings()" x-cloak>
+                @include('venue::comms.party-settings')
+            </div>
+        @endif
     @endif
 
     {{--
@@ -632,13 +714,15 @@ new class extends Component
             Who you are here with, and the way to everything about them.
 
             Beside the microphone and the camera because it belongs to the same
-            question — what this party is doing — and because the drawer it
-            opens covers the conversation, which is a thing you want to put back
-            from the same place you moved it.
+            question — what this party is doing. It stays put when the settings
+            take the panel, so the way out is here as well as in the header:
+            whichever of the two a hand is nearer, one press is the way back.
+            It reads as pressed while they are open, which is the third thing
+            saying which mode this is.
 
             Only where there is a party. Before there is one the tab is a way to
             start or join one and fills the pane by itself, so there would be
-            nothing behind this to fold out.
+            nothing for this to show.
         --}}
         @if ($this->party !== null)
             <flux:button
