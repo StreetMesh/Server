@@ -100,8 +100,20 @@ final class BlobStore
          * the disk refused; the bytes before the row leaves a file nobody
          * refers to, which the next write of the same content adopts. Only one
          * of those two failures is recoverable without a human.
+         *
+         * And the answer is checked rather than assumed. A local disk fails by
+         * throwing, which is why this went unnoticed; a bucket fails by
+         * returning false — wrong credentials, a bucket that is not there, a
+         * region that does not answer — and the caller wraps this in a
+         * transaction. Unchecked, a rejected upload commits a record and a row
+         * that both name bytes nobody has, and the first anybody hears of it is
+         * a face that will not load.
          */
-        $this->disk()->put($blob->path(), $bytes);
+        if ($this->disk()->put($blob->path(), $bytes) === false) {
+            throw new RuntimeException(
+                'Those bytes were not accepted by this server\'s storage, so nothing was kept.'
+            );
+        }
 
         $blob->save();
 

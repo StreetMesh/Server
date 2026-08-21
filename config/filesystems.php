@@ -47,6 +47,41 @@ return [
             'report' => false,
         ],
 
+        /*
+         * Where blobs go once this is running anywhere real.
+         *
+         * A container's own filesystem is thrown away at the next deploy, so
+         * `local` means every resident's picture survives until the next time
+         * anything ships. That is not a theoretical failure — it happened, and
+         * what it looked like was an avatar quietly reverting to a letter with
+         * nothing logged and the database still insisting there was a picture.
+         *
+         * Private, and no `url`. Nothing here is ever linked to directly: a
+         * blob is read by this server and streamed back from the resident's own
+         * address, which is what makes the address the thing that answers for
+         * them rather than a bucket somewhere. A public bucket would be a
+         * second, unauthenticated way to reach the same bytes.
+         */
+        'private' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('AWS_BUCKET'),
+            'endpoint' => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'visibility' => 'private',
+
+            /*
+             * Left false, and the write path checks for itself instead — see
+             * `BlobStore::put`. Throwing here would also turn a blob whose
+             * bytes have gone missing into a page that fails, and that one is
+             * meant to fall back to a letter.
+             */
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

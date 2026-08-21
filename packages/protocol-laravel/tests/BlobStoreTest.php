@@ -156,6 +156,31 @@ class BlobStoreTest extends TestCase
     }
 
     /**
+     * A disk that refuses is a failure, not a silent success.
+     *
+     * The local disk this was written against fails by throwing, so nothing
+     * caught that `put` answers `false` on a bucket — wrong credentials, a
+     * bucket that is not there. Unchecked, and inside the transaction the
+     * caller opens, that commits a record and a row which both name bytes
+     * nobody has.
+     */
+    public function test_a_disk_that_refuses_the_bytes_keeps_nothing(): void
+    {
+        $this->app['config']->set('filesystems.disks.blobs', [
+            'driver' => 'local',
+            'root' => '/dev/null/there-is-no-such-place',
+            'throw' => false,
+        ]);
+
+        // setUp faked this one, and a faked disk is resolved and held.
+        Storage::forgetDisk('blobs');
+
+        $this->expectException(RuntimeException::class);
+
+        $this->store()->put(self::ALICE, $this->png(), 'com.streetmesh.games.chess');
+    }
+
+    /**
      * A row whose file has gone is a picture that does not appear, not a page
      * that fails.
      */
