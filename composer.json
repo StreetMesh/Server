@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "streetmesh/server",
     "type": "project",
-    "description": "A StreetMesh server: somewhere people live, somewhere they gather, or both.",
+    "description": "A StreetMesh server.",
     "keywords": [
         "streetmesh",
         "laravel",
