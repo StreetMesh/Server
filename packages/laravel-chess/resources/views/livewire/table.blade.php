@@ -7,10 +7,10 @@ use BaconQrCode\Writer;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use StreetMesh\Chess\ChessExperience;
-use StreetMesh\Venue\Gatherings\Gathering;
-use StreetMesh\Venue\Gatherings\Gatherings;
-use StreetMesh\Venue\Gatherings\Seat;
-use StreetMesh\Venue\Visitors;
+use StreetMesh\Server\Venue\Gatherings\Gathering;
+use StreetMesh\Server\Venue\Gatherings\Gatherings;
+use StreetMesh\Server\Venue\Gatherings\Seat;
+use StreetMesh\Server\Venue\Visitors;
 
 new #[Title('Chess')] class extends Component
 {

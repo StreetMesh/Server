@@ -342,7 +342,7 @@ A venue refuses this now, naming both. If you meet it on an older checkout, look
 at the delegations rather than at whatever surfaced it:
 
 ```sh
-php artisan tinker --execute="\StreetMesh\Protocol\Laravel\Permissions\Delegation::get(['id','did','handle'])->each(fn(\$d) => print(\"{\$d->id} {\$d->did} {\$d->handle}\n\"));"
+php artisan tinker --execute="\StreetMesh\Server\Protocol\Permissions\Delegation::get(['id','did','handle'])->each(fn(\$d) => print(\"{\$d->id} {\$d->did} {\$d->handle}\n\"));"
 ```
 
 Two rows with different handles and the same identifier is the whole story.

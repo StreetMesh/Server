@@ -20,7 +20,7 @@
     decides it on a server that is more than one thing; a server that is only a
     venue needs no configuration at all.
 --}}
-@php($mark = app(\StreetMesh\Protocol\Laravel\Capabilities\Capabilities::class)
+@php($mark = app(\StreetMesh\Server\Protocol\Capabilities\Capabilities::class)
     ->mark($for, config('streetmesh.front_page')))
 
 {{--

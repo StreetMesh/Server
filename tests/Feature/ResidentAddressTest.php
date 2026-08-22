@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use StreetMesh\Domicile\Residents\Handle;
-use StreetMesh\Domicile\Residents\Residents;
-use StreetMesh\Protocol\Laravel\Identity\Identities;
+use StreetMesh\Server\Domicile\Residents\Handle;
+use StreetMesh\Server\Domicile\Residents\Residents;
+use StreetMesh\Server\Protocol\Identity\Identities;
 use Tests\TestCase;
 
 /**

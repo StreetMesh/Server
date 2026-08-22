@@ -5,8 +5,8 @@ namespace StreetMesh\Chess\Http;
 use Illuminate\Http\RedirectResponse;
 use StreetMesh\Chess\ChessExperience;
 use StreetMesh\Chess\Games;
-use StreetMesh\Venue\Gatherings\Gathering;
-use StreetMesh\Venue\Visitors;
+use StreetMesh\Server\Venue\Gatherings\Gathering;
+use StreetMesh\Server\Venue\Visitors;
 
 /**
  * Taking a chair at a table somebody was invited to.

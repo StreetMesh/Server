@@ -6,13 +6,13 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use StreetMesh\Chess\ChessExperience;
 use StreetMesh\Chess\Games;
-use StreetMesh\Protocol\Laravel\Permissions\Delegation;
 use StreetMesh\Protocol\Network;
 use StreetMesh\Protocol\P256;
 use StreetMesh\Protocol\Scope;
-use StreetMesh\Venue\Gatherings\Gathering;
-use StreetMesh\Venue\Gatherings\Settling;
-use StreetMesh\Venue\Visitors;
+use StreetMesh\Server\Protocol\Permissions\Delegation;
+use StreetMesh\Server\Venue\Gatherings\Gathering;
+use StreetMesh\Server\Venue\Gatherings\Settling;
+use StreetMesh\Server\Venue\Visitors;
 
 /**
  * A finished game ending up in the players' own records.

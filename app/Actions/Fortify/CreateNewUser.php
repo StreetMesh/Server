@@ -8,9 +8,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
-use StreetMesh\Domicile\Residents\AvailableAddress;
-use StreetMesh\Domicile\Residents\Handle;
-use StreetMesh\Domicile\Residents\Residents;
+use StreetMesh\Server\Domicile\Residents\AvailableAddress;
+use StreetMesh\Server\Domicile\Residents\Handle;
+use StreetMesh\Server\Domicile\Residents\Residents;
 
 class CreateNewUser implements CreatesNewUsers
 {

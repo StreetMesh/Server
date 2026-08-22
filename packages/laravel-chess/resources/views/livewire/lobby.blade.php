@@ -4,10 +4,10 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use StreetMesh\Chess\ChessExperience;
 use StreetMesh\Chess\Games;
-use StreetMesh\Venue\Gatherings\Gathering;
-use StreetMesh\Venue\Gatherings\Gatherings;
-use StreetMesh\Venue\Gatherings\Results;
-use StreetMesh\Venue\Visitors;
+use StreetMesh\Server\Venue\Gatherings\Gathering;
+use StreetMesh\Server\Venue\Gatherings\Gatherings;
+use StreetMesh\Server\Venue\Gatherings\Results;
+use StreetMesh\Server\Venue\Visitors;
 
 new #[Title('Chess')] class extends Component
 {
@@ -180,7 +180,7 @@ new #[Title('Chess')] class extends Component
     x-data
     x-init="
         window.Echo?.channel('streetmesh.experience.{{ ChessExperience::COLLECTION }}')
-            .listen('.StreetMesh\\Venue\\Realtime\\Occupied', () => $wire.$refresh())
+            .listen('.StreetMesh\\Server\\Venue\\Realtime\\Occupied', () => $wire.$refresh())
     "
 >
     <div class="flex items-center justify-between gap-4">

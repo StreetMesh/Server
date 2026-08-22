@@ -13,7 +13,7 @@
                 what this server is. A venue adds nothing, because a visitor has
                 no account here to configure.
             --}}
-            @foreach (app(\StreetMesh\Protocol\Laravel\Capabilities\Capabilities::class)->settings() as $item)
+            @foreach (app(\StreetMesh\Server\Protocol\Capabilities\Capabilities::class)->settings() as $item)
                 <flux:navlist.item :href="route($item['route'])" wire:navigate>
                     {{ __($item['label']) }}
                 </flux:navlist.item>

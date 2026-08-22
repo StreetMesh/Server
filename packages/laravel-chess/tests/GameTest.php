@@ -5,11 +5,11 @@ namespace StreetMesh\Chess\Tests;
 use Illuminate\Support\Facades\Http;
 use StreetMesh\Chess\ChessExperience;
 use StreetMesh\Chess\Games;
-use StreetMesh\Protocol\Laravel\Permissions\Delegation;
 use StreetMesh\Protocol\P256;
 use StreetMesh\Protocol\Scope;
-use StreetMesh\Venue\Gatherings\Gathering;
-use StreetMesh\Venue\Visitors;
+use StreetMesh\Server\Protocol\Permissions\Delegation;
+use StreetMesh\Server\Venue\Gatherings\Gathering;
+use StreetMesh\Server\Venue\Visitors;
 
 /**
  * Chess as the venue sees it.

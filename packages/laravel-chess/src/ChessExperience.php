@@ -3,10 +3,10 @@
 namespace StreetMesh\Chess;
 
 use StreetMesh\Protocol\Scope;
-use StreetMesh\Venue\Experiences\Audience;
-use StreetMesh\Venue\Experiences\Experience;
-use StreetMesh\Venue\Experiences\Settles;
-use StreetMesh\Venue\Gatherings\Gathering;
+use StreetMesh\Server\Venue\Experiences\Audience;
+use StreetMesh\Server\Venue\Experiences\Experience;
+use StreetMesh\Server\Venue\Experiences\Settles;
+use StreetMesh\Server\Venue\Gatherings\Gathering;
 
 /**
  * Chess, as something a venue hosts.

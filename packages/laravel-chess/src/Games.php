@@ -2,11 +2,11 @@
 
 namespace StreetMesh\Chess;
 
-use StreetMesh\Protocol\Laravel\Permissions\Delegation;
-use StreetMesh\Protocol\Laravel\Permissions\Delegations;
-use StreetMesh\Venue\Gatherings\Gathering;
-use StreetMesh\Venue\Gatherings\Gatherings;
-use StreetMesh\Venue\Gatherings\Seat;
+use StreetMesh\Server\Protocol\Permissions\Delegation;
+use StreetMesh\Server\Protocol\Permissions\Delegations;
+use StreetMesh\Server\Venue\Gatherings\Gathering;
+use StreetMesh\Server\Venue\Gatherings\Gatherings;
+use StreetMesh\Server\Venue\Gatherings\Seat;
 use Throwable;
 
 /**

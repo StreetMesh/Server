@@ -6,9 +6,8 @@ use Flux\FluxServiceProvider;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use StreetMesh\Chess\ChessServiceProvider;
-use StreetMesh\Protocol\Laravel\ProtocolServiceProvider;
 use StreetMesh\Protocol\Network;
-use StreetMesh\Venue\VenueServiceProvider;
+use StreetMesh\Server\ServerServiceProvider;
 
 abstract class TestCase extends Orchestra
 {
@@ -22,8 +21,7 @@ abstract class TestCase extends Orchestra
         return [
             LivewireServiceProvider::class,
             FluxServiceProvider::class,
-            ProtocolServiceProvider::class,
-            VenueServiceProvider::class,
+            ServerServiceProvider::class,
             ChessServiceProvider::class,
         ];
     }
@@ -68,7 +66,11 @@ abstract class TestCase extends Orchestra
 
     protected function defineDatabaseMigrations(): void
     {
-        $this->loadMigrationsFrom(__DIR__.'/../vendor/streetmesh/protocol-laravel/database/migrations');
-        $this->loadMigrationsFrom(__DIR__.'/../vendor/streetmesh/laravel-venue/database/migrations');
+        /*
+         * One package now, so one path. This named two directories inside two
+         * vendored packages that no longer exist — the kind of literal path
+         * that works until the day the thing it points at is rearranged.
+         */
+        $this->loadMigrationsFrom(__DIR__.'/../vendor/streetmesh/laravel/database/migrations');
     }
 }

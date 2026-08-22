@@ -4,9 +4,9 @@ namespace StreetMesh\Chess\Http;
 
 use Illuminate\Http\JsonResponse;
 use StreetMesh\Chess\ChessExperience;
-use StreetMesh\Venue\Gatherings\Gathering;
-use StreetMesh\Venue\Gatherings\Results;
-use StreetMesh\Venue\Gatherings\Settling;
+use StreetMesh\Server\Venue\Gatherings\Gathering;
+use StreetMesh\Server\Venue\Gatherings\Results;
+use StreetMesh\Server\Venue\Gatherings\Settling;
 
 /**
  * Getting a finished game into the players' own records.
