@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b87f46bfe44222fcb0044d7dc333c37e",
+    "content-hash": "4cea0aa9bb7397525467f0ecdd2ee48a",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -5546,16 +5546,16 @@
         },
         {
             "name": "streetmesh/laravel",
-            "version": "dev-main",
+            "version": "v0.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/StreetMesh/Laravel.git",
-                "reference": "5a5153d1b3d261578546656de45a602c3eb1fd92"
+                "reference": "37e06020a9723a36e3921652fd5739267d86305e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/StreetMesh/Laravel/zipball/5a5153d1b3d261578546656de45a602c3eb1fd92",
-                "reference": "5a5153d1b3d261578546656de45a602c3eb1fd92",
+                "url": "https://api.github.com/repos/StreetMesh/Laravel/zipball/37e06020a9723a36e3921652fd5739267d86305e",
+                "reference": "37e06020a9723a36e3921652fd5739267d86305e",
                 "shasum": ""
             },
             "require": {
@@ -5576,7 +5576,6 @@
                 "phpstan/phpstan": "^2.0",
                 "phpunit/phpunit": "^11.4"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -5638,7 +5637,7 @@
                 "source": "https://github.com/StreetMesh/Laravel",
                 "issues": "https://github.com/StreetMesh/Laravel/issues"
             },
-            "time": "2026-08-22T16:00:46+00:00"
+            "time": "2026-08-22T19:54:42+00:00"
         },
         {
             "name": "streetmesh/protocol",
@@ -11787,9 +11786,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "streetmesh/laravel": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
