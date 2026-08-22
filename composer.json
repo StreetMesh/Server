@@ -1,11 +1,15 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/livewire-starter-kit",
+    "name": "streetmesh/server",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
+    "description": "A StreetMesh server: somewhere people live, somewhere they gather, or both.",
     "keywords": [
+        "streetmesh",
         "laravel",
-        "framework"
+        "atproto",
+        "did",
+        "federation",
+        "metaverse"
     ],
     "license": "MIT",
     "require": {
@@ -19,8 +23,7 @@
         "livewire/flux": "^2.13.1",
         "livewire/livewire": "^4.1",
         "php": "^8.3",
-        "streetmesh/laravel": "*",
-        "streetmesh/laravel-chess": "*"
+        "streetmesh/laravel": "dev-main"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
@@ -60,10 +63,6 @@
         ],
         "lint": [
             "pint --parallel"
-        ],
-        "split": [
-            "Composer\\Config::disableProcessTimeout",
-            "bin/split"
         ],
         "lint:check": [
             "pint --parallel --test"
@@ -121,8 +120,16 @@
     "prefer-stable": true,
     "repositories": [
         {
-            "type": "path",
-            "url": "packages/*"
+            "type": "vcs",
+            "url": "https://github.com/StreetMesh/Laravel.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/StreetMesh/Protocol-PHP.git"
         }
-    ]
+    ],
+    "homepage": "https://streetmesh.com",
+    "support": {
+        "source": "https://github.com/StreetMesh/Server"
+    }
 }

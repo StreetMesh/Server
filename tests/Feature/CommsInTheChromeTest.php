@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 use Tests\TestCase;
 
 /**
@@ -43,12 +45,25 @@ class CommsInTheChromeTest extends TestCase
     }
 
     /**
-     * Including one inside an experience, which is the point of putting it in
-     * the chrome rather than on a screen: a party spans everything installed.
+     * Including on a screen this application has never heard of, which is the
+     * whole point of putting it in the chrome: a party spans everything
+     * installed, not just the venue's own pages.
+     *
+     * It used to prove this against a route belonging to chess, which was the
+     * nearest thing to hand while chess lived in this repository. It does not
+     * any more, and borrowing a route from whatever package happens to be
+     * installed would only move the same assumption somewhere less obvious. So
+     * the screen is made here: an ordinary page in the application's layout,
+     * which is exactly what an experience's screen is.
      */
-    public function test_it_is_there_inside_an_experience(): void
+    public function test_it_is_there_on_any_screen_wearing_the_layout(): void
     {
-        $this->get(route('chess.watch'))
+        View::addNamespace('tests', __DIR__.'/../fixtures/views');
+
+        Route::get('somewhere-else', fn () => view('tests::wearing-the-layout'))
+            ->middleware('web');
+
+        $this->get('/somewhere-else')
             ->assertOk()
             ->assertSee('streetmeshComms', escape: false);
     }

@@ -17,8 +17,5 @@
  */
 
 import { hub } from './hub/mod.ts'
-import experience0 from './rooms/com.streetmesh.games.chess/room.ts'
 
-export default hub([
-  experience0,
-])
+export default hub([])

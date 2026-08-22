@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0c48fb2b50e0a4eebc4aaa89acec2547",
+    "content-hash": "b87f46bfe44222fcb0044d7dc333c37e",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -5546,11 +5546,17 @@
         },
         {
             "name": "streetmesh/laravel",
-            "version": "dev-collapse-into-one-package",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/StreetMesh/Laravel.git",
+                "reference": "5a5153d1b3d261578546656de45a602c3eb1fd92"
+            },
             "dist": {
-                "type": "path",
-                "url": "packages/laravel",
-                "reference": "d9bfd9cd0e3398d6ec9f8561cfa490cd5446505d"
+                "type": "zip",
+                "url": "https://api.github.com/repos/StreetMesh/Laravel/zipball/5a5153d1b3d261578546656de45a602c3eb1fd92",
+                "reference": "5a5153d1b3d261578546656de45a602c3eb1fd92",
+                "shasum": ""
             },
             "require": {
                 "ext-fileinfo": "*",
@@ -5570,6 +5576,7 @@
                 "phpstan/phpstan": "^2.0",
                 "phpunit/phpunit": "^11.4"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -5601,6 +5608,10 @@
                 "lint:check": [
                     "pint --test"
                 ],
+                "split": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "bin/split"
+                ],
                 "test": [
                     "@lint:check",
                     "@types:check",
@@ -5624,87 +5635,24 @@
                 "streetmesh"
             ],
             "support": {
-                "source": "https://github.com/StreetMesh/Laravel"
+                "source": "https://github.com/StreetMesh/Laravel",
+                "issues": "https://github.com/StreetMesh/Laravel/issues"
             },
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "streetmesh/laravel-chess",
-            "version": "dev-collapse-into-one-package",
-            "dist": {
-                "type": "path",
-                "url": "packages/laravel-chess",
-                "reference": "a44205c72a07384b24b8d7be88a5971e0d4f5ab4"
-            },
-            "require": {
-                "bacon/bacon-qr-code": "^3.1",
-                "illuminate/support": "^12.0|^13.0",
-                "livewire/flux": "^2.13",
-                "livewire/livewire": "^4.1",
-                "php": "^8.3",
-                "streetmesh/laravel": "@dev"
-            },
-            "require-dev": {
-                "larastan/larastan": "^3.0",
-                "laravel/pint": "^1.18",
-                "orchestra/testbench": "^10.0|^11.0",
-                "phpunit/phpunit": "^11.4"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "StreetMesh\\Chess\\ChessServiceProvider"
-                    ]
-                },
-                "streetmesh": {
-                    "components": "resources/js/alpine.js",
-                    "views": "resources/views"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "StreetMesh\\Chess\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "StreetMesh\\Chess\\Tests\\": "tests/"
-                }
-            },
-            "scripts": {
-                "lint:check": [
-                    "pint --test"
-                ],
-                "types:check": [
-                    "phpstan analyse"
-                ],
-                "test": [
-                    "@lint:check",
-                    "@types:check",
-                    "phpunit"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Chess as a StreetMesh venue experience.",
-            "support": {
-                "source": "https://github.com/StreetMesh/Laravel-Chess"
-            },
-            "transport-options": {
-                "relative": true
-            }
+            "time": "2026-08-22T16:00:46+00:00"
         },
         {
             "name": "streetmesh/protocol",
-            "version": "dev-collapse-into-one-package",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/StreetMesh/Protocol-PHP.git",
+                "reference": "2145d2c7d1b4e3002ef03b88e137342c60174a35"
+            },
             "dist": {
-                "type": "path",
-                "url": "packages/protocol",
-                "reference": "0a8a3336f29ae2305b6730e5f5afbcf1d855ffe4"
+                "type": "zip",
+                "url": "https://api.github.com/repos/StreetMesh/Protocol-PHP/zipball/2145d2c7d1b4e3002ef03b88e137342c60174a35",
+                "reference": "2145d2c7d1b4e3002ef03b88e137342c60174a35",
+                "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
@@ -5719,6 +5667,7 @@
                 "phpstan/phpstan": "^2.0",
                 "phpunit/phpunit": "^11.4"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -5756,11 +5705,10 @@
                 "streetmesh"
             ],
             "support": {
-                "source": "https://github.com/StreetMesh/Protocol-PHP"
+                "source": "https://github.com/StreetMesh/Protocol-PHP",
+                "issues": "https://github.com/StreetMesh/Protocol-PHP/issues"
             },
-            "transport-options": {
-                "relative": true
-            }
+            "time": "2026-08-21T15:44:00+00:00"
         },
         {
             "name": "symfony/clock",
@@ -11839,7 +11787,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": {
+        "streetmesh/laravel": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
