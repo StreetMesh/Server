@@ -163,9 +163,25 @@ interface Experience
     public function icon(): string;         // a Flux icon name
     public function route(): string;        // its own screen
     public function action(): ?string;      // button text, or null for "Launch"
+    public function watching(): ?array;     // a way in for somebody only looking
+    public function audience(Gathering $g): Audience;  // who may watch this one
     public function scopes(): array;        // what a visitor must agree to
     public function room(): ?string;        // where its room lives, or null
 }
+```
+
+`watching()` and `audience()` are the two most people get wrong, because they
+answer questions that sound like one question. `watching()` is a second route —
+`route()` asks somebody to arrive with a name another server issued, which is
+the right toll for taking part and much too high for looking. `audience()` is
+per *gathering*, not per experience, because two of the same thing at one venue
+may reasonably differ about who may watch; it is required, with no default
+anywhere, because the safe assumption and the useful one point opposite ways.
+
+You do not have to write any of this by hand:
+
+```bash
+php artisan streetmesh:experience acme/laravel-bingo
 ```
 
 `scopes()` is **declared, not configured**. A venue whose configuration and
