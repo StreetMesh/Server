@@ -8,7 +8,7 @@
         "livewire/flux": "^2.13",
         "livewire/livewire": "^4.1",
         "php": "^8.3",
-        "streetmesh/laravel": "@dev"
+        "streetmesh/laravel": "dev-main"
     },
     "require-dev": {
         "laravel/pint": "^1.18",
@@ -18,18 +18,12 @@
     },
     "repositories": [
         {
-            "type": "path",
-            "url": "../laravel",
-            "options": {
-                "symlink": true
-            }
+            "type": "vcs",
+            "url": "https://github.com/StreetMesh/Laravel.git"
         },
         {
-            "type": "path",
-            "url": "../protocol",
-            "options": {
-                "symlink": true
-            }
+            "type": "vcs",
+            "url": "https://github.com/StreetMesh/Protocol-PHP.git"
         }
     ],
     "autoload": {
