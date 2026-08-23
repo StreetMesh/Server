@@ -93,16 +93,17 @@ in production point `STREETMESH_PLC_DIRECTORY` at the real one and leave
 ## First run
 
 ```sh
-git clone https://github.com/StreetMesh/Server.git
-cd Server
+composer create-project streetmesh/server my-venue
+cd my-venue
 
-composer install
 npm install
-
-cp .env.example .env
-php artisan key:generate     # identities are encrypted at rest; without this the server holds none
-php artisan migrate
 ```
+
+Answer **venue** or **both** when it asks — an experience has nowhere to be
+hosted on a server that is only somewhere people live.
+
+`create-project` generates the application key for you, which matters more than
+it sounds: identities are encrypted at rest, so a server without one holds none.
 
 ### Configuration that matters
 

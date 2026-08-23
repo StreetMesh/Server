@@ -29,45 +29,32 @@ just run a node script locally. In the cloud, you can use [Colyseus Cloud](https
 
 ## Getting Started
 
-Checkout the Server project and run setup:
+```bash
+composer create-project streetmesh/server my-server
+```
+
+It asks one question — whether this is somewhere people live, somewhere they
+gather, or both — and writes the answers, along with a name for the server and
+a secret for its hub.
+
+```
+? What is this server?
+  › A domicile — people live here, and their records are yours to keep
+    A venue — people arrive from elsewhere and do things together
+    Both — one server, two halves
+```
+
+The name matters more than the rest and is the one thing to get right first.
+It is this server's identifier, every signature is checked against it, and it
+is read when the first identity is minted — so changing it afterwards renames
+nothing that already exists. Use the real one, not a local alias.
+
+Then run it:
 
 ```bash
-git clone git@github.com:StreetMesh/Server.git
-cd Server
-composer setup
-```
-
-The composer script installs everything, writes an `.env` file, generates keys, migrates your database scripts, and builds the front end.
-
-Next, give the server an address. In StreetMesh, the server's address is also its identifier, so use the real one rather than a local alias:
-
-```dotenv
-STREETMESH_HOST=your.domain
-```
-
-A server offers whatever it has installed:
-
-```dotenv
-# set at least one of these to true
-STREETMESH_VENUE=false      # a place people live, and nothing else
-STREETMESH_DOMICILE=false   # a place people gather, and nothing else
-```
-
-If you're running a venue server, you're going to need a *Hub*, which is
-the part of the architecture that runs on Node. The node processes and
-your Laravel server authenticate using a shared secret. When you run
-
-```dotenv
-STREETMESH_HUB=wss://your.hub
-STREETMESH_REALTIME_SECRET=   # the same value wherever the hub runs
-```
-
-Run everything for development:
-
-```bash
-./hub-serve        # the hub, if you're running a venue
-php artisan serve  # use Herd, the laravel local server, or whatever
-npm run dev        # monitor your assets for changes and rebuild
+php artisan serve  # or Herd, or whatever you use
+npm run dev        # watch the assets
+./hub-serve        # the Node half, if this is a venue
 ```
 
 Test the stack:
@@ -87,7 +74,15 @@ venue, the hub, and the order they have to be released in.
 
 An experience is a Composer package: a game, a shop, a gallery. It ships its
 own screens, its own rules, and decides what is worth writing down afterwards.
-Chess is the worked example — copy its shape.
+
+```bash
+php artisan streetmesh:experience acme/laravel-bingo
+```
+
+That writes one that installs, registers, appears on the menu and passes its
+own tests — and does nothing, which is where you start.
+[`Chess2D`](https://github.com/StreetMesh/Chess2D) is the worked example of
+where it goes next.
 
 **[EXPERIENCES.md](EXPERIENCES.md)** is the guide, and it leads with the traps,
 because every one of them cost this project hours.
