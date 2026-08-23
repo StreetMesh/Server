@@ -104,17 +104,22 @@ starts.
 
 ## Contributing
 
-Everything is in this repository — the application, five Composer packages, and
-the Node hub.
+This repository is the application — the part you own after
+`composer create-project`. Everything that makes it a StreetMesh server is
+installed, and is developed elsewhere.
 
 | | |
 | --- | --- |
-| [`packages/protocol`](packages/protocol) | The protocol in framework-free PHP |
-| [`packages/protocol-laravel`](packages/protocol-laravel) | The same, bound to the framework |
-| [`packages/laravel-domicile`](packages/laravel-domicile) | A place people live |
-| [`packages/laravel-venue`](packages/laravel-venue) | A place people gather |
-| [`packages/laravel-chess`](packages/laravel-chess) | An experience, and the example of one |
-| [`hub/`](hub) | The multiplayer host. Not PHP. |
+| [`StreetMesh/Laravel`](https://github.com/StreetMesh/Laravel) | `streetmesh/laravel` — what turns this into a StreetMesh server, and where the Node hub lives |
+| [`StreetMesh/Protocol-PHP`](https://github.com/StreetMesh/Protocol-PHP) | `streetmesh/protocol` — the protocol in framework-free PHP |
+| [`StreetMesh/Chess2D`](https://github.com/StreetMesh/Chess2D) | `streetmesh/chess-2d` — an experience, and the example of one |
+| [`StreetMesh/Protocol`](https://github.com/StreetMesh/Protocol) | What StreetMesh is: guides, decisions, conformance vectors |
+
+Working on the library alongside this application is one line:
+
+```bash
+composer config repositories.laravel path ../Laravel
+```
 
 ## License
 
