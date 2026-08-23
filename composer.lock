@@ -5546,16 +5546,16 @@
         },
         {
             "name": "streetmesh/laravel",
-            "version": "v0.1.0",
+            "version": "v0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/StreetMesh/Laravel.git",
-                "reference": "37e06020a9723a36e3921652fd5739267d86305e"
+                "reference": "5c149e3b4dcaa59ae1a9a44289b1869c91a8dd9b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/StreetMesh/Laravel/zipball/37e06020a9723a36e3921652fd5739267d86305e",
-                "reference": "37e06020a9723a36e3921652fd5739267d86305e",
+                "url": "https://api.github.com/repos/StreetMesh/Laravel/zipball/5c149e3b4dcaa59ae1a9a44289b1869c91a8dd9b",
+                "reference": "5c149e3b4dcaa59ae1a9a44289b1869c91a8dd9b",
                 "shasum": ""
             },
             "require": {
@@ -5623,7 +5623,7 @@
             "license": [
                 "MIT"
             ],
-            "description": "Turns a Laravel application into a StreetMesh server: portable identity, records, and the two halves people live in and gather at.",
+            "description": "Turns a Laravel application into a StreetMesh server.",
             "homepage": "https://protocol.streetmesh.com",
             "keywords": [
                 "atproto",
@@ -5637,7 +5637,7 @@
                 "source": "https://github.com/StreetMesh/Laravel",
                 "issues": "https://github.com/StreetMesh/Laravel/issues"
             },
-            "time": "2026-08-22T19:54:42+00:00"
+            "time": "2026-08-23T21:41:00+00:00"
         },
         {
             "name": "streetmesh/protocol",
