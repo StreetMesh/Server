@@ -119,11 +119,13 @@ php artisan migrate
 
 ## Anatomy of an experience
 
-Chess is the worked example. Copy its shape.
+`php artisan streetmesh:experience` writes all of this. Chess — published as
+[`streetmesh/chess-2d`](https://github.com/StreetMesh/Chess2D) — is the worked
+example of where it goes next.
 
 ```
-packages/laravel-chess/
-├── composer.json                     # name, provider, path repositories
+chess-2d/
+├── composer.json                     # name, provider, what it declares
 ├── src/
 │   ├── ChessServiceProvider.php      # registers the experience
 │   ├── ChessExperience.php           # implements Experience
@@ -163,9 +165,25 @@ interface Experience
     public function icon(): string;         // a Flux icon name
     public function route(): string;        // its own screen
     public function action(): ?string;      // button text, or null for "Launch"
+    public function watching(): ?array;     // a way in for somebody only looking
+    public function audience(Gathering $g): Audience;  // who may watch this one
     public function scopes(): array;        // what a visitor must agree to
     public function room(): ?string;        // where its room lives, or null
 }
+```
+
+`watching()` and `audience()` are the two most people get wrong, because they
+answer questions that sound like one question. `watching()` is a second route —
+`route()` asks somebody to arrive with a name another server issued, which is
+the right toll for taking part and much too high for looking. `audience()` is
+per *gathering*, not per experience, because two of the same thing at one venue
+may reasonably differ about who may watch; it is required, with no default
+anywhere, because the safe assumption and the useful one point opposite ways.
+
+You do not have to write any of this by hand:
+
+```bash
+php artisan streetmesh:experience acme/laravel-bingo
 ```
 
 `scopes()` is **declared, not configured**. A venue whose configuration and
@@ -268,22 +286,24 @@ can refuse to serve it.
 
 ---
 
-## Working on packages
+## Working on a package while you use it
 
-`packages/*` live in this repository, mounted by a Composer path repository:
+Packages used to live in this repository, under `packages/`, and were edited in
+place. They are installed now — from Packagist, like anything else — which is
+the point, and which means a change to one is not a change to this.
 
-```json
-"repositories": [{ "type": "path", "url": "packages/*" }]
+To work on one alongside the application, point Composer at your checkout:
+
+```bash
+composer config repositories.laravel path ../Laravel
+composer update streetmesh/laravel
 ```
 
-Edit them **in `Server/packages/`**. `vendor/streetmesh/*` are symlinks into
-that directory, so a change is live on the next request and one commit ships
-both halves of it.
-
-Each package resolves its siblings the same way — `packages/laravel-chess/vendor/
-streetmesh/laravel-venue` is a symlink to `packages/laravel-venue` — so a
-package's own suite tests the code next to it rather than a copy fetched at some
-earlier date.
+`vendor/streetmesh/laravel` becomes a symlink, so a change is live on the next
+request. Undo it with `composer config --unset repositories.laravel`, which puts
+you back on the released version — and doing that before you commit is worth the
+habit, because a lockfile pointing at a directory on your machine is one that
+works nowhere else.
 
 ---
 
@@ -342,7 +362,7 @@ A venue refuses this now, naming both. If you meet it on an older checkout, look
 at the delegations rather than at whatever surfaced it:
 
 ```sh
-php artisan tinker --execute="\StreetMesh\Protocol\Laravel\Permissions\Delegation::get(['id','did','handle'])->each(fn(\$d) => print(\"{\$d->id} {\$d->did} {\$d->handle}\n\"));"
+php artisan tinker --execute="\StreetMesh\Server\Protocol\Permissions\Delegation::get(['id','did','handle'])->each(fn(\$d) => print(\"{\$d->id} {\$d->did} {\$d->handle}\n\"));"
 ```
 
 Two rows with different handles and the same identifier is the whole story.

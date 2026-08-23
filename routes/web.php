@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use StreetMesh\Protocol\Laravel\Capabilities\Capabilities;
-use StreetMesh\Protocol\Laravel\Identity\Identities;
+use StreetMesh\Server\Protocol\Capabilities\Capabilities;
+use StreetMesh\Server\Protocol\Identity\Identities;
 
 /*
  * The two surfaces a server owns, as distinct from the screens its capabilities

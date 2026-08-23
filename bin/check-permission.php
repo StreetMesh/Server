@@ -30,12 +30,12 @@ use Illuminate\Contracts\Console\Kernel;
 use StreetMesh\Protocol\AuthorizationRequest;
 use StreetMesh\Protocol\ClientAssertion;
 use StreetMesh\Protocol\Dpop;
-use StreetMesh\Protocol\Laravel\Attestations\Attestations;
-use StreetMesh\Protocol\Laravel\Identity\Identities;
-use StreetMesh\Protocol\Laravel\Permissions\Permissions;
 use StreetMesh\Protocol\P256;
 use StreetMesh\Protocol\Pkce;
 use StreetMesh\Protocol\Scope;
+use StreetMesh\Server\Protocol\Attestations\Attestations;
+use StreetMesh\Server\Protocol\Identity\Identities;
+use StreetMesh\Server\Protocol\Permissions\Permissions;
 
 /*
  * Booted after the imports, not before. An alias applies only from the line it

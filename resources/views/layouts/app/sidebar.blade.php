@@ -4,7 +4,7 @@
     venue means a visitor holding permission from somewhere else, and the
     framework's `auth()` can see only the first.
 --}}
-@inject('capabilities', 'StreetMesh\Protocol\Laravel\Capabilities\Capabilities')
+@inject('capabilities', 'StreetMesh\Server\Protocol\Capabilities\Capabilities')
 
 {{--
     Whether there is a home page, and whether it is this reader's.
@@ -51,7 +51,7 @@
                         capability contributes here without knowing what else is
                         present, and without deciding what the frame looks like.
                     --}}
-                    @foreach (app(\StreetMesh\Protocol\Laravel\Capabilities\Capabilities::class)->navigation() as $item)
+                    @foreach (app(\StreetMesh\Server\Protocol\Capabilities\Capabilities::class)->navigation() as $item)
                         <flux:sidebar.item
                             :icon="$item['icon'] ?? 'squares-2x2'"
                             :href="route($item['route'])"

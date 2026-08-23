@@ -24,10 +24,10 @@ require __DIR__.'/../vendor/autoload.php';
 
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\Client\Events\RequestSending;
-use StreetMesh\Protocol\Laravel\Permissions\Delegations;
-use StreetMesh\Protocol\Laravel\Permissions\Permissions;
-use StreetMesh\Protocol\Laravel\Records\Record;
 use StreetMesh\Protocol\Scope;
+use StreetMesh\Server\Protocol\Permissions\Delegations;
+use StreetMesh\Server\Protocol\Permissions\Permissions;
+use StreetMesh\Server\Protocol\Records\Record;
 
 $app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();

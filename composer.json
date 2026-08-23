@@ -1,15 +1,18 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/livewire-starter-kit",
+    "name": "streetmesh/server",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
+    "description": "A StreetMesh server.",
     "keywords": [
+        "streetmesh",
         "laravel",
-        "framework"
+        "atproto",
+        "did",
+        "federation",
+        "metaverse"
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.3",
         "laravel/chisel": "^0.1.0",
         "laravel/fortify": "^1.37.2",
         "laravel/framework": "^13.17",
@@ -19,10 +22,8 @@
         "livewire/blaze": "^1.0",
         "livewire/flux": "^2.13.1",
         "livewire/livewire": "^4.1",
-        "streetmesh/laravel-chess": "*",
-        "streetmesh/laravel-domicile": "*",
-        "streetmesh/laravel-venue": "*",
-        "streetmesh/protocol-laravel": "*"
+        "php": "^8.3",
+        "streetmesh/laravel": "^0.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
@@ -63,10 +64,6 @@
         "lint": [
             "pint --parallel"
         ],
-        "split": [
-            "Composer\\Config::disableProcessTimeout",
-            "bin/split"
-        ],
         "lint:check": [
             "pint --parallel --test"
         ],
@@ -96,6 +93,7 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi",
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+            "@php bin/first-run.php",
             "@php artisan migrate --graceful --ansi"
         ],
         "pre-package-uninstall": [
@@ -123,8 +121,16 @@
     "prefer-stable": true,
     "repositories": [
         {
-            "type": "path",
-            "url": "packages/*"
+            "type": "vcs",
+            "url": "https://github.com/StreetMesh/Laravel.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/StreetMesh/Protocol-PHP.git"
         }
-    ]
+    ],
+    "homepage": "https://streetmesh.com",
+    "support": {
+        "source": "https://github.com/StreetMesh/Server"
+    }
 }

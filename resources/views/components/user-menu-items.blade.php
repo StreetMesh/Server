@@ -45,7 +45,7 @@
     one — a console command, an error page — it would otherwise take the whole
     page down with it.
 --}}
-@if (request()->hasSession() && ($visiting = app(\StreetMesh\Venue\Visitors::class)->current(request())))
+@if (request()->hasSession() && ($visiting = app(\StreetMesh\Server\Venue\Visitors::class)->current(request())))
     @auth
         <flux:menu.separator />
     @endauth

@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use StreetMesh\Protocol\Laravel\Permissions\Delegation;
 use StreetMesh\Protocol\P256;
-use StreetMesh\Venue\Visitors;
+use StreetMesh\Server\Protocol\Permissions\Delegation;
+use StreetMesh\Server\Venue\Visitors;
 use Tests\TestCase;
 
 /**

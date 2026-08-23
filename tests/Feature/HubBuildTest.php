@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use StreetMesh\Venue\Experiences\Experiences;
-use StreetMesh\Venue\Hub\Build;
 use Tests\TestCase;
 
 /**
@@ -40,12 +38,20 @@ final class HubBuildTest extends TestCase
          */
         $into = sys_get_temp_dir().'/hub-build-check-'.bin2hex(random_bytes(6));
 
+        /*
+         * Through the command rather than the class behind it.
+         *
+         * The library moved into the package, so where it lives is now the
+         * command's answer to give. A test that reconstructed the path would be
+         * a second opinion about it — and the first thing that would happen is
+         * the two drifting apart, with this passing while a real build looked
+         * somewhere else.
+         */
         try {
-            $built = (new Build(
-                app(Experiences::class),
-                base_path('hub'),
-                $into,
-            ))->run();
+            $this->artisan('hub:build', ['--into' => $into])->assertSuccessful();
+
+            /** @var array{build: string} $built */
+            $built = json_decode((string) file_get_contents($into.'/build.json'), true);
         } finally {
             if (is_dir($into)) {
                 exec('rm -rf '.escapeshellarg($into));
@@ -56,7 +62,7 @@ final class HubBuildTest extends TestCase
         $carried = json_decode((string) file_get_contents($committed), true);
 
         $this->assertSame(
-            $built['fingerprint'],
+            $built['build'] ?? null,
             $carried['build'] ?? null,
             "The hub in this repository is not the hub this server builds.\n"
             ."Run `php artisan hub:build` and commit the result — otherwise a deploy\n"

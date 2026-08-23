@@ -16,9 +16,9 @@ require __DIR__.'/../vendor/autoload.php';
 
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Carbon;
-use StreetMesh\Protocol\Laravel\Permissions\Delegation;
-use StreetMesh\Protocol\Laravel\Permissions\Tickets;
 use StreetMesh\Protocol\P256;
+use StreetMesh\Server\Protocol\Permissions\Delegation;
+use StreetMesh\Server\Protocol\Permissions\Tickets;
 
 $app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
