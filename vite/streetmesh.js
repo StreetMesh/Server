@@ -18,9 +18,16 @@ import { dirname, join, relative, resolve } from 'node:path'
  *       "streetmesh": {
  *           "components": "resources/js/alpine.js",
  *           "views": "resources/views",
- *           "entries": ["resources/js/comms/host.js"]
+ *           "entries": ["resources/js/comms/host.js"],
+ *           "npm": { "colyseus.js": "^0.16" }
  *       }
  *   }
+ *
+ * `npm` is the one thing a package cannot install for itself. Composer does not
+ * install Node dependencies, so an experience whose browser code imports one has
+ * to ask the application for it — and until it could ask, the way an operator
+ * found out was a build failing on an unresolved import naming a file in
+ * `vendor/`, with nothing to say that a *PHP* package wanted it.
  *
  * and this reads Composer's own record of what is installed. Same declaration,
  * same result, wherever Composer put it — which is the point.
@@ -62,6 +69,10 @@ export default function streetmesh(root = process.cwd()) {
 
         for (const entry of [declared.entries].flat().filter(Boolean)) {
             entries.push(relative(root, located(root, path, entry, name)))
+        }
+
+        for (const [module, version] of Object.entries(declared.npm ?? {})) {
+            installedFromNpm(root, module, version, name)
         }
     }
 
@@ -137,6 +148,33 @@ function located(root, path, declared, name) {
     }
 
     return full
+}
+
+/**
+ * A Node dependency an experience needs, checked before Vite reaches the import.
+ *
+ * Checked against `node_modules` rather than against `package.json`, because
+ * what breaks the build is the module not being there — declaring it and never
+ * running `npm install` fails in precisely the same way, and reading the
+ * declaration would call that healthy.
+ *
+ * Loud for the same reason everything else here is: the alternative is a
+ * rolldown error naming a file inside `vendor/`, which says nothing about which
+ * package wanted it, why a Composer package is asking for a Node module, or
+ * what to do about it.
+ */
+function installedFromNpm(root, module, version, name) {
+    if (existsSync(join(root, 'node_modules', module))) {
+        return
+    }
+
+    throw new Error(
+        `[streetmesh] ${name} needs the "${module}" package, and it is not installed here.\n\n` +
+            `    npm install ${module}@${version}\n\n` +
+            'Its browser code imports it, and a Composer package cannot install a Node\n' +
+            'dependency — so it declares what it needs under extra.streetmesh.npm and the\n' +
+            'application installs it. Restart Vite afterwards.',
+    )
 }
 
 /**
